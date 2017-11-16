@@ -1,0 +1,43 @@
+<config
+        xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+        xmlns='http://www.ehcache.org/v3'
+        xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core.xsd">
+
+    <persistence directory="data/cache"/>
+
+    <cache-template name="login-template">
+        <key-type>java.lang.String</key-type>  <!-- session id -->
+        <value-type>java.lang.String</value-type>  <!-- user id -->
+        <expiry>
+            <ttl unit="days">32</ttl>
+        </expiry>
+    </cache-template>
+
+    <cache alias="login" uses-template="login-template">
+        <resources>
+            <heap>1024</heap>
+            <disk unit="MB">8</disk>
+        </resources>
+        <heap-store-settings>
+            <max-object-size unit="kB">2</max-object-size>
+        </heap-store-settings>
+    </cache>
+
+    <cache-template name="article-template">
+        <key-type>java.lang.String</key-type>
+        <value-type>java.lang.String</value-type>
+        <expiry>
+            <ttl unit="days">8</ttl>
+        </expiry>
+    </cache-template>
+
+    <cache alias="article" uses-template="article-template">
+        <resources>
+            <heap>200</heap>
+        </resources>
+        <heap-store-settings>
+            <max-object-size unit="MB">1</max-object-size>
+        </heap-store-settings>
+    </cache>
+
+</config>
