@@ -14,7 +14,7 @@
         <maven.compiler.target>${java-version}</maven.compiler.target>
         <org.apache.logging.log4j-version>2.9.1</org.apache.logging.log4j-version>
         <org.slf4j-version>1.8.0-alpha2</org.slf4j-version>  <!-- TODO no alpha -->
-        <io.netty-version>4.1.16.Final</io.netty-version>
+        <io.netty-version>4.1.17.Final</io.netty-version>
         <com.typesafe-version>1.3.2</com.typesafe-version>
         <junit-version>4.12</junit-version>
         <cglib-version>3.2.5</cglib-version>
@@ -26,6 +26,7 @@
     </properties>
 
     <dependencies>
+
         <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -58,8 +59,17 @@
             <artifactId>netty-all</artifactId>
             <version>${io.netty-version}</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/io.netty/netty-transport-native-epoll -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-native-epoll</artifactId>
+            <version>${io.netty-version}</version>
+            <classifier>linux-x86_64</classifier>   <!-- linux_x86_64 -->
+        </dependency>
 
 
+
+        <!-- https://mvnrepository.com/artifact/com.typesafe/config -->
         <dependency>
             <groupId>com.typesafe</groupId>
             <artifactId>config</artifactId>
@@ -92,6 +102,7 @@
         </dependency>
 
 
+        <!-- https://mvnrepository.com/artifact/org.ehcache/ehcache -->
         <dependency>
             <groupId>org.ehcache</groupId>
             <artifactId>ehcache</artifactId>
@@ -99,11 +110,7 @@
         </dependency>
 
 
-        <!--<dependency>-->
-            <!--<groupId>org.mongodb</groupId>-->
-            <!--<artifactId>mongodb-driver</artifactId>-->
-            <!--<version>${org.mongodb-version}</version>-->
-        <!--</dependency>-->
+        <!-- https://mvnrepository.com/artifact/org.mongodb/mongodb-driver-async -->
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-async</artifactId>
@@ -111,12 +118,12 @@
         </dependency>
 
 
+        <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>${com.alibaba.fastjson-version}</version>
         </dependency>
-
 
     </dependencies>
 

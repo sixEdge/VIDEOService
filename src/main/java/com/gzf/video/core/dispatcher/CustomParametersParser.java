@@ -52,13 +52,13 @@ public class CustomParametersParser {
                 pathParamList.add( parsePathParam(seg, fullUrl) );
         customParameters.pathParameters = pathParams(pathParamList, method);
 
-        // parse request parameters
+        // parse custom request parameters
         customParameters.requestParameters = parseReqParams(method, queryStringDecoder.parameters());
 
         // parse custom request parameters
         customParameters.customRequestParameters = customReqParams(method, customParameters.requestParameters.keySet());
 
-        // parse pathSegments
+        // parse path segments
         customParameters.pathSegments = emptyBrace(pathSegments);
 
         return customParameters;
@@ -159,10 +159,10 @@ public class CustomParametersParser {
         }
     }
 
-    private String[] emptyBrace(String[] segs) {
-        String[] ret = new String[segs.length];
-        for (int i = 0; i < segs.length; i++) {
-            String a = segs[i];
+    private String[] emptyBrace(String[] xs) {
+        String[] ret = new String[xs.length];
+        for (int i = 0; i < xs.length; i++) {
+            String a = xs[i];
             ret[i] = a.startsWith("{") && a.endsWith("}")
                     ? "{}"
                     : a;

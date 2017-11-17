@@ -26,11 +26,11 @@ public class RedisProvider {
 
 
 
-    private static final Config jedisPoolConfig =
+    private static final Config REDIS_CONFIG =
             ConfigManager.loadConfigFromModule(daoModule, "redisConfig");
 
     public static final String LOGIN_MAP =
-            StringUtil.notNullOrEmpty(jedisPoolConfig.getString("loginMap"));
+            StringUtil.notNullOrEmpty(REDIS_CONFIG.getString("loginMap"));
 
 
 
@@ -39,15 +39,15 @@ public class RedisProvider {
     private JedisPool getPool() {
             JedisPoolConfig config = new JedisPoolConfig();
 
-            config.setBlockWhenExhausted(jedisPoolConfig.getBoolean("blockWhenExhausted"));
-            config.setMaxTotal(jedisPoolConfig.getInt("maxTotal"));
-            config.setMaxIdle(jedisPoolConfig.getInt("maxIdle"));
-            config.setMinIdle(jedisPoolConfig.getInt("minIdle"));
-            config.setMaxWaitMillis(jedisPoolConfig.getLong("maxWaitMillis"));
+            config.setBlockWhenExhausted(REDIS_CONFIG.getBoolean("blockWhenExhausted"));
+            config.setMaxTotal(REDIS_CONFIG.getInt("maxTotal"));
+            config.setMaxIdle(REDIS_CONFIG.getInt("maxIdle"));
+            config.setMinIdle(REDIS_CONFIG.getInt("minIdle"));
+            config.setMaxWaitMillis(REDIS_CONFIG.getLong("maxWaitMillis"));
 
             return new JedisPool(config,
-                    jedisPoolConfig.getString("host"),
-                    jedisPoolConfig.getInt("port"));
+                    REDIS_CONFIG.getString("host"),
+                    REDIS_CONFIG.getInt("port"));
     }
 
     public static RedisProvider getINSTANCE() {

@@ -19,14 +19,14 @@ public class EhcacheProviderMetric {
 
 
 
-    public Cache<String, String> getLoginCache() {
+    public synchronized Cache<String, String> getLoginCache() {
         if (loginCache == null) {
             loginCache = cacheProvider.initCache("login", String.class, String.class);
         }
         return loginCache;
     }
 
-    public Cache<String, String> getArticleCache() {
+    public synchronized Cache<String, String> getArticleCache() {
         if (articleCache == null) {
             articleCache = cacheProvider.initCache("article", String.class, String.class);
         }

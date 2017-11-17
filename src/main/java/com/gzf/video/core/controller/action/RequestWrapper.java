@@ -16,7 +16,6 @@ import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Promise;
-import sun.misc.Cleaner;
 
 import java.util.List;
 import java.util.Map;
@@ -28,6 +27,9 @@ import static com.gzf.video.util.ControllerFunctions.encodeCookies;
 import static io.netty.handler.codec.http.HttpHeaderNames.SET_COOKIE;
 import static io.netty.handler.codec.http.HttpHeaders.Names.COOKIE;
 
+/**
+ * Thread unsafe.
+ */
 public class RequestWrapper {
 
     private static final SessionManager SESSION_MANAGER = SessionManager.getINSTANCE();

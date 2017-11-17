@@ -10,15 +10,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class SessionManager {
 
-    private static final Config sessionConfig =
+    private static final Config SESSION_CONFIG =
             ConfigManager.loadConfigFromModule(ConfigManager.coreModule, "sessionConfig");
 
-    public static final String SESSION_ID = sessionConfig.getString("sessionId");
-    public static final long SESSION_ID_MAX_AGE = sessionConfig.getLong("sessionIdMaxAge");
-    public static final String SESSION_ID_PATH = sessionConfig.getString("sessionIdPath");
+    public static final String SESSION_ID = SESSION_CONFIG.getString("sessionId");
+    public static final long SESSION_ID_MAX_AGE = SESSION_CONFIG.getLong("sessionIdMaxAge");
+    public static final String SESSION_ID_PATH = SESSION_CONFIG.getString("sessionIdPath");
 
-    public static final String USER_ID = sessionConfig.getString("userId");
-    public static final String RSA_PUBLIC_KEY = sessionConfig.getString("rsaPublicKey");
+    public static final String USER_ID = SESSION_CONFIG.getString("userId");
+    public static final String RSA_PUBLIC_KEY = SESSION_CONFIG.getString("rsaPublicKey");
 
 
     private final ConcurrentHashMap<String, Session> SESSION_MAP =
@@ -29,7 +29,7 @@ public abstract class SessionManager {
 
 
     static {
-        Session.setInitialCapacity(sessionConfig.getInt("initSessionSize"));
+        Session.setInitialCapacity(SESSION_CONFIG.getInt("initSessionSize"));
     }
 
     SessionManager() {}
@@ -45,7 +45,7 @@ public abstract class SessionManager {
             try {
                 // in Java9, Class#newInstance() has been marked as @Deprecated, so we use this
                 Constructor constructor =
-                        Class.forName(sessionConfig.getString("sessionCacheProvider"))
+                        Class.forName(SESSION_CONFIG.getString("sessionCacheProvider"))
                                 .getConstructor();
                 INSTANCE = (SessionManager) constructor.newInstance();
             } catch ( ClassNotFoundException
