@@ -33,6 +33,7 @@ public class UserController extends ControllerFunctions {
 
     @Post("/login")
     public FullHttpResponse userLogin(final RequestWrapper rw) {
+        rw.release();
         if (rw.getUserId() != null) {
             byte[] json = JSONObject.toJSONBytes(CodeMessage.successState("您已登录"));
             return okResponse(rw.newByteBuf(json), APPLICATION_JSON);
@@ -56,7 +57,7 @@ public class UserController extends ControllerFunctions {
         userRegistService.doLogin(id, password, mode == 0, rw.newPromise(String.class).addListener(f -> {
             String userId = (String) f.getNow();
             if (userId == null) {
-                rw.writeResponse(okResponse(rw.newByteBuf(CodeMessage.successState("登录成功"))));
+                rw.writeResponse(okResponse(rw.newByteBuf(CodeMessage.successState("用户名或密码错误"))));
                 return;
             }
             FullHttpResponse resp =

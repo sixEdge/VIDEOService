@@ -20,7 +20,6 @@ public class Start {
         } catch (Exception e) {
             logger.error("Server start failed", e);
         }
-
     }
 
 

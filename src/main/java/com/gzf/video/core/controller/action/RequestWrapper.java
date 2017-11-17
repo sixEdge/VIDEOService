@@ -63,7 +63,6 @@ public class RequestWrapper {
         this.session = session;
         this.sessionId = sessionId;
         this.content = req.content();
-        Cleaner.create(this, req::release);
     }
 
     public ChannelHandlerContext getContext() {
@@ -104,6 +103,10 @@ public class RequestWrapper {
 
     public ByteBufAllocator alloc() {
         return ctx.alloc();
+    }
+
+    public boolean release() {
+        return content.release();
     }
 
     public <V> Promise<V> newPromise(Class<V> clazz) {

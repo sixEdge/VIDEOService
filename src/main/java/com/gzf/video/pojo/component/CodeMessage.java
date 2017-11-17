@@ -7,7 +7,7 @@ import com.alibaba.fastjson.serializer.JSONSerializer;
 import java.lang.reflect.Type;
 
 /**
- * {"code" : 0, "message" : "response message"}.
+ * {"code" : code, "message" : "response message"}.
  */
 public class CodeMessage {
 
@@ -60,7 +60,7 @@ public class CodeMessage {
     /**
      *  Failed state.
      *
-     * @return {"code" : 0, "message" : ""}
+     * @return {"code" : 1, "message" : ""}
      */
     public static byte[] failedState(final String msg) {
         return ("{\"code\" : 1, \"message\" : \"" + msg + "\"}").getBytes();
