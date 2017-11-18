@@ -20,7 +20,7 @@ import com.gzf.video.core.controller.action.RequestWrapper;
 import com.gzf.video.core.dispatcher.DefaultDispatcher;
 import com.gzf.video.core.dispatcher.Dispatcher;
 import com.gzf.video.core.session.Session;
-import com.gzf.video.core.session.SessionManager;
+import com.gzf.video.core.session.SessionStorage;
 import com.gzf.video.util.StringUtil;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -34,7 +34,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.gzf.video.core.dispatcher.ActionDispatcher.PRE_INTERCEPT_PATH;
-import static com.gzf.video.core.session.SessionManager.SESSION_ID;
+import static com.gzf.video.core.session.SessionStorage.SESSION_ID;
 import static io.netty.handler.codec.http.HttpHeaderValues.KEEP_ALIVE;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaders.Names.COOKIE;
@@ -47,7 +47,7 @@ public class ActionHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final Dispatcher DISPATCHER = DefaultDispatcher.getINSTANCE();
-    private static final SessionManager SESSION_MANAGER = SessionManager.getINSTANCE();
+    private static final SessionStorage SESSION_MANAGER = SessionStorage.getINSTANCE();
 
     public static void init() {}
 

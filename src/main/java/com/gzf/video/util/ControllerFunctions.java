@@ -8,13 +8,10 @@ import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
-import static com.gzf.video.core.session.SessionManager.*;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpHeaderNames.SET_COOKIE;
-import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 

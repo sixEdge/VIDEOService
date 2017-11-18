@@ -1,12 +1,12 @@
 package com.gzf.video.core.server.handler;
 
 import com.gzf.video.core.session.Session;
-import com.gzf.video.core.session.SessionManager;
+import com.gzf.video.core.session.SessionStorage;
 import com.sun.istack.internal.NotNull;
 
 class UserInterceptor {
 
-    private static final SessionManager SESSION_MANAGER = SessionManager.getINSTANCE();
+    private static final SessionStorage SESSION_MANAGER = SessionStorage.getINSTANCE();
 
 
     /**

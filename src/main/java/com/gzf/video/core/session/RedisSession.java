@@ -3,7 +3,7 @@ package com.gzf.video.core.session;
 import com.gzf.video.core.dao.redis.RedisProvider;
 import redis.clients.jedis.Jedis;
 
-public class RedisSession extends SessionManager {
+public class RedisSession extends SessionStorage {
 
     private final RedisProvider redisProvider = RedisProvider.getINSTANCE();
     private final String LOGIN_MAP = RedisProvider.LOGIN_MAP;

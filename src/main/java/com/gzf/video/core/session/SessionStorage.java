@@ -8,7 +8,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class SessionManager {
+public abstract class SessionStorage {
 
     private static final Config SESSION_CONFIG =
             ConfigManager.loadConfigFromModule(ConfigManager.coreModule, "sessionConfig");
@@ -25,29 +25,29 @@ public abstract class SessionManager {
             new ConcurrentHashMap<>(1024);
 
 
-    private static SessionManager INSTANCE;
+    private static SessionStorage INSTANCE;
 
 
     static {
         Session.setInitialCapacity(SESSION_CONFIG.getInt("initSessionSize"));
     }
 
-    SessionManager() {}
+    SessionStorage() {}
 
 
     /**
      * Should only be invoked in static context.
      *
-     * @return the single-instance of {@link SessionManager}
+     * @return the single-instance of {@link SessionStorage}
      */
-    public synchronized static SessionManager getINSTANCE() {
+    public synchronized static SessionStorage getINSTANCE() {
         if (INSTANCE == null) {
             try {
                 // in Java9, Class#newInstance() has been marked as @Deprecated, so we use this
                 Constructor constructor =
                         Class.forName(SESSION_CONFIG.getString("sessionCacheProvider"))
                                 .getConstructor();
-                INSTANCE = (SessionManager) constructor.newInstance();
+                INSTANCE = (SessionStorage) constructor.newInstance();
             } catch ( ClassNotFoundException
                     | IllegalAccessException
                     | InstantiationException

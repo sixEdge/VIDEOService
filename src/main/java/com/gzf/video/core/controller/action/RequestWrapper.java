@@ -1,7 +1,7 @@
 package com.gzf.video.core.controller.action;
 
 import com.gzf.video.core.session.Session;
-import com.gzf.video.core.session.SessionManager;
+import com.gzf.video.core.session.SessionStorage;
 import com.gzf.video.util.StringUtil;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.gzf.video.core.session.SessionManager.*;
-import static com.gzf.video.core.session.SessionManager.SESSION_ID_MAX_AGE;
+import static com.gzf.video.core.session.SessionStorage.*;
+import static com.gzf.video.core.session.SessionStorage.SESSION_ID_MAX_AGE;
 import static com.gzf.video.util.ControllerFunctions.encodeCookies;
 import static io.netty.handler.codec.http.HttpHeaderNames.SET_COOKIE;
 import static io.netty.handler.codec.http.HttpHeaders.Names.COOKIE;
@@ -32,7 +32,7 @@ import static io.netty.handler.codec.http.HttpHeaders.Names.COOKIE;
  */
 public class RequestWrapper {
 
-    private static final SessionManager SESSION_MANAGER = SessionManager.getINSTANCE();
+    private static final SessionStorage SESSION_MANAGER = SessionStorage.getINSTANCE();
 
     private ChannelHandlerContext ctx;
 

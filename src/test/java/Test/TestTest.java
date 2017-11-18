@@ -17,27 +17,17 @@ package Test;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gzf.video.core.dao.MongoProvider;
-import com.gzf.video.core.dispatcher.ActionDispatcher;
-import com.gzf.video.core.dispatcher.CustomParametersParser;
 import com.gzf.video.pojo.component.enums.Level;
 import com.gzf.video.pojo.component.enums.Sex;
 import com.gzf.video.pojo.entry.LoginUserInfo;
-import com.gzf.video.core.session.SessionManager;
+import com.gzf.video.core.session.SessionStorage;
 import com.mongodb.async.client.MongoCollection;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpResponse;
 import org.bson.Document;
 import org.junit.Test;
-import sun.nio.ch.DirectBuffer;
 
-import java.nio.ByteBuffer;
 import java.util.Collections;
-
-import static io.netty.handler.codec.http.HttpResponseStatus.OK;
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public class TestTest {
 
@@ -49,7 +39,7 @@ public class TestTest {
 
     @Test
     public void cacheTest() {
-        SessionManager sessionManager = SessionManager.getINSTANCE();
+        SessionStorage sessionManager = SessionStorage.getINSTANCE();
 
         String key   = "theSessionId",
                value = "theUserId";
