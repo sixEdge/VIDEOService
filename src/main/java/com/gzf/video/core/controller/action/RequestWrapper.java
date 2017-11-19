@@ -8,10 +8,7 @@ import com.sun.istack.internal.Nullable;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.*;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.QueryStringDecoder;
+import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.util.concurrent.DefaultPromise;
@@ -24,8 +21,11 @@ import java.util.Set;
 import static com.gzf.video.core.session.SessionStorage.*;
 import static com.gzf.video.core.session.SessionStorage.SESSION_ID_MAX_AGE;
 import static com.gzf.video.util.ControllerFunctions.encodeCookies;
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpHeaderNames.SET_COOKIE;
 import static io.netty.handler.codec.http.HttpHeaders.Names.COOKIE;
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 /**
  * Thread unsafe.
@@ -116,7 +116,7 @@ public class RequestWrapper {
     }
 
     public ByteBuf newByteBuf(final int capacity) {
-        return ctx.alloc().buffer(capacity, capacity);
+        return ctx.alloc().ioBuffer(capacity, capacity);
     }
 
     public ByteBuf newByteBuf(final byte[] bs) {
@@ -128,6 +128,25 @@ public class RequestWrapper {
      */
     public ChannelFuture writeResponse(final FullHttpResponse resp) {
         return ctx.writeAndFlush(resp);
+    }
+
+    /**
+     * With flush.
+     */
+    public ChannelFuture writeResponse(final HttpResponseStatus status) {
+        return writeResponse(new DefaultFullHttpResponse(HTTP_1_1, status));
+    }
+
+    /**
+     * With flush.
+     */
+    public ChannelFuture writeResponse(final HttpResponseStatus status,
+                                       final byte[] bs,
+                                       final CharSequence contentType) {
+        FullHttpResponse resp = new DefaultFullHttpResponse(HTTP_1_1, status, newByteBuf(bs));
+        resp.headers().add(CONTENT_TYPE, contentType);
+        resp.headers().add(CONTENT_LENGTH, bs.length);
+        return writeResponse(resp);
     }
 
 

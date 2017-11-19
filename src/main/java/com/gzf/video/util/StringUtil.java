@@ -12,7 +12,7 @@ import java.util.Set;
 public class StringUtil {
 
     public static final char SEP = File.separatorChar;
-
+    public static final String EMPTY_STRING = "";
     public static final String CLASS_PATH = StringUtil.class.getResource("/").getPath();
 
 

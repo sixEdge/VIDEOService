@@ -1,5 +1,6 @@
 package com.gzf.video.service;
 
+import com.gzf.video.core.session.SessionStorage;
 import com.gzf.video.dao._Login;
 import com.gzf.video.util.StringUtil;
 import com.mongodb.async.SingleResultCallback;
@@ -15,6 +16,7 @@ import static java.lang.Boolean.TRUE;
  */
 public class UserRegistService {
 
+    private static final SessionStorage SESSION_STORAGE = SessionStorage.getINSTANCE();
     private static final _Login LOGIN_DAO = new _Login();
 
 
@@ -37,6 +39,11 @@ public class UserRegistService {
         } else {
             LOGIN_DAO._mailLogin(identity, pwd, callback);
         }
+    }
+
+    public void doLogout(final String sessionId) {
+        SESSION_STORAGE.destroyLoginCache(sessionId);
+        SESSION_STORAGE.destroySession(sessionId);
     }
 
     public void doSignUp(final String username,
