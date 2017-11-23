@@ -48,6 +48,8 @@ public class PostRequest extends Request {
 
 
     private void checkAndDecode() {
+
+        // hasn't been decoded
         if (a != null) {
             return;
         }
@@ -59,20 +61,20 @@ public class PostRequest extends Request {
         try {
             for (InterfaceHttpData data : a.getBodyHttpDatas()) {
                 switch (data.getHttpDataType()) {
-                    case Attribute: {
+                case Attribute:
+                    {
                         MixedAttribute attr = (MixedAttribute) data;
                         parameters.putIfAbsent(attr.getName(), attr.getValue());
-                        System.out.println(attr.getName() + " : " + attr.getValue());
                         break;
                     }
-                    case FileUpload: {
+                case FileUpload:
+                    {
                         MixedFileUpload fileUpload = (MixedFileUpload) data;
                         fileContents.putIfAbsent(fileUpload.getFilename(), fileUpload.get());
-                        System.out.println(fileUpload.getFilename() + " : " + new String(fileUpload.get()));
                         break;
                     }
-                    default:
-                        // continue
+                default:
+                    // continue
                 }
             }
         } catch (IOException e) {

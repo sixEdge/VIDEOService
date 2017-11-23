@@ -15,7 +15,7 @@ import static io.netty.util.internal.StringUtil.EMPTY_STRING;
 import static io.netty.util.internal.StringUtil.SPACE;
 import static io.netty.util.internal.StringUtil.decodeHexByte;
 
-class PathAndParametersUtil {
+public class PathAndParametersUtil {
 
     private static final int MAX_PARAMS_LIMIT = 1024;
 
@@ -81,7 +81,7 @@ class PathAndParametersUtil {
         return true;
     }
 
-    private static String decodeComponent(final String s, final int from, final int toExcluded) {
+    public static String decodeComponent(final String s, final int from, final int toExcluded) {
         int len = toExcluded - from;
         if (len <= 0) {
             return EMPTY_STRING;
@@ -144,7 +144,7 @@ class PathAndParametersUtil {
         return strBuf.toString();
     }
 
-    static int findPathEndIndex(final String uri) {
+    public static int findPathEndIndex(final String uri) {
         int len = uri.length();
         for (int i = 0; i < len; i++) {
             char c = uri.charAt(i);

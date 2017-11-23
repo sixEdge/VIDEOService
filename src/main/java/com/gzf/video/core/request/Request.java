@@ -221,8 +221,8 @@ public abstract class Request {
      * @param rememberMe remember me
      */
     public void addIdentification(final HttpHeaders headers,
-                                     final String userId,
-                                     final boolean rememberMe) {
+                                  final String userId,
+                                  final boolean rememberMe) {
         Session session = getSession();
         session.setUserId(userId);
 
@@ -230,7 +230,7 @@ public abstract class Request {
         cookieSessionId.setPath(SESSION_ID_PATH);
         cookieSessionId.setHttpOnly(true);
 
-        Cookie cookieUserId = new DefaultCookie(USER_ID, userId);
+        Cookie cookieUserId = new DefaultCookie(USER_ID, "" + userId);
         cookieUserId.setPath(SESSION_ID_PATH);
         cookieUserId.setHttpOnly(true);
 

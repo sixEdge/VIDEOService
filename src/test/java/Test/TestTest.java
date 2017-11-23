@@ -21,6 +21,7 @@ import com.gzf.video.pojo.component.enums.Level;
 import com.gzf.video.pojo.component.enums.Sex;
 import com.gzf.video.pojo.entry.LoginUserInfo;
 import com.gzf.video.core.session.SessionStorage;
+import com.gzf.video.util.StringUtil;
 import com.mongodb.async.client.MongoCollection;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -65,12 +66,13 @@ public class TestTest {
     @Test
     public void mongoTest() throws InterruptedException {
         Document document = new Document();
-        document.append("userId", 2703343)
-                .append("username", "Six Edge")
-                .append("face", "http://static.hdslb.com/images/member/noface.gif");
+        document.append("uId", 2703343)
+                .append("uname", "TestUser")
+                .append("mail", "sixedge111@gmail.com")
+                .append("pwd", StringUtil.hexMd5("Gzf_0135670".getBytes()));
 
         MongoProvider mongoProvider = MongoProvider.getINSTANCE();
-        MongoCollection<Document> collection = mongoProvider.getCollection("user");
+        MongoCollection<Document> collection = mongoProvider.getCollection("login");
 
         // insert
         collection.insertMany(Collections.singletonList(document), (result1, t1) -> {

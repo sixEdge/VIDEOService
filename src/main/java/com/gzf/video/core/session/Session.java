@@ -18,11 +18,11 @@ public class Session extends HashMap<String, Object> {
     }
 
 
-    public Session() {
+    Session() {
         super(initialCapacity, 1f);
     }
 
-    public Session(final String userId) {
+    Session(final String userId) {
         super(initialCapacity, 1f);
         this.userId = userId;
     }

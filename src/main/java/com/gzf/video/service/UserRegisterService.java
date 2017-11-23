@@ -26,7 +26,7 @@ public class UserRegisterService {
                         final Promise<String> promise) {
         SingleResultCallback<Document> callback = (result, t) -> {
             if (result != null)
-                promise.setSuccess(result.getString(USER_ID));
+                promise.setSuccess(result.getInteger(USER_ID).toString());
             else
                 promise.setSuccess(null);
         };

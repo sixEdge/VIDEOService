@@ -40,7 +40,7 @@ public class UserController extends ControllerFunctions {
     @Post("/login")
     public FullHttpResponse login(final Request req) {
         if (req.getUserId() != null) {
-            byte[] json = JSONObject.toJSONBytes(successState("您已登录"));
+            byte[] json = successState("您已登录");
             return okResponse(req.newByteBuf(json), APPLICATION_JSON);
         }
 

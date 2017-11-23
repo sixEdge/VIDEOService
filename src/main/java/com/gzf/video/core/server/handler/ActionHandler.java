@@ -34,6 +34,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Set;
 
 import static com.gzf.video.core.dispatcher.ActionDispatcher.PRE_INTERCEPT_PATH;
+import static com.gzf.video.core.request.PathAndParametersUtil.decodeComponent;
+import static com.gzf.video.core.request.PathAndParametersUtil.findPathEndIndex;
 import static com.gzf.video.core.session.SessionStorage.SESSION_ID;
 import static io.netty.handler.codec.http.HttpHeaderValues.CLOSE;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONNECTION;
@@ -131,9 +133,9 @@ public class ActionHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
 
         // dispatch
 
-        QueryStringDecoder queryStringDecoder = new QueryStringDecoder(uri);
+        String path = decodeComponent(uri, 0, findPathEndIndex(uri));
 
-        Action action = DISPATCHER.doDispatch(queryStringDecoder.path(), null, getOrPost);
+        Action action = DISPATCHER.doDispatch(path, null, getOrPost);
         if (action == null) {
             sendError(ctx, NOT_FOUND);
             return;

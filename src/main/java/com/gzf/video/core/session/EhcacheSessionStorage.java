@@ -3,7 +3,7 @@ package com.gzf.video.core.session;
 import com.gzf.video.core.cache.EhcacheProviderMetric;
 import org.ehcache.Cache;
 
-public class EhcacheSession extends SessionStorage {
+public class EhcacheSessionStorage extends SessionStorage {
 
     private final EhcacheProviderMetric cacheProviderMetric =
             EhcacheProviderMetric.getINSTANCE();
