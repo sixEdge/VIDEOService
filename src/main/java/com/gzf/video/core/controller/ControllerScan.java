@@ -3,7 +3,7 @@ package com.gzf.video.core.controller;
 import com.gzf.video.core.annotation.Controller;
 import com.gzf.video.core.annotation.action.Get;
 import com.gzf.video.core.annotation.action.Post;
-import com.gzf.video.core.controller.action.RequestWrapper;
+import com.gzf.video.core.request.Request;
 import com.gzf.video.core.dispatcher.CustomParametersParser;
 import com.gzf.video.core.dispatcher.ActionDispatcher;
 import com.gzf.video.core.controller.action.Action;
@@ -67,7 +67,7 @@ public class ControllerScan {
 
     public ControllerScan(final ActionDispatcher actionDispatcher) throws NoSuchMethodException {
         this.actionDispatcher = actionDispatcher;
-        Method actionMethod = Action.class.getMethod(actionMethodName, RequestWrapper.class);
+        Method actionMethod = Action.class.getMethod(actionMethodName, Request.class);
         actionMethodType = Type.getType(actionMethod);
     }
 

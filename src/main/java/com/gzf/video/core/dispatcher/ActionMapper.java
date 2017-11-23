@@ -89,20 +89,20 @@ class ActionMapper {
                 : get0(pSegment, parameters, root, 0);
     }
 
-    private static Action get0(final String[] pSegment,
+    private static Action get0(final String[] pSegments,
                                final Map<String, List<String>> parameters,
                                final Node currentNode,
                                final int segIdx) {
         Action action;
         String seg = currentNode.pathSegment;
-        if (pSegment.length == segIdx) {
+        if (pSegments.length == segIdx) {
             return checkReqParams(currentNode.parent.customParameters, parameters)
                     ? currentNode.parent.action
                     : null;
-        } else if ((!seg.isEmpty() && seg.charAt(0) == '{') || pSegment[segIdx].equals(seg)) {
+        } else if ((!seg.isEmpty() && seg.charAt(0) == '{') || pSegments[segIdx].equals(seg)) {
             int plusSegIdx = segIdx + 1;
             for (Node childNode : currentNode.children) {
-                action = get0(pSegment, parameters, childNode, plusSegIdx);
+                action = get0(pSegments, parameters, childNode, plusSegIdx);
                 if (action != null) {
                     return action;
                 }
@@ -114,7 +114,7 @@ class ActionMapper {
     private static Action get1(final String[] pSegments, final Node currentNode, final int segIdx) {
         Action action;
         if (pSegments.length == segIdx) {
-            return currentNode.action;
+            return currentNode.parent.action;
         } else if (pSegments[segIdx].equals(currentNode.pathSegment)) {
             for (Node childNode : currentNode.children) {
                 action = get1(pSegments, childNode, segIdx + 1);

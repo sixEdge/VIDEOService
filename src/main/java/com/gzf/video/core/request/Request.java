@@ -1,5 +1,6 @@
-package com.gzf.video.core.controller.action;
+package com.gzf.video.core.request;
 
+import com.gzf.video.core.server.handler.ActionHandler;
 import com.gzf.video.core.session.Session;
 import com.gzf.video.core.session.SessionStorage;
 import com.gzf.video.util.StringUtil;
@@ -14,9 +15,9 @@ import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Promise;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import static com.gzf.video.core.session.SessionStorage.*;
 import static com.gzf.video.core.session.SessionStorage.SESSION_ID_MAX_AGE;
@@ -24,21 +25,20 @@ import static com.gzf.video.util.ControllerFunctions.encodeCookies;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpHeaderNames.SET_COOKIE;
+import static io.netty.handler.codec.http.HttpHeaderValues.KEEP_ALIVE;
+import static io.netty.handler.codec.http.HttpHeaders.Names.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaders.Names.COOKIE;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
-/**
- * Thread unsafe.
- */
-public class RequestWrapper {
+public abstract class Request {
 
-    private static final SessionStorage SESSION_MANAGER = SessionStorage.getINSTANCE();
+    private static final SessionStorage SESSION_STORAGE = SessionStorage.getINSTANCE();
 
     private ChannelHandlerContext ctx;
 
-    private QueryStringDecoder queryStringDecoder;
-
     private HttpHeaders headers;
+
+    protected Map<String, String> parameters;
 
     private Set<Cookie> cookies;
 
@@ -46,33 +46,22 @@ public class RequestWrapper {
 
     private String sessionId;
 
-    private ByteBuf content;
 
-    // not come yet
-    private Object object;
-
-
-    public RequestWrapper(final ChannelHandlerContext ctx,
-                          final QueryStringDecoder queryStringDecoder,
-                          final FullHttpRequest req,
-                          @Nullable final Set<Cookie> cookies,
-                          @Nullable final Session session,
-                          @NotNull final String sessionId) {
+    Request(final ChannelHandlerContext ctx,
+            final HttpHeaders headers,
+            @Nullable final Set<Cookie> cookies,
+            @Nullable final Session session) {
         this.ctx = ctx;
-        this.queryStringDecoder = queryStringDecoder;
-        this.headers = req.headers();
+        this.headers = headers;
         this.cookies = cookies;
         this.session = session;
-        this.sessionId = sessionId;
-        this.content = req.content();
     }
+
+    public Request() {}
+
 
     public ChannelHandlerContext getContext() {
         return ctx;
-    }
-
-    public QueryStringDecoder getQueryStringDecoder() {
-        return queryStringDecoder;
     }
 
     public HttpHeaders getHeaders() {
@@ -85,14 +74,22 @@ public class RequestWrapper {
 
     public Session getSession() {
         if (session == null) {
-            assert sessionId != null;
-            session = SESSION_MANAGER.getSession(sessionId);
+            if (sessionId == null) {
+
+                // the ActionHandler must bound to this ChannelHandlerContext
+                ActionHandler actionHandler = (ActionHandler) ctx.handler();
+
+                sessionId = actionHandler.getSessionId();
+
+                if (sessionId == null) {
+                    sessionId = UUID.randomUUID().toString();
+
+                    actionHandler.setSessionId(sessionId);
+                }
+            }
+            session = SESSION_STORAGE.getSession(sessionId);
         }
         return session;
-    }
-
-    public byte[] getContent() {
-        return content.array();
     }
 
 
@@ -107,13 +104,12 @@ public class RequestWrapper {
         return ctx.alloc();
     }
 
-    public boolean release() {
-        return content.release();
-    }
+    public abstract void release();
 
     public <V> Promise<V> newPromise(Class<V> clazz) {
         return new DefaultPromise<>(ctx.executor());
     }
+
 
     public ByteBuf newByteBuf(final int capacity) {
         return ctx.alloc().ioBuffer(capacity, capacity);
@@ -127,7 +123,17 @@ public class RequestWrapper {
      * With flush.
      */
     public ChannelFuture writeResponse(final FullHttpResponse resp) {
-        return ctx.writeAndFlush(resp);
+        ChannelFuture future;
+        CharSequence connection = headers.get(CONNECTION);
+
+        if (HttpHeaderValues.CLOSE.contentEqualsIgnoreCase(connection)) {
+            future = ctx.writeAndFlush(resp).addListener(ChannelFutureListener.CLOSE);
+        } else {
+            resp.headers().add(CONNECTION, KEEP_ALIVE);
+            future = ctx.writeAndFlush(resp);
+        }
+
+        return future;
     }
 
     /**
@@ -152,9 +158,7 @@ public class RequestWrapper {
 
 //    -------------------------------
 
-    public Map<String, List<String>> requestParams() {
-        return queryStringDecoder.parameters();
-    }
+    public abstract Map<String, String> parameters();
 
 
 
@@ -219,7 +223,7 @@ public class RequestWrapper {
     public void addIdentification(final HttpHeaders headers,
                                      final String userId,
                                      final boolean rememberMe) {
-        Session session = SESSION_MANAGER.getSession(sessionId);
+        Session session = getSession();
         session.setUserId(userId);
 
         Cookie cookieSessionId = new DefaultCookie(SESSION_ID, sessionId);
@@ -233,7 +237,7 @@ public class RequestWrapper {
         if (rememberMe) {
             cookieSessionId.setMaxAge(SESSION_ID_MAX_AGE);
             cookieUserId.setMaxAge(SESSION_ID_MAX_AGE);
-            SESSION_MANAGER.createLoginCache(sessionId, userId);
+            SESSION_STORAGE.createLoginCache(sessionId, userId);
         }
 
         headers.add(SET_COOKIE, encodeCookies(cookieSessionId, cookieUserId));

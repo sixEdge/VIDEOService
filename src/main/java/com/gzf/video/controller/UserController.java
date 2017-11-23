@@ -3,20 +3,21 @@ package com.gzf.video.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.gzf.video.core.annotation.Controller;
 import com.gzf.video.core.annotation.action.Post;
-import com.gzf.video.service.UserRegistService;
+import com.gzf.video.service.UserRegisterService;
 import com.gzf.video.util.ControllerFunctions;
-import com.gzf.video.core.controller.action.RequestWrapper;
+import com.gzf.video.core.request.Request;
 import io.netty.handler.codec.http.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Map;
 
 import static com.gzf.video.core.session.SessionStorage.SESSION_ID;
 import static com.gzf.video.pojo.component.CodeMessage.failedState;
 import static com.gzf.video.pojo.component.CodeMessage.successState;
 import static com.gzf.video.util.StringUtil.EMPTY_STRING;
+import static com.gzf.video.util.StringUtil.anyNullOrEmpty;
+import static com.gzf.video.util.StringUtil.isNullOrEmpty;
 import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
@@ -34,89 +35,90 @@ public class UserController extends ControllerFunctions {
     private static final String LOGIN_MODE_PARAM    = "mode";
 
 
-    private UserRegistService userRegistService = new UserRegistService();
+    private UserRegisterService userRegisterService = new UserRegisterService();
 
     @Post("/login")
-    public FullHttpResponse userLogin(final RequestWrapper rw) {
-        if (rw.getUserId() != null) {
+    public FullHttpResponse login(final Request req) {
+        if (req.getUserId() != null) {
             byte[] json = JSONObject.toJSONBytes(successState("您已登录"));
-            return okResponse(rw.newByteBuf(json), APPLICATION_JSON);
+            return okResponse(req.newByteBuf(json), APPLICATION_JSON);
         }
 
-        Map<String, List<String>> params = rw.requestParams();
+        Map<String, String> params = req.parameters();
 
-        String identity;
-        String password;
+        logger.debug("{}", params);
+
+
+        String identity = params.get(IDENTITY_PARAM);
+        String password = params.get(PASSWORD_PARAM);
         int mode;
+
+
+        if (isNullOrEmpty(identity) || password == null ||
+            identity.length() > 64 || password.length() < 8 || password.length() > 16) {
+            return failedResponse(BAD_REQUEST);
+        }
+
         try {
-            identity = params.get(IDENTITY_PARAM).get(0);
-            password = params.get(PASSWORD_PARAM).get(0);
-            mode = Integer.parseInt(params.get(LOGIN_MODE_PARAM).get(0), 10);
+            mode = Integer.parseInt(params.get(LOGIN_MODE_PARAM), 10);
         } catch (Exception e) {
-            rw.writeResponse(failedResponse(BAD_REQUEST));
-            return null;
+            return failedResponse(BAD_REQUEST);
         }
 
-        if (identity.isEmpty() || password.isEmpty() || identity.length() > 64 && password.length() > 16) {
-            rw.writeResponse(failedResponse(BAD_REQUEST));
-            return null;
-        }
-
-
-        userRegistService.doLogin(identity, password, mode == 0, rw.newPromise(String.class).addListener(f -> {
+        userRegisterService.doLogin(identity, password, mode == 0, req.newPromise(String.class).addListener(f -> {
             String userId = (String) f.getNow();
             if (userId == null) {
-                rw.writeResponse(OK, failedState("用户名或密码错误"), APPLICATION_JSON);
+                req.writeResponse(OK, failedState("用户名或密码错误"), APPLICATION_JSON);
                 return;
             }
             FullHttpResponse resp =
-                    okResponse(rw.newByteBuf(successState("登录成功")), APPLICATION_JSON);
-            rw.addIdentification(resp.headers(), userId, true);
-            rw.writeResponse(resp);
-            rw.release();
+                    okResponse(req.newByteBuf(successState("登录成功")), APPLICATION_JSON);
+            req.addIdentification(resp.headers(), userId, true);
+            req.writeResponse(resp);
+            req.release();
         }));
 
         return null;
     }
 
     @Post("/logout")
-    public FullHttpResponse logout(final RequestWrapper rw) {
-        Map<String, List<String>> params = rw.requestParams();
+    public FullHttpResponse logout(final Request req) {
+        Map<String, String> params = req.parameters();
+        String sessionId = params.get(SESSION_ID);
 
-        String sessionId = params.get(SESSION_ID).get(0);
-        if (sessionId.isEmpty() || sessionId.length() > 128) {
-            rw.writeResponse(failedResponse(BAD_REQUEST));
-            return null;
+        if (isNullOrEmpty(sessionId) || sessionId.length() > 128) {
+            return failedResponse(BAD_REQUEST);
         }
 
-        userRegistService.doLogout(sessionId);
+        userRegisterService.doLogout(sessionId);
+        req.release();
 
-        rw.release();
-        return okResponse(rw.newByteBuf(successState(EMPTY_STRING)));
+        return okResponse(req.newByteBuf(successState(EMPTY_STRING)));
     }
 
     @Post("/signUp")
-    public FullHttpResponse signUp(final RequestWrapper rw) {
-        Map<String, List<String>> params = rw.requestParams();
+    public FullHttpResponse signUp(final Request req) {
+        Map<String, String> params = req.parameters();
 
-        String username = params.get(USER_NAME_PARAM).get(0);
-        String mail = params.get(MAIL_PARAM).get(0);
-        String password = params.get(PASSWORD_PARAM).get(0);
+        String username = params.get(USER_NAME_PARAM);
+        String mail = params.get(MAIL_PARAM);
+        String password = params.get(PASSWORD_PARAM);
 
-        if (username.isEmpty() || username.length() > 64 || mail.isEmpty() || password.isEmpty()) {
-            rw.writeResponse(failedResponse(BAD_REQUEST));
-            return null;
+        if (anyNullOrEmpty(username, mail) || password == null ||
+                username.length() > 64 || password.length() < 8 || password.length() > 16) {
+            return failedResponse(BAD_REQUEST);
         }
 
-        userRegistService.doSignUp(username, mail, password, rw.newPromise(Boolean.class).addListener(f -> {
+        userRegisterService.doSignUp(username, mail, password, req.newPromise(Boolean.class).addListener(f -> {
             Boolean isSuccess = (Boolean) f.getNow();
             if (isSuccess) {
-                rw.writeResponse(OK, successState("注册成功"), APPLICATION_JSON);
+                req.writeResponse(OK, successState("注册成功"), APPLICATION_JSON);
             } else {
-                rw.writeResponse(OK, failedState("注册失败"), APPLICATION_JSON);
+                req.writeResponse(OK, failedState("注册失败"), APPLICATION_JSON);
             }
-            rw.release();
+            req.release();
         }));
+
         return null;
     }
 }

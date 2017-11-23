@@ -21,6 +21,8 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 
 class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
@@ -42,7 +44,7 @@ class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
             pipeline.addLast(sslCtx.newHandler(ch.alloc()));
         }
 
-//        pipeline.addLast("logging-handler", new LoggingHandler(LogLevel.TRACE));
+        pipeline.addLast("logging-handler", new LoggingHandler(LogLevel.TRACE));
 
 //        pipeline.addLast("session-handler", SessionHandler.getINSTANCE());
         pipeline.addLast("http-codec", new HttpServerCodec());

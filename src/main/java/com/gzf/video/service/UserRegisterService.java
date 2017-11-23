@@ -14,7 +14,7 @@ import static java.lang.Boolean.TRUE;
 /**
  * Login & Sign up.
  */
-public class UserRegistService {
+public class UserRegisterService {
 
     private static final SessionStorage SESSION_STORAGE = SessionStorage.getINSTANCE();
     private static final _Login LOGIN_DAO = new _Login();
@@ -43,7 +43,7 @@ public class UserRegistService {
 
     public void doLogout(final String sessionId) {
         SESSION_STORAGE.destroyLoginCache(sessionId);
-        SESSION_STORAGE.destroySession(sessionId);
+        SESSION_STORAGE.getSession(sessionId).setUserId(null);
     }
 
     public void doSignUp(final String username,

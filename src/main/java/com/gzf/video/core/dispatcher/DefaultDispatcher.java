@@ -26,22 +26,14 @@ import java.util.Map;
  */
 public class DefaultDispatcher implements Dispatcher {
 
-    private static final DefaultDispatcher INSTANCE = new DefaultDispatcher();
-
     private final ActionDispatcher actionDispatcher = new ActionDispatcher();
 
-    private DefaultDispatcher() {
-        try {
-            new ControllerScan(actionDispatcher).refresh();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-    }
+    private static final DefaultDispatcher INSTANCE = new DefaultDispatcher();
 
     public static DefaultDispatcher getINSTANCE() {
         return INSTANCE;
     }
+
 
     private Action doDispatch(final String path, final boolean get_or_post) {
         return actionDispatcher.getAction(path, null, get_or_post);
@@ -51,5 +43,15 @@ public class DefaultDispatcher implements Dispatcher {
     @Deprecated
     public Action doDispatch(final String path, final Map<String, List<String>> parameters, final boolean get_or_post) {
         return this.doDispatch(path, get_or_post);
+    }
+
+
+    private DefaultDispatcher() {
+        try {
+            new ControllerScan(actionDispatcher).refresh();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 }

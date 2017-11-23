@@ -16,9 +16,10 @@
 package com.gzf.video.core.server.handler;
 
 import com.gzf.video.core.controller.action.Action;
-import com.gzf.video.core.controller.action.RequestWrapper;
+import com.gzf.video.core.request.GetRequest;
 import com.gzf.video.core.dispatcher.DefaultDispatcher;
 import com.gzf.video.core.dispatcher.Dispatcher;
+import com.gzf.video.core.request.PostRequest;
 import com.gzf.video.core.session.Session;
 import com.gzf.video.core.session.SessionStorage;
 import com.gzf.video.util.StringUtil;
@@ -31,11 +32,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
-import java.util.UUID;
 
 import static com.gzf.video.core.dispatcher.ActionDispatcher.PRE_INTERCEPT_PATH;
 import static com.gzf.video.core.session.SessionStorage.SESSION_ID;
-import static io.netty.handler.codec.http.HttpHeaderValues.KEEP_ALIVE;
+import static io.netty.handler.codec.http.HttpHeaderValues.CLOSE;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaders.Names.COOKIE;
 import static io.netty.handler.codec.http.HttpMethod.GET;
@@ -47,13 +47,13 @@ public class ActionHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final Dispatcher DISPATCHER = DefaultDispatcher.getINSTANCE();
-    private static final SessionStorage SESSION_MANAGER = SessionStorage.getINSTANCE();
+    private static final SessionStorage SESSION_STORAGE = SessionStorage.getINSTANCE();
 
     public static void init() {}
 
-    // not auto release
+    // auto release
     public ActionHandler() {
-        super(false);
+        super(true);
     }
 
 
@@ -92,18 +92,17 @@ public class ActionHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
             cookieSessionId = StringUtil.getFromCookies(cookies, SESSION_ID);
 
             String userId;
-            if (cookieSessionId == null
+            if (cookieSessionId != null
 
-                    // has login
-                    || SESSION_MANAGER.getSession(cookieSessionId, false) != null
+                    // this sessionId has not been used by other client
+                    && SESSION_STORAGE.getSession(cookieSessionId, false) == null
 
-                    // remembered-user
-                    || (userId = SESSION_MANAGER.getLoginUserIdCache(cookieSessionId)) == null) {
-                sessionId = UUID.randomUUID().toString();
-            } else {
+                    // a user has been remembered
+                    && (userId = SESSION_STORAGE.getLoginUserIdCache(cookieSessionId)) != null) {
+
                 // auto login
                 sessionId = cookieSessionId;
-                session = SESSION_MANAGER.createSession(sessionId, userId);
+                session = SESSION_STORAGE.createSession(sessionId, userId);
             }
         }
 
@@ -120,6 +119,9 @@ public class ActionHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
             }
 
             if (cookieSessionId == null
+
+                    // find session
+                    // if session is null, then intercept request and send a forbidden response
                     || (session = UserInterceptor.doIntercept(cookieSessionId)) == null) {
                 sendError(ctx, FORBIDDEN);
                 return;
@@ -140,11 +142,11 @@ public class ActionHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
 
         // action
 
-        FullHttpResponse response =
-                action.doAction(
-                        new RequestWrapper(
-                                ctx, queryStringDecoder, req,
-                                cookies, session, sessionId));
+        FullHttpResponse response = action.doAction(
+                getOrPost
+                        ? new GetRequest(ctx, req, cookies, session)
+                        : new PostRequest(ctx, req, cookies, session)
+        );
 
 
         // send
@@ -152,10 +154,11 @@ public class ActionHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
         if (response == null) {
             return;
         }
+
         if (HttpUtil.isKeepAlive(req)) {
-            response.headers().add(CONNECTION, KEEP_ALIVE);
             ctx.writeAndFlush(response);
         } else {
+            response.headers().set(CONNECTION, CLOSE);
             ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
         }
     }
@@ -164,7 +167,7 @@ public class ActionHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
     @Override
     public void channelInactive(final ChannelHandlerContext ctx) {
         if (sessionId != null) {
-            SESSION_MANAGER.destroySession(sessionId);
+            SESSION_STORAGE.destroySession(sessionId);
         }
     }
 
@@ -176,6 +179,15 @@ public class ActionHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
             sendError(ctx, INTERNAL_SERVER_ERROR);
         }
         ctx.close();
+    }
+
+
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(final String sessionId) {
+        this.sessionId = sessionId;
     }
 
 

@@ -30,14 +30,28 @@ public class StringUtil {
         return s.toString();
     }
 
-    public static String notNullOrEmpty(final String str) {
-        if (str == null) {
+    public static boolean isNullOrEmpty(final String s) {
+        return s == null || s.isEmpty();
+    }
+
+    public static boolean anyNullOrEmpty(final String... xs) {
+        for (String s : xs) {
+            if (isNullOrEmpty(s)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static String notNullOrEmpty(final String s) {
+        if (s == null) {
             throw new RuntimeException("null");
-        } else if (str.isEmpty()) {
+        } else if (s.isEmpty()) {
             throw new RuntimeException("empty string");
         }
 
-        return str;
+        return s;
     }
 
 
