@@ -15,8 +15,7 @@ public @interface PathParam {
      * <br />
      * e.g. request path: {@code "/path/to/{where}/{when}"}
      * <br />
-     * string {@code "where" or "when"} can be the {@link #value()},
-     * an custom path parameter.
+     * custom path parameter {@code "where" or "when"} can be the {@code value()}.
      */
     String value();
 

@@ -3,9 +3,9 @@ package com.gzf.video.core.annotation.action;
 import java.lang.annotation.*;
 
 /**
- * <em>For GET-method</em>
+ * <em>For GET-Action</em>
  * <br />
- * The request url to access this service method.
+ * The request url to access this action method.
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

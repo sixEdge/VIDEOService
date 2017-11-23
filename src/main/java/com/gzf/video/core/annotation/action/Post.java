@@ -3,9 +3,9 @@ package com.gzf.video.core.annotation.action;
 import java.lang.annotation.*;
 
 /**
- * <em>For POST-method</em>
+ * <em>For POST-Action</em>
  * <br />
- * The request url to access this service method.
+ * The request url to access this action method.
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

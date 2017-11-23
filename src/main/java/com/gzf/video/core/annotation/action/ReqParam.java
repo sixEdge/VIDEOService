@@ -15,8 +15,7 @@ public @interface ReqParam {
      * <br />
      * e.g. request path: {@code "/path/to/{where}/{when}"}, request parameter: {@code tid=val}
      * <br />
-     * string {@code "tid"} can be the {@link #value()},
-     * an custom request parameter.
+     * custom request parameter key {@code "tid"} can be the {@code value()}.
      */
     String value();
 
