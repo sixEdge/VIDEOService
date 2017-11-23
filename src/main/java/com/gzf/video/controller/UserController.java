@@ -40,8 +40,7 @@ public class UserController extends ControllerFunctions {
     @Post("/login")
     public FullHttpResponse login(final Request req) {
         if (req.getUserId() != null) {
-            byte[] json = successState("您已登录");
-            return okResponse(req.newByteBuf(json), APPLICATION_JSON);
+            return okResponse(req.newByteBuf(successState("您已登录")), APPLICATION_JSON);
         }
 
         Map<String, String> params = req.parameters();

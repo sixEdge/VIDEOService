@@ -14,8 +14,7 @@ import java.util.*;
 public class PostRequest extends Request {
     private static final Logger logger = LoggerFactory.getLogger(PostRequest.class);
 
-    private HttpPostRequestDecoder a;
-    private FullHttpRequest request;
+    private HttpPostRequestDecoder postRequestDecoder;
 
     private Map<String, byte[]> fileContents;
 
@@ -24,42 +23,34 @@ public class PostRequest extends Request {
                        final Set<Cookie> cookies,
                        final Session session) {
         super(ctx, req.headers(), cookies, session);
-        this.request = req;
+        checkAndDecode(req);
     }
 
 
     @Override
     public void release() {
-        if (a != null) {
-            a.destroy();
+        if (postRequestDecoder != null) {
+            postRequestDecoder.destroy();
         }
     }
 
     @Override
     public Map<String, String> parameters() {
-        checkAndDecode();
         return parameters;
     }
 
-    public Map<String, byte[]> getFileContents() {
-        checkAndDecode();
+    public Map<String, byte[]> fileContents() {
         return fileContents;
     }
 
 
-    private void checkAndDecode() {
-
-        // hasn't been decoded
-        if (a != null) {
-            return;
-        }
-
-        a = new HttpPostRequestDecoder(request);
+    private void checkAndDecode(final FullHttpRequest request) {
+        postRequestDecoder = new HttpPostRequestDecoder(request);
         parameters = new HashMap<>();
         fileContents = new HashMap<>();
 
         try {
-            for (InterfaceHttpData data : a.getBodyHttpDatas()) {
+            for (InterfaceHttpData data : postRequestDecoder.getBodyHttpDatas()) {
                 switch (data.getHttpDataType()) {
                 case Attribute:
                     {
