@@ -287,6 +287,7 @@ public class ControllerScan {
             loader = ClassLoader.getSystemClassLoader();
         }
 
-        return (Class) defineClassMethod.invoke(null, loader, name, code, 0, code.length);
+        return (Class<Function<Object, Action>>)
+                defineClassMethod.invoke(null, loader, name, code, 0, code.length);
     }
 }

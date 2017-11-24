@@ -1,6 +1,5 @@
 package com.gzf.video.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.gzf.video.core.annotation.Controller;
 import com.gzf.video.core.annotation.action.Post;
 import com.gzf.video.service.UserRegisterService;
@@ -26,10 +25,10 @@ public class UserController extends ControllerFunctions {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
 
-    private static final String IDENTITY_PARAM = "id";
-    private static final String USER_NAME_PARAM = "uname";
-    private static final String MAIL_PARAM = "mail";
-    private static final String PASSWORD_PARAM = "pwd";
+    private static final String IDENTITY_PARAM      = "id";
+    private static final String USER_NAME_PARAM     = "uname";
+    private static final String MAIL_PARAM          = "mail";
+    private static final String PASSWORD_PARAM      = "pwd";
 
     // 0 user & name, 1 user & mail, 2 admin & mail
     private static final String LOGIN_MODE_PARAM    = "mode";
@@ -43,15 +42,9 @@ public class UserController extends ControllerFunctions {
             return okResponse(req.newByteBuf(successState("您已登录")), APPLICATION_JSON);
         }
 
-        Map<String, String> params = req.parameters();
-
-        logger.debug("{}", params);
-
-
-        String identity = params.get(IDENTITY_PARAM);
-        String password = params.get(PASSWORD_PARAM);
+        String identity = req.getParameter(IDENTITY_PARAM);
+        String password = req.getParameter(PASSWORD_PARAM);
         int mode;
-
 
         if (isNullOrEmpty(identity) || password == null ||
             identity.length() > 64 || password.length() < 8 || password.length() > 16) {
@@ -59,7 +52,7 @@ public class UserController extends ControllerFunctions {
         }
 
         try {
-            mode = Integer.parseInt(params.get(LOGIN_MODE_PARAM), 10);
+            mode = Integer.parseInt(req.getParameter(LOGIN_MODE_PARAM), 10);
         } catch (Exception e) {
             return failedResponse(BAD_REQUEST);
         }

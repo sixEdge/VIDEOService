@@ -4,7 +4,6 @@ import com.gzf.video.core.server.handler.ActionHandler;
 import com.gzf.video.core.session.Session;
 import com.gzf.video.core.session.SessionStorage;
 import com.gzf.video.util.StringUtil;
-import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -31,6 +30,9 @@ import static io.netty.handler.codec.http.HttpHeaders.Names.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaders.Names.COOKIE;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
+/**
+ * Must promise that there are only one thread modify the instance at the same time.
+ */
 public abstract class Request {
 
     private static final SessionStorage SESSION_STORAGE = SessionStorage.getINSTANCE();
@@ -72,7 +74,7 @@ public abstract class Request {
     /**
      * Never be null.
      */
-    public Set<Cookie> getCookies() {
+    public Set<Cookie> cookies() {
         if (cookies == null) {
             String cs = headers.get(COOKIE);
             if (cs == null) {
@@ -87,7 +89,7 @@ public abstract class Request {
     /**
      * Never be null.
      */
-    public Session getSession() {
+    public Session session() {
         if (session == null) {
             if (sessionId == null) {
 
@@ -109,7 +111,7 @@ public abstract class Request {
 
 
 
-//    ------------------------------
+//    ------------------------------ base
 
     public Channel channel() {
         return ctx.channel();
@@ -125,7 +127,6 @@ public abstract class Request {
         return new DefaultPromise<>(ctx.executor());
     }
 
-
     public ByteBuf newByteBuf(final int capacity) {
         return ctx.alloc().ioBuffer(capacity, capacity);
     }
@@ -133,6 +134,9 @@ public abstract class Request {
     public ByteBuf newByteBuf(final byte[] bs) {
         return newByteBuf(bs.length).writeBytes(bs);
     }
+
+
+    //    ------------------------------ transform
 
     /**
      * With flush.
@@ -171,10 +175,16 @@ public abstract class Request {
     }
 
 
-//    -------------------------------
+//    ------------------------------- request parameter
 
+    /**
+     * Never be null.
+     */
     public abstract Map<String, String> parameters();
 
+    public String getParameter(final String key) {
+        return parameters().get(key);
+    }
 
 
 //    ------------------------------- request header
@@ -187,8 +197,8 @@ public abstract class Request {
 
 //    ------------------------------- cookie
 
-    public String getFromCookies(@NotNull final String key) {
-        return StringUtil.getFromCookies(getCookies(), key);
+    public String getCookie(final String key) {
+        return StringUtil.getFromCookies(cookies(), key);
     }
 
 
@@ -197,28 +207,28 @@ public abstract class Request {
 
     public Object getFromSession(final String key) {
         if (session == null) {
-            getSession();
+            session();
         }
         return session.get(key);
     }
 
     public Object addToSession(final String key, final Object val) {
         if (session == null) {
-            getSession();
+            session();
         }
         return session.put(key, val);
     }
 
     public String getUserId() {
         if (session == null) {
-            getSession();
+            session();
         }
         return session.getUserId();
     }
 
     public void setUserId(final String userId) {
         if (session == null) {
-            getSession();
+            session();
         }
         session.put(USER_ID, userId);
     }
@@ -235,7 +245,7 @@ public abstract class Request {
     public void addIdentification(final HttpHeaders headers,
                                   final String userId,
                                   final boolean rememberMe) {
-        Session session = getSession();
+        Session session = session();
         session.setUserId(userId);
 
         Cookie cookieSessionId = new DefaultCookie(SESSION_ID, sessionId);
