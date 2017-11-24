@@ -15,6 +15,7 @@ import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Promise;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -68,10 +69,24 @@ public abstract class Request {
         return headers;
     }
 
+    /**
+     * Never be null.
+     */
     public Set<Cookie> getCookies() {
+        if (cookies == null) {
+            String cs = headers.get(COOKIE);
+            if (cs == null) {
+                cookies = Collections.emptySet();
+            } else {
+                cookies = StringUtil.decodeCookies(cs);
+            }
+        }
         return cookies;
     }
 
+    /**
+     * Never be null.
+     */
     public Session getSession() {
         if (session == null) {
             if (sessionId == null) {
@@ -173,10 +188,7 @@ public abstract class Request {
 //    ------------------------------- cookie
 
     public String getFromCookies(@NotNull final String key) {
-        if (cookies == null) {
-            cookies = StringUtil.decodeCookies(getHeader(COOKIE));
-        }
-        return StringUtil.getFromCookies(cookies, key);
+        return StringUtil.getFromCookies(getCookies(), key);
     }
 
 
