@@ -127,7 +127,7 @@ public class ControllerScan {
             }
 
             String sourcePath = getSourcePath(f.getAbsolutePath(), basePackagePath);
-            Class clazz = classLoader.loadClass(sourcePath);
+            Class<?> clazz = classLoader.loadClass(sourcePath);
 
             if (clazz.getDeclaredAnnotation(Controller.class) == null) {
                 continue;
