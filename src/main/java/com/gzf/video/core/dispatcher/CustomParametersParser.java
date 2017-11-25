@@ -15,28 +15,46 @@ import java.util.*;
 public class CustomParametersParser {
 
     /**
-     * Parse custom-request-pathSegments-parameters and custom-request-parameters via annotations:
+     * Parse <code>path, request parameters, custom path parameters and custom request parameters </code>
+     * via annotations:
      * {@link Controller},
      * {@link Get}, {@link Post},
-     * {@link PathParam}, {@link ReqParam}.
+     * {@link PathParam}, {@link ReqParam}.<br />
+     *<br/>
+     * <pre>e.g.
+     * <em>@Controller</em>("prefix")
+     *     class MyController {
+     *
+     *     <em>@Get</em>("/path/to/action/{userId}?mode=1")
+     *         myAction(<em>@PathParam</em>("userId") String userId, <em>@ReqParam</em>("timestamp") String timestamp) {
+     *
+     *         }
+     *     }
+     * </pre>
+     * The request which has <br />
+     * path: {@code /path/to/action/{whatever}},<br />
+     * parameter: {@code mode equals to 1}, {@code userId}.
+     * <br />
+     * will be dispatched to this action method. <br />
+     * And the method's arguments will be auto-injected.
      *
      * @param method the method has {@link Get} or {@link Post}
      * @return {@link CustomParameter}
      * @throws Exception when parse fail
      */
     public CustomParameter parseParams(Method method, String methodUrl) throws Exception {
-        // prefix url declared by @ControllerFunctions from class
+        // prefix url from classes' annotation @ControllerFunctions
         Controller controller = method.getDeclaringClass().getDeclaredAnnotation(Controller.class);
         String classUrl = controller == null ? "" : controller.value();
 
         String fullUrl = classUrl + methodUrl;
 
-        // add '/' to head if the first character not equals '/'
+        // add '/' to head if the first character isn't '/'
         if (fullUrl.isEmpty() || fullUrl.charAt(0) != '/') {
             fullUrl = '/' + fullUrl;
         }
 
-        // e.g. "/pathSegments///to//action" -> "/pathSegments/to/action"
+        // e.g. "/path///to//action" -> "/path/to/action"
         fullUrl = fullUrl.replaceAll("/+", "/");
 
         QueryStringDecoder queryStringDecoder = new QueryStringDecoder(fullUrl);
@@ -45,14 +63,14 @@ public class CustomParametersParser {
 
         CustomParameter customParameters = new CustomParameter();
 
-        // parse path parameters
+        // parse custom path parameters
         List<String> pathParamList = new LinkedList<>();
         for (String seg : pathSegments)
             if (!seg.isEmpty() && seg.charAt(0) == '{' && seg.charAt(seg.length() - 1) == '}')
                 pathParamList.add( parsePathParam(seg, fullUrl) );
         customParameters.pathParameters = pathParams(pathParamList, method);
 
-        // parse custom request parameters
+        // parse request parameters
         customParameters.requestParameters = parseReqParams(method, queryStringDecoder.parameters());
 
         // parse custom request parameters
@@ -71,7 +89,7 @@ public class CustomParametersParser {
         for (String s : paramList) {
             Class clazz = cp.get(s);
             if (clazz == null)
-                throw new Exception("'{' and '}' can only be used on custom parameter, " +
+                throw new Exception("'{' and '}' can only be used on custom path parameter, " +
                         "found \"" + s + "\" unexpected at "
                         + method.getDeclaringClass().getName() + "#" + method.getName());
             customParams.put(s, clazz);
@@ -109,7 +127,7 @@ public class CustomParametersParser {
                 Class t = p.getType();
 
                 if (keySet.contains(v))
-                    throw new Exception("custom-request-parameter and request-parameter have same name " +
+                    throw new Exception("custom-request-parameter and request-parameter have the same name " +
                             "\"" + v + "\"" +
                             " at " + method.getDeclaringClass().getName() + "#" + method.getName());
                 validType(t, method);

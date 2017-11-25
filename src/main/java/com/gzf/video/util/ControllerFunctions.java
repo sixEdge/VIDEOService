@@ -41,7 +41,7 @@ public abstract class ControllerFunctions {
     }
 
     /**
-     * The {@code content} must has not been read before.
+     * <em>Note: The {@code content} must has not been read before.</em>
      *
      * @param content content
      * @return {@link FullHttpResponse}
@@ -62,9 +62,9 @@ public abstract class ControllerFunctions {
         return new DefaultFullHttpResponse(HTTP_1_1, status);
     }
 
-    protected FullHttpResponse failedResponse(final ByteBuf content,
-                                              final CharSequence contentType,
-                                              final HttpResponseStatus status) {
+    protected FullHttpResponse failedResponse(final HttpResponseStatus status,
+                                              final ByteBuf content,
+                                              final CharSequence contentType) {
         FullHttpResponse resp = new DefaultFullHttpResponse(HTTP_1_1, status, content);
         resp.headers().add(CONTENT_TYPE, contentType);
         return resp;

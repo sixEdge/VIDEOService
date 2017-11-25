@@ -18,7 +18,7 @@ public abstract class SessionStorage {
     public static final String SESSION_ID_PATH = SESSION_CONFIG.getString("sessionIdPath");
 
     public static final String USER_ID = SESSION_CONFIG.getString("userId");
-    public static final String RSA_PUBLIC_KEY = SESSION_CONFIG.getString("rsaPublicKey");
+    public static final String RSA_PRIVATE_KEY = SESSION_CONFIG.getString("rsaPrivateKey");
 
 
     private final ConcurrentHashMap<String, Session> SESSION_MAP =

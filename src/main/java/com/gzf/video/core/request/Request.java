@@ -127,10 +127,16 @@ public abstract class Request {
         return new DefaultPromise<>(ctx.executor());
     }
 
+    /**
+     * Unreadable.
+     */
     public ByteBuf newByteBuf(final int capacity) {
         return ctx.alloc().ioBuffer(capacity, capacity);
     }
 
+    /**
+     * Unreadable.
+     */
     public ByteBuf newByteBuf(final byte[] bs) {
         return newByteBuf(bs.length).writeBytes(bs);
     }

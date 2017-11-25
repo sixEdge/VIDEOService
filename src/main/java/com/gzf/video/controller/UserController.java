@@ -1,7 +1,9 @@
 package com.gzf.video.controller;
 
 import com.gzf.video.core.annotation.Controller;
+import com.gzf.video.core.annotation.action.Get;
 import com.gzf.video.core.annotation.action.Post;
+import com.gzf.video.service.RSASecurityService;
 import com.gzf.video.service.UserRegisterService;
 import com.gzf.video.util.ControllerFunctions;
 import com.gzf.video.core.request.Request;
@@ -9,15 +11,25 @@ import io.netty.handler.codec.http.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.util.Map;
 
+import static com.gzf.video.core.session.SessionStorage.RSA_PRIVATE_KEY;
 import static com.gzf.video.core.session.SessionStorage.SESSION_ID;
 import static com.gzf.video.pojo.component.CodeMessage.failedState;
 import static com.gzf.video.pojo.component.CodeMessage.successState;
+import static com.gzf.video.service.RSASecurityService.RSAKeyPair;
 import static com.gzf.video.util.StringUtil.EMPTY_STRING;
 import static com.gzf.video.util.StringUtil.anyNullOrEmpty;
 import static com.gzf.video.util.StringUtil.isNullOrEmpty;
 import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
+import static io.netty.handler.codec.http.HttpHeaderValues.TEXT_PLAIN;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
 @Controller("/reg")
@@ -34,7 +46,9 @@ public class UserController extends ControllerFunctions {
     private static final String LOGIN_MODE_PARAM    = "mode";
 
 
-    private UserRegisterService userRegisterService = new UserRegisterService();
+    private UserRegisterService userRegisterService = UserRegisterService.getINSTANCE();
+    private RSASecurityService rsaSecurityService = RSASecurityService.getINSTANCE();
+
 
     @Post("/login")
     public FullHttpResponse login(final Request req) {
@@ -55,6 +69,25 @@ public class UserController extends ControllerFunctions {
             mode = Integer.parseInt(req.getParameter(LOGIN_MODE_PARAM), 10);
         } catch (Exception e) {
             return failedResponse(BAD_REQUEST);
+        }
+
+        PrivateKey privateKey = (PrivateKey) req.getFromSession(RSA_PRIVATE_KEY);
+        if (privateKey == null) {
+            return failedResponse(BAD_REQUEST);
+        }
+
+        try {
+            password = rsaSecurityService.doDecode(password, privateKey);
+        } catch ( NoSuchPaddingException
+                | NoSuchAlgorithmException
+                | BadPaddingException
+                | InvalidKeyException
+                | IllegalBlockSizeException e) {
+            logger.warn("RSA decode wrong.", e);
+            return failedResponse(BAD_REQUEST);
+        } catch (IOException e) {
+            logger.error("RSA decode error.", e);
+            return failedResponse(INTERNAL_SERVER_ERROR);
         }
 
         userRegisterService.doLogin(identity, password, mode == 0, req.newPromise(String.class).addListener(f -> {
@@ -110,6 +143,16 @@ public class UserController extends ControllerFunctions {
             }
             req.release();
         }));
+
+        return null;
+    }
+
+    @Get("/rsa")
+    public FullHttpResponse rsaPublicKey(final Request req) {
+        RSAKeyPair keyPair = rsaSecurityService.doGenerateKeyPair();
+
+        req.addToSession(RSA_PRIVATE_KEY, keyPair.getPrivateKey());
+        req.writeResponse(OK, keyPair.getPublicKeyStr().getBytes(), TEXT_PLAIN);
 
         return null;
     }

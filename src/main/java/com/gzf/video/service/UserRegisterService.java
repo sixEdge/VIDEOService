@@ -57,4 +57,13 @@ public class UserRegisterService {
                 promise.setSuccess(FALSE);
         });
     }
+
+
+    private static final UserRegisterService INSTANCE = new UserRegisterService();
+
+    public static UserRegisterService getINSTANCE() {
+        return INSTANCE;
+    }
+
+    private UserRegisterService() {}
 }

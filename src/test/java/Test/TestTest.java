@@ -30,6 +30,8 @@ import org.junit.Test;
 
 import java.util.Collections;
 
+import static com.gzf.video.dao._Login.LoginStruct.*;
+
 public class TestTest {
 
     @Test
@@ -66,10 +68,10 @@ public class TestTest {
     @Test
     public void mongoTest() throws InterruptedException {
         Document document = new Document();
-        document.append("uId", 2703343)
-                .append("uname", "TestUser")
-                .append("mail", "sixedge111@gmail.com")
-                .append("pwd", StringUtil.hexMd5("Gzf_0135670".getBytes()));
+        document.append(USER_ID, 2703343)
+                .append(USERNAME, "TestUser")
+                .append(MAIL, "sixedge111@gmail.com")
+                .append(PASSWORD, StringUtil.hexMd5("Gzf_0135670".getBytes()));
 
         MongoProvider mongoProvider = MongoProvider.getINSTANCE();
         MongoCollection<Document> collection = mongoProvider.getCollection("login");

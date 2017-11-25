@@ -56,20 +56,21 @@ public class PostRequest extends Request {
                     {
                         MixedAttribute attr = (MixedAttribute) data;
                         parameters.putIfAbsent(attr.getName(), attr.getValue());
-                        break;
                     }
+                    break;
                 case FileUpload:
                     {
                         MixedFileUpload fileUpload = (MixedFileUpload) data;
                         fileContents.putIfAbsent(fileUpload.getFilename(), fileUpload.get());
-                        break;
                     }
-                default:
+                    break;
+                case InternalAttribute:
                     // continue
+                    // noting to do at present
                 }
             }
         } catch (IOException e) {
-            logger.error("HttpPostRequestDecoder", e);
+            logger.error("Post-request decode failed.", e);
         }
     }
 }
