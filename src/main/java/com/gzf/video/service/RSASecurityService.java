@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Optional;
 
 import static javax.crypto.Cipher.DECRYPT_MODE;
 
@@ -61,19 +62,26 @@ public class RSASecurityService {
         );
     }
 
-    public String doDecode(final String encodedString, final PrivateKey privateKey)
+    public Optional<String> doDecode(final String encodedString, final PrivateKey privateKey)
             throws
-            NoSuchPaddingException,
-            NoSuchAlgorithmException,
-            InvalidKeyException,
-            BadPaddingException,
-            IllegalBlockSizeException,
             IOException
     {
-        Cipher cipher = Cipher.getInstance("RSA/None/PKCS1Padding");
-        cipher.init(DECRYPT_MODE, privateKey);
+        Cipher cipher;
+        byte[] bs;
 
-        return new String(cipher.doFinal(BASE_64_DECODER.decodeBuffer(encodedString)));
+        try {
+            cipher = Cipher.getInstance("RSA/None/PKCS1Padding");
+            cipher.init(DECRYPT_MODE, privateKey);
+            bs = cipher.doFinal(BASE_64_DECODER.decodeBuffer(encodedString));
+        } catch ( NoSuchAlgorithmException
+                | NoSuchPaddingException
+                | InvalidKeyException
+                | BadPaddingException
+                | IllegalBlockSizeException e) {
+            return Optional.empty();
+        }
+
+        return Optional.of(new String(bs));
     }
 
 

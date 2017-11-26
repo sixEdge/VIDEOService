@@ -11,14 +11,10 @@ import io.netty.handler.codec.http.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.gzf.video.core.session.SessionStorage.RSA_PRIVATE_KEY;
 import static com.gzf.video.core.session.SessionStorage.SESSION_ID;
@@ -47,7 +43,7 @@ public class UserController extends ControllerFunctions {
 
 
     private UserRegisterService userRegisterService = UserRegisterService.getINSTANCE();
-    private RSASecurityService rsaSecurityService = RSASecurityService.getINSTANCE();
+    private RSASecurityService rsaSecurityService   = RSASecurityService.getINSTANCE();
 
 
     @Post("/login")
@@ -58,39 +54,34 @@ public class UserController extends ControllerFunctions {
 
         String identity = req.getParameter(IDENTITY_PARAM);
         String password = req.getParameter(PASSWORD_PARAM);
-        int mode;
+        String modeStr  = req.getParameter(LOGIN_MODE_PARAM);
 
-        if (isNullOrEmpty(identity) || password == null ||
+        if (anyNullOrEmpty(identity, modeStr) || password == null ||
             identity.length() > 64 || password.length() < 8 || password.length() > 16) {
             return failedResponse(BAD_REQUEST);
         }
 
-        try {
-            mode = Integer.parseInt(req.getParameter(LOGIN_MODE_PARAM), 10);
-        } catch (Exception e) {
-            return failedResponse(BAD_REQUEST);
-        }
 
         PrivateKey privateKey = (PrivateKey) req.getFromSession(RSA_PRIVATE_KEY);
         if (privateKey == null) {
             return failedResponse(BAD_REQUEST);
         }
 
+        Optional<String> opPwd;
+
         try {
-            password = rsaSecurityService.doDecode(password, privateKey);
-        } catch ( NoSuchPaddingException
-                | NoSuchAlgorithmException
-                | BadPaddingException
-                | InvalidKeyException
-                | IllegalBlockSizeException e) {
-            logger.warn("RSA decode wrong.", e);
-            return failedResponse(BAD_REQUEST);
+            opPwd = rsaSecurityService.doDecode(password, privateKey);
         } catch (IOException e) {
             logger.error("RSA decode error.", e);
             return failedResponse(INTERNAL_SERVER_ERROR);
         }
 
-        userRegisterService.doLogin(identity, password, mode == 0, req.newPromise(String.class).addListener(f -> {
+        if (!opPwd.isPresent()) {
+            logger.warn("RSA decode wrong, from {}.", req.channel().remoteAddress());
+            return failedResponse(BAD_REQUEST);
+        }
+
+        userRegisterService.doLogin(identity, opPwd.get(), modeStr.charAt(0) == '0', req.newPromise(String.class).addListener(f -> {
             String userId = (String) f.getNow();
             if (userId == null) {
                 req.writeResponse(OK, failedState("用户名或密码错误"), APPLICATION_JSON);
@@ -134,7 +125,26 @@ public class UserController extends ControllerFunctions {
             return failedResponse(BAD_REQUEST);
         }
 
-        userRegisterService.doSignUp(username, mail, password, req.newPromise(Boolean.class).addListener(f -> {
+        PrivateKey privateKey = (PrivateKey) req.getFromSession(RSA_PRIVATE_KEY);
+        if (privateKey == null) {
+            return failedResponse(BAD_REQUEST);
+        }
+
+        Optional<String> opPwd;
+
+        try {
+            opPwd = rsaSecurityService.doDecode(password, privateKey);
+        } catch (IOException e) {
+            logger.error("RSA decode error.", e);
+            return failedResponse(INTERNAL_SERVER_ERROR);
+        }
+
+        if (!opPwd.isPresent()) {
+            logger.warn("RSA decode wrong, from {}.", req.channel().remoteAddress());
+            return failedResponse(BAD_REQUEST);
+        }
+
+        userRegisterService.doSignUp(username, mail, opPwd.get(), req.newPromise(Boolean.class).addListener(f -> {
             Boolean isSuccess = (Boolean) f.getNow();
             if (isSuccess) {
                 req.writeResponse(OK, successState("注册成功"), APPLICATION_JSON);

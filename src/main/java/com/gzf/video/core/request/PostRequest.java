@@ -65,8 +65,8 @@ public class PostRequest extends Request {
                     }
                     break;
                 case InternalAttribute:
-                    // continue
                     // noting to do at present
+                    // continue
                 }
             }
         } catch (IOException e) {

@@ -18,7 +18,6 @@ package com.gzf.video.core.dispatcher;
 import com.gzf.video.core.controller.action.Action;
 import com.gzf.video.core.controller.ControllerScan;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,7 +40,7 @@ public class DefaultDispatcher implements Dispatcher {
 
     @Override
     @Deprecated
-    public Action doDispatch(final String path, final Map<String, List<String>> parameters, final boolean get_or_post) {
+    public Action doDispatch(final String path, final Map<String, String> parameters, final boolean get_or_post) {
         return this.doDispatch(path, get_or_post);
     }
 
