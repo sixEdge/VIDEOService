@@ -3,23 +3,21 @@ package com.gzf.video.controller;
 import com.gzf.video.core.annotation.Controller;
 import com.gzf.video.core.annotation.action.Get;
 import com.gzf.video.core.annotation.action.Post;
+import com.gzf.video.core.http.response.Response;
 import com.gzf.video.service.RSASecurityService;
 import com.gzf.video.service.UserRegisterService;
-import com.gzf.video.util.ControllerFunctions;
-import com.gzf.video.core.request.Request;
-import io.netty.handler.codec.http.*;
+import com.gzf.video.core.http.request.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.security.PrivateKey;
-import java.util.Map;
 import java.util.Optional;
 
-import static com.gzf.video.core.session.SessionStorage.RSA_PRIVATE_KEY;
-import static com.gzf.video.core.session.SessionStorage.SESSION_ID;
-import static com.gzf.video.pojo.component.CodeMessage.failedState;
-import static com.gzf.video.pojo.component.CodeMessage.successState;
+import static com.gzf.video.core.session.storage.SessionStorage.RSA_PRIVATE_KEY;
+import static com.gzf.video.core.session.storage.SessionStorage.SESSION_ID;
+import static com.gzf.video.pojo.component.CodeMessage.failedCode;
+import static com.gzf.video.pojo.component.CodeMessage.successCode;
 import static com.gzf.video.service.RSASecurityService.RSAKeyPair;
 import static com.gzf.video.util.StringUtil.EMPTY_STRING;
 import static com.gzf.video.util.StringUtil.anyNullOrEmpty;
@@ -29,7 +27,7 @@ import static io.netty.handler.codec.http.HttpHeaderValues.TEXT_PLAIN;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
 @Controller("/reg")
-public class UserController extends ControllerFunctions {
+public class UserRegisterController {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
 
@@ -47,49 +45,55 @@ public class UserController extends ControllerFunctions {
 
 
     @Post("/login")
-    public FullHttpResponse login(final Request req) {
-        if (req.getUserId() != null) {
-            return okResponse(req.newByteBuf(successState("您已登录")), APPLICATION_JSON);
+    public Response login(final Request req) {
+
+        // has login
+        String preUserId;
+        if ((preUserId = req.getUserId()) != null) {
+            return req.okResponse(req.newByteBuf(successCode(preUserId)), APPLICATION_JSON);
         }
 
         String identity = req.getParameter(IDENTITY_PARAM);
         String password = req.getParameter(PASSWORD_PARAM);
         String modeStr  = req.getParameter(LOGIN_MODE_PARAM);
 
-        if (anyNullOrEmpty(identity, modeStr) || password == null ||
-            identity.length() > 64 || password.length() < 8 || password.length() > 16) {
-            return failedResponse(BAD_REQUEST);
+        if (anyNullOrEmpty(identity, modeStr, password) || identity.length() > 64) {
+            return req.failedResponse(BAD_REQUEST);
         }
 
 
-        PrivateKey privateKey = (PrivateKey) req.getFromSession(RSA_PRIVATE_KEY);
+        // get rsa private key
+        PrivateKey privateKey = (PrivateKey) req.session().remove(RSA_PRIVATE_KEY);
         if (privateKey == null) {
-            return failedResponse(BAD_REQUEST);
+            return req.failedResponse(BAD_REQUEST);
         }
 
         Optional<String> opPwd;
 
+        // rsa decode
         try {
             opPwd = rsaSecurityService.doDecode(password, privateKey);
         } catch (IOException e) {
             logger.error("RSA decode error.", e);
-            return failedResponse(INTERNAL_SERVER_ERROR);
+            return req.failedResponse(INTERNAL_SERVER_ERROR);
         }
 
         if (!opPwd.isPresent()) {
-            logger.warn("RSA decode wrong, from {}.", req.channel().remoteAddress());
-            return failedResponse(BAD_REQUEST);
+            logger.warn("no RSA private key found, for client {}, user {}.",
+                    req.channel().remoteAddress(),
+                    identity);
+            return req.failedResponse(BAD_REQUEST);
         }
 
         userRegisterService.doLogin(identity, opPwd.get(), modeStr.charAt(0) == '0', req.newPromise(String.class).addListener(f -> {
             String userId = (String) f.getNow();
             if (userId == null) {
-                req.writeResponse(OK, failedState("用户名或密码错误"), APPLICATION_JSON);
+                req.writeResponse(OK, failedCode("用户名或密码错误"), APPLICATION_JSON);
                 return;
             }
-            FullHttpResponse resp =
-                    okResponse(req.newByteBuf(successState("登录成功")), APPLICATION_JSON);
-            req.addIdentification(resp.headers(), userId, true);
+
+            Response resp = req.okResponse(successCode(userId), APPLICATION_JSON);
+            req.addIdentification(userId, true);
             req.writeResponse(resp);
             req.release();
         }));
@@ -97,37 +101,36 @@ public class UserController extends ControllerFunctions {
         return null;
     }
 
+
     @Post("/logout")
-    public FullHttpResponse logout(final Request req) {
-        Map<String, String> params = req.parameters();
-        String sessionId = params.get(SESSION_ID);
+    public Response logout(final Request req) {
+        String sessionId = req.getParameter(SESSION_ID);
 
         if (isNullOrEmpty(sessionId) || sessionId.length() > 128) {
-            return failedResponse(BAD_REQUEST);
+            return req.failedResponse(BAD_REQUEST);
         }
 
         userRegisterService.doLogout(sessionId);
         req.release();
 
-        return okResponse(req.newByteBuf(successState(EMPTY_STRING)));
+        return req.okResponse(successCode(EMPTY_STRING), APPLICATION_JSON);
     }
 
-    @Post("/signUp")
-    public FullHttpResponse signUp(final Request req) {
-        Map<String, String> params = req.parameters();
 
-        String username = params.get(USER_NAME_PARAM);
-        String mail = params.get(MAIL_PARAM);
-        String password = params.get(PASSWORD_PARAM);
+    @Post("/signUp")
+    public Response signUp(final Request req) {
+        String username = req.getParameter(USER_NAME_PARAM);
+        String mail     = req.getParameter(MAIL_PARAM);
+        String password = req.getParameter(PASSWORD_PARAM);
 
         if (anyNullOrEmpty(username, mail) || password == null ||
                 username.length() > 64 || password.length() < 8 || password.length() > 16) {
-            return failedResponse(BAD_REQUEST);
+            return req.failedResponse(BAD_REQUEST);
         }
 
-        PrivateKey privateKey = (PrivateKey) req.getFromSession(RSA_PRIVATE_KEY);
+        PrivateKey privateKey = (PrivateKey) req.session().remove(RSA_PRIVATE_KEY);
         if (privateKey == null) {
-            return failedResponse(BAD_REQUEST);
+            return req.failedResponse(BAD_REQUEST);
         }
 
         Optional<String> opPwd;
@@ -136,20 +139,20 @@ public class UserController extends ControllerFunctions {
             opPwd = rsaSecurityService.doDecode(password, privateKey);
         } catch (IOException e) {
             logger.error("RSA decode error.", e);
-            return failedResponse(INTERNAL_SERVER_ERROR);
+            return req.failedResponse(INTERNAL_SERVER_ERROR);
         }
 
         if (!opPwd.isPresent()) {
             logger.warn("RSA decode wrong, from {}.", req.channel().remoteAddress());
-            return failedResponse(BAD_REQUEST);
+            return req.failedResponse(BAD_REQUEST);
         }
 
         userRegisterService.doSignUp(username, mail, opPwd.get(), req.newPromise(Boolean.class).addListener(f -> {
             Boolean isSuccess = (Boolean) f.getNow();
             if (isSuccess) {
-                req.writeResponse(OK, successState("注册成功"), APPLICATION_JSON);
+                req.writeResponse(OK, successCode("注册成功"), APPLICATION_JSON);
             } else {
-                req.writeResponse(OK, failedState("注册失败"), APPLICATION_JSON);
+                req.writeResponse(OK, failedCode("注册失败"), APPLICATION_JSON);
             }
             req.release();
         }));
@@ -157,8 +160,9 @@ public class UserController extends ControllerFunctions {
         return null;
     }
 
+
     @Get("/rsa")
-    public FullHttpResponse rsaPublicKey(final Request req) {
+    public Response rsaPublicKey(final Request req) {
         RSAKeyPair keyPair = rsaSecurityService.doGenerateKeyPair();
 
         req.addToSession(RSA_PRIVATE_KEY, keyPair.getPrivateKey());

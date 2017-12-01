@@ -1,7 +1,7 @@
 package com.gzf.video.core.server.handler;
 
 import com.gzf.video.core.session.Session;
-import com.gzf.video.core.session.SessionStorage;
+import com.gzf.video.core.session.storage.SessionStorage;
 import com.sun.istack.internal.NotNull;
 
 class UserInterceptor {

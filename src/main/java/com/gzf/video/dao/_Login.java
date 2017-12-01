@@ -7,6 +7,9 @@ import org.bson.Document;
 
 import static com.gzf.video.dao._Login.LoginStruct.*;
 
+/**
+ * Login & Sign up.
+ */
 public class _Login {
 
     private static final MongoProvider MONGO_PROVIDER = MongoProvider.getINSTANCE();
@@ -14,10 +17,10 @@ public class _Login {
 
     public static final String LOGIN_COLLECTION = "login";
     public interface LoginStruct {
-        String USER_ID      =   "uId";
-        String USERNAME     =   "uname";
-        String MAIL         =   "mail";
-        String PASSWORD     =   "pwd";
+        String USER_ID      =   "uId";      // int
+        String USERNAME     =   "uname";    // string
+        String MAIL         =   "mail";     // string
+        String PASSWORD     =   "pwd";      // string
     }
 
 

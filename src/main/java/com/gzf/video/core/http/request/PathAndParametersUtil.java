@@ -1,4 +1,4 @@
-package com.gzf.video.core.request;
+package com.gzf.video.core.http.request;
 
 import io.netty.util.CharsetUtil;
 

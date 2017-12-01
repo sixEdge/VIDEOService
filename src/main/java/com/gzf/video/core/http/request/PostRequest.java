@@ -1,4 +1,4 @@
-package com.gzf.video.core.request;
+package com.gzf.video.core.http.request;
 
 import com.gzf.video.core.session.Session;
 import io.netty.channel.ChannelHandlerContext;

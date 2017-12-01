@@ -116,9 +116,18 @@ public class MongoProvider {
         return db_0.getCollection(collection);
     }
 
-    public MongoCollection<Document> getCollection(final String db,
-                                                   final String collection) {
+    public <T> MongoCollection<T> getCollection(final String collection, final Class<T> clazz) {
+        return db_0.getCollection(collection, clazz);
+    }
+
+    public MongoCollection<Document> getCollection(final String db, final String collection) {
         return mongoClient.getDatabase(db).getCollection(collection);
+    }
+
+    public <T> MongoCollection<T> getCollection(final String db,
+                                                final String collection,
+                                                final Class<T> clazz) {
+        return mongoClient.getDatabase(db).getCollection(collection, clazz);
     }
 
 

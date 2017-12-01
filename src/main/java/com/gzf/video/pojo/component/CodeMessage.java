@@ -53,7 +53,7 @@ public class CodeMessage {
      *
      * @return {"code" : 0, "message" : ""}
      */
-    public static byte[] successState(final String msg) {
+    public static byte[] successCode(final String msg) {
         return ("{\"code\" : 0, \"message\" : \"" + msg + "\"}").getBytes();
     }
 
@@ -62,7 +62,7 @@ public class CodeMessage {
      *
      * @return {"code" : 1, "message" : ""}
      */
-    public static byte[] failedState(final String msg) {
+    public static byte[] failedCode(final String msg) {
         return ("{\"code\" : 1, \"message\" : \"" + msg + "\"}").getBytes();
     }
 

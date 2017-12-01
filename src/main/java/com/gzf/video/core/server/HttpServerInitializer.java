@@ -44,13 +44,10 @@ class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
             pipeline.addLast(sslCtx.newHandler(ch.alloc()));
         }
 
-        pipeline.addLast("logging-handler", new LoggingHandler(LogLevel.TRACE));
+//        pipeline.addLast("logging-handler", new LoggingHandler(LogLevel.TRACE));
 
-//        pipeline.addLast("session-handler", SessionHandler.getINSTANCE());
         pipeline.addLast("http-codec", new HttpServerCodec());
         pipeline.addLast("http-aggregator", new HttpObjectAggregator(65536));
-//        pipeline.addLast("chunk-writer-handler", new ChunkedWriteHandler());
-//        pipeline.addLast("http-content-compressor", new HttpContentCompressor());
-        pipeline.addLast("dispatcher-handler", new ActionHandler());
+        pipeline.addLast("action-handler", ActionHandler.getINSTANCE());
     }
 }

@@ -1,4 +1,4 @@
-package com.gzf.video.core.session;
+package com.gzf.video.core.session.storage;
 
 import com.gzf.video.core.dao.redis.RedisProvider;
 import redis.clients.jedis.Jedis;

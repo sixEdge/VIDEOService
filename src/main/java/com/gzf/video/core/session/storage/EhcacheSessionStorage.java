@@ -1,4 +1,4 @@
-package com.gzf.video.core.session;
+package com.gzf.video.core.session.storage;
 
 import com.gzf.video.core.cache.EhcacheProviderMetric;
 import org.ehcache.Cache;

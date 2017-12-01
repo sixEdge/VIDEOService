@@ -1,6 +1,6 @@
 package com.gzf.video.service;
 
-import com.gzf.video.core.session.SessionStorage;
+import com.gzf.video.core.session.storage.SessionStorage;
 import com.gzf.video.dao._Login;
 import com.gzf.video.util.StringUtil;
 import com.mongodb.async.SingleResultCallback;
@@ -12,7 +12,7 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
 /**
- * Login & Sign up.
+ * Login & Logout & Sign up.
  */
 public class UserRegisterService {
 

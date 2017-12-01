@@ -20,7 +20,7 @@ import com.gzf.video.core.dao.MongoProvider;
 import com.gzf.video.pojo.component.enums.Level;
 import com.gzf.video.pojo.component.enums.Sex;
 import com.gzf.video.pojo.entry.LoginUserInfo;
-import com.gzf.video.core.session.SessionStorage;
+import com.gzf.video.core.session.storage.SessionStorage;
 import com.gzf.video.util.StringUtil;
 import com.mongodb.async.client.MongoCollection;
 import com.typesafe.config.Config;
@@ -44,8 +44,8 @@ public class TestTest {
     public void cacheTest() {
         SessionStorage sessionManager = SessionStorage.getINSTANCE();
 
-        String key   = "theSessionId",
-               value = "theUserId";
+        String  key     = "theSessionId",
+                value   = "theUserId";
         sessionManager.createLoginCache(key, value);
 
         String userId = sessionManager.getLoginUserIdCache(key);

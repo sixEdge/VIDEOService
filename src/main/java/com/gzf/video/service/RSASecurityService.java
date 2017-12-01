@@ -62,10 +62,7 @@ public class RSASecurityService {
         );
     }
 
-    public Optional<String> doDecode(final String encodedString, final PrivateKey privateKey)
-            throws
-            IOException
-    {
+    public Optional<String> doDecode(final String encodedString, final PrivateKey privateKey) throws IOException {
         Cipher cipher;
         byte[] bs;
 
@@ -81,7 +78,7 @@ public class RSASecurityService {
             return Optional.empty();
         }
 
-        return Optional.of(new String(bs));
+        return Optional.of(new String(bs).trim());
     }
 
 

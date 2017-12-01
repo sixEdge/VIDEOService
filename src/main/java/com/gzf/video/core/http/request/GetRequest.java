@@ -1,4 +1,4 @@
-package com.gzf.video.core.request;
+package com.gzf.video.core.http.request;
 
 import com.gzf.video.core.session.Session;
 import io.netty.channel.ChannelHandlerContext;
@@ -8,8 +8,8 @@ import io.netty.handler.codec.http.cookie.Cookie;
 import java.util.Map;
 import java.util.Set;
 
-import static com.gzf.video.core.request.PathAndParametersUtil.decodeParams;
-import static com.gzf.video.core.request.PathAndParametersUtil.findPathEndIndex;
+import static com.gzf.video.core.http.request.PathAndParametersUtil.decodeParams;
+import static com.gzf.video.core.http.request.PathAndParametersUtil.findPathEndIndex;
 
 public class GetRequest extends Request {
 

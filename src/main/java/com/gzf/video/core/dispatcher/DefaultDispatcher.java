@@ -49,8 +49,7 @@ public class DefaultDispatcher implements Dispatcher {
         try {
             new ControllerScan(actionDispatcher).refresh();
         } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
+            throw new Error(e);
         }
     }
 }

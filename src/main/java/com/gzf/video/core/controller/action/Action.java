@@ -1,11 +1,10 @@
 package com.gzf.video.core.controller.action;
 
-import com.gzf.video.core.request.Request;
-import io.netty.handler.codec.http.FullHttpResponse;
+import com.gzf.video.core.http.request.Request;
+import com.gzf.video.core.http.response.Response;
 
 @FunctionalInterface
 public interface Action {
 
-    FullHttpResponse doAction(Request rw);
-
+    Response doAction(Request rw);
 }

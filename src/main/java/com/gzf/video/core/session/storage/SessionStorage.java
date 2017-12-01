@@ -1,12 +1,21 @@
-package com.gzf.video.core.session;
+package com.gzf.video.core.session.storage;
 
 import com.gzf.video.core.ConfigManager;
-import com.sun.istack.internal.NotNull;
+import com.gzf.video.core.async.AsyncTask;
+import com.gzf.video.core.session.Session;
+import com.gzf.video.core.session.SessionIdGenerator;
 import com.typesafe.config.Config;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class SessionStorage {
 
@@ -21,16 +30,11 @@ public abstract class SessionStorage {
     public static final String RSA_PRIVATE_KEY = SESSION_CONFIG.getString("rsaPrivateKey");
 
 
-    private final ConcurrentHashMap<String, Session> SESSION_MAP =
-            new ConcurrentHashMap<>(1024);
+    private final Map<String, Session> SESSION_MAP = new ConcurrentHashMap<>(1024);
 
 
     private static SessionStorage INSTANCE;
 
-
-    static {
-        Session.setInitialCapacity(SESSION_CONFIG.getInt("initSessionSize"));
-    }
 
     SessionStorage() {}
 
@@ -53,8 +57,7 @@ public abstract class SessionStorage {
                     | InstantiationException
                     | NoSuchMethodException
                     | InvocationTargetException e) {
-                e.printStackTrace();
-                System.exit(1);
+                throw new Error(e);
             }
         }
         return INSTANCE;
@@ -102,20 +105,31 @@ public abstract class SessionStorage {
 
     // internal-session implementation
 
+    private static final SessionIdGenerator SESSION_ID_GENERATOR = new SessionIdGenerator();
+
     /**
-     * Used to create session for a login user. <br />
+     * Create a session. <br />
      *
-     * @return a new session associated with the specified session id,
-     *         or {@code null} if there was already a session mapping for the session id
-     *
-     * @throws NullPointerException if the specified session id or value is null
+     * @return a session associated with the random session id,
      */
-    public Session createSession(final String sessionId, final String userId) {
-        Session session = new Session(userId);
-        if (SESSION_MAP.putIfAbsent(sessionId, session) == null) {
-            return session;
-        }
-        return null;
+    public Session createSession() {
+        String sessionId = SESSION_ID_GENERATOR.generateSessionId();
+        Session newSession = new Session(sessionId);
+
+        SESSION_MAP.put(sessionId, newSession);
+
+        return newSession;
+    }
+
+    /**
+     * Create a session. <br />
+     *
+     * @param sessionId session id
+     *
+     * @return a session associated with the specified session id,
+     */
+    public Session createSession(final String sessionId) {
+        return SESSION_MAP.put(sessionId, new Session(sessionId));
     }
 
     /**
@@ -124,7 +138,7 @@ public abstract class SessionStorage {
      * @param sessionId session id
      * @return the session that been removed, or null if it didn't exist
      */
-    public Session destroySession(@NotNull final String sessionId) {
+    public Session destroySession(final String sessionId) {
         return SESSION_MAP.remove(sessionId);
     }
 
@@ -145,15 +159,14 @@ public abstract class SessionStorage {
      * Get the current session associated with the specified session id.<br />
      *
      * @param sessionId session id
-     * @param createIfAbsent weather create a new session if it absents
+     * @param createIfAbsent weather create a new session if session absents
      * @return the session associates with the specified session id,
      *         can be null if {@code createIfAbsent} is false
      */
     public Session getSession(final String sessionId, final boolean createIfAbsent) {
-        Session session = SESSION_MAP.get(sessionId);
+        Session session = retrieveSession(sessionId);
         if (session == null && createIfAbsent) {
-            session = new Session();
-            SESSION_MAP.put(sessionId, session);
+            return createSession();
         }
         return session;
     }
@@ -178,5 +191,61 @@ public abstract class SessionStorage {
     public Object addToSession(final String sessionId, final String key, final Object val) {
         Session session = getSession(sessionId);
         return session.put(key, val);
+    }
+
+
+
+
+    /**
+     * Minimum period between expiration checks.
+     */
+    private static final Duration EXPIRATION_CHECK_PERIOD = Duration.ofMinutes(2L);
+
+    private static final Clock CLOCK = Clock.system(ZoneId.of("GMT"));
+
+
+    private volatile Instant nextExpirationCheckTime = Instant.now(CLOCK).plus(EXPIRATION_CHECK_PERIOD);
+
+    private final ReentrantLock expirationCheckLock = new ReentrantLock();
+
+
+    private Session retrieveSession(final String sessionId) {
+
+        Instant currentTime = Instant.now(CLOCK);
+
+        if (!SESSION_MAP.isEmpty() && !currentTime.isBefore(nextExpirationCheckTime)) {
+            checkExpiredSessions(currentTime);
+        }
+
+        Session session = SESSION_MAP.get(sessionId);
+        if (session == null) {
+            return null;
+        } else if (session.isExpired(currentTime)) {
+            SESSION_MAP.remove(sessionId);
+            return null;
+        } else {
+            session.setLastAccessTime(currentTime);
+            return session;
+        }
+    }
+
+    private void checkExpiredSessions(final Instant currentTime) {
+        AsyncTask.execute(() -> {
+            if (expirationCheckLock.tryLock()) {
+                try {
+                    Iterator<Session> iterator = SESSION_MAP.values().iterator();
+                    while (iterator.hasNext()) {
+                        Session session = iterator.next();
+                        if (session.isExpired(currentTime)) {
+                            iterator.remove();
+                            session.clear();
+                        }
+                    }
+                } finally {
+                    nextExpirationCheckTime = currentTime.plus(EXPIRATION_CHECK_PERIOD);
+                    expirationCheckLock.unlock();
+                }
+            }
+        });
     }
 }

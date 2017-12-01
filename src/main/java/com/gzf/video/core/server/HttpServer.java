@@ -80,6 +80,11 @@ public class HttpServer {
     }
 
     public ChannelFuture closeServer() {
-        return bindChannel.close();
+        try {
+            return bindChannel.close().sync();
+        } catch (InterruptedException e) {
+            logger.warn("Server shutdown interrupted.");
+        }
+        return null;
     }
 }
