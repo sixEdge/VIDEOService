@@ -5,7 +5,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Session extends ConcurrentHashMap<String, Object> {
@@ -19,7 +18,7 @@ public class Session extends ConcurrentHashMap<String, Object> {
 
     private volatile Duration maxIdleTime = Duration.ofHours(2L);
 
-    private final AtomicBoolean state = new AtomicBoolean(true);  // alive or expired
+    private volatile boolean state = true;  // alive or expired
 
 
     private final String sessionId;
@@ -58,9 +57,9 @@ public class Session extends ConcurrentHashMap<String, Object> {
     }
 
     public boolean isExpired(final Instant currentTime) {
-        if (state.get()) {
+        if (state) {
             if (checkExpired(currentTime)) {
-                state.set(false);
+                state = false;
                 return true;
             }
             return false;

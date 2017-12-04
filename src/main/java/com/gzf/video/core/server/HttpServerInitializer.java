@@ -16,13 +16,12 @@
 package com.gzf.video.core.server;
 
 import com.gzf.video.core.server.handler.ActionHandler;
+import com.gzf.video.core.server.handler.InterceptorHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 
 class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
@@ -46,8 +45,10 @@ class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
 
 //        pipeline.addLast("logging-handler", new LoggingHandler(LogLevel.TRACE));
 
-        pipeline.addLast("http-codec", new HttpServerCodec());
-        pipeline.addLast("http-aggregator", new HttpObjectAggregator(65536));
-        pipeline.addLast("action-handler", ActionHandler.getINSTANCE());
+        pipeline.addLast("Http-Codec",          new HttpServerCodec());
+        pipeline.addLast("Http-Aggregator",     new HttpObjectAggregator(65536));
+
+        pipeline.addLast("Interceptor-Handler", InterceptorHandler.getINSTANCE());
+        pipeline.addLast("Action-Handler",      ActionHandler.getINSTANCE());
     }
 }

@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 public class HttpServer {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+
     private Config serverConf = ConfigManager.getServerConf();
 
     private int port = serverConf.getInt("port");

@@ -22,16 +22,18 @@ public class PostRequest extends Request {
                        final FullHttpRequest req,
                        final Set<Cookie> cookies,
                        final Session session) {
-        super(ctx, req.headers(), cookies, session);
-        checkAndDecode(req);
+        super(ctx, req, cookies, session);
+        decode(req);
     }
 
 
     @Override
-    public void release() {
+    public boolean release() {
         if (postRequestDecoder != null) {
             postRequestDecoder.destroy();
         }
+
+        return true;
     }
 
     @Override
@@ -44,7 +46,7 @@ public class PostRequest extends Request {
     }
 
 
-    private void checkAndDecode(final FullHttpRequest request) {
+    private void decode(final FullHttpRequest request) {
         postRequestDecoder = new HttpPostRequestDecoder(request);
         parameters = new HashMap<>();
         fileContents = new HashMap<>();

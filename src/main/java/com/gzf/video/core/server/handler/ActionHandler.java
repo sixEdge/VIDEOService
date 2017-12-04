@@ -16,108 +16,58 @@
 package com.gzf.video.core.server.handler;
 
 import com.gzf.video.core.controller.action.Action;
-import com.gzf.video.core.http.request.GetRequest;
 import com.gzf.video.core.dispatcher.DefaultDispatcher;
 import com.gzf.video.core.dispatcher.Dispatcher;
-import com.gzf.video.core.http.request.PostRequest;
 import com.gzf.video.core.http.request.Request;
 import com.gzf.video.core.http.response.Response;
-import com.gzf.video.core.session.Session;
-import com.gzf.video.core.session.storage.SessionStorage;
-import com.gzf.video.util.StringUtil;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
-import io.netty.handler.codec.http.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Set;
-
-import static com.gzf.video.core.dispatcher.ActionDispatcher.PRE_INTERCEPT_PATH;
 import static com.gzf.video.core.http.request.PathAndParametersUtil.decodeComponent;
 import static com.gzf.video.core.http.request.PathAndParametersUtil.findPathEndIndex;
-import static com.gzf.video.core.session.storage.SessionStorage.SESSION_ID;
 import static com.gzf.video.util.ControllerFunctions.encodeCookie;
 import static io.netty.channel.ChannelHandler.Sharable;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
-import static io.netty.handler.codec.http.HttpHeaderNames.COOKIE;
 import static io.netty.handler.codec.http.HttpHeaderNames.SET_COOKIE;
-import static io.netty.handler.codec.http.HttpHeaderValues.CLOSE;
 import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpMethod.POST;
 import static io.netty.handler.codec.http.HttpVersion.*;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
 @Sharable
-public class ActionHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+public class ActionHandler extends SimpleChannelInboundHandler<Request> {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+
     private static final Dispatcher DISPATCHER = DefaultDispatcher.getINSTANCE();
-    private static final SessionStorage SESSION_STORAGE = SessionStorage.getINSTANCE();
+
 
     public static void init() {}
 
     // auto release
     private ActionHandler() {
-        super(true);
+        super(false);
     }
 
 
     @Override
-    protected void channelRead0(final ChannelHandlerContext ctx, final FullHttpRequest req) {
-        if (!req.decoderResult().isSuccess()) {
-            sendError(ctx, BAD_REQUEST);
-            return;
-        }
+    protected void channelRead0(final ChannelHandlerContext ctx, final Request req) {
 
         boolean getOrPost;
-        if (req.method() == GET) getOrPost = true;
-        else if (req.method() == POST) getOrPost = false;
+        if (req.getMethod() == GET) getOrPost = true;
+        else if (req.getMethod() == POST) getOrPost = false;
         else {
             sendError(ctx, METHOD_NOT_ALLOWED);
             return;
         }
 
 
-        String cookieSessionId;
-        Set<Cookie> cookies;
-        Session session = null;
+        String uri = req.getUri();
 
-
-        // sync session id
-
-        cookies = StringUtil.decodeCookies(req.headers().get(COOKIE));
-        cookieSessionId = StringUtil.getFromCookies(cookies, SESSION_ID);
-
-        String userId;
-        if (StringUtil.isNotNullOrEmpty(cookieSessionId)) {
-
-            // a sessionId has been used by current client
-            if ((session = SESSION_STORAGE.getSession(cookieSessionId, false)) == null) {
-
-                // remembered user
-                if ((userId = SESSION_STORAGE.getLoginUserIdCache(cookieSessionId)) != null) {
-
-                    // auto login
-                    session = SESSION_STORAGE.createSession(cookieSessionId);
-                    session.setUserId(userId);
-                }
-            }
-        }
-
-
-        // intercept
-
-        String uri = req.uri();
-
-        if (uri.startsWith(PRE_INTERCEPT_PATH)) {
-            if (session == null || session.getUserId() == null) {
-                sendError(ctx, FORBIDDEN);
-                return;
-            }
-        }
 
 
         // dispatch
@@ -131,14 +81,11 @@ public class ActionHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
         }
 
 
-        // action
 
-        Request request = getOrPost
-                ? new GetRequest(ctx, req, cookies, session)
-                : new PostRequest(ctx, req, cookies, session);
+        // do action
 
+        Response response = action.doAction(req);
 
-        Response response = action.doAction(request);
 
 
         // send
@@ -147,23 +94,22 @@ public class ActionHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
             return;
         }
 
-        if (request.isNewSessionId()) {
-            request.getHeaders().add(SET_COOKIE,
-                    encodeCookie(Request.cookieSessionId(request.sessionId())));
+        if (req.isNewSessionId()) {
+            req.getHeaders().add(SET_COOKIE,
+                    encodeCookie(Request.cookieSessionId(req.sessionId())));
         }
 
-        if (HttpUtil.isKeepAlive(req)) {
-            ctx.writeAndFlush(response);
-        } else {
-            response.headers().set(CONNECTION, CLOSE);
+        if (HttpHeaderValues.CLOSE.contentEqualsIgnoreCase(req.getHeader(CONNECTION))) {
             ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+        } else {
+            ctx.writeAndFlush(response);
         }
     }
 
 
     @Override
     public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
-        logger.error("exceptionCaught", cause);
+        logger.error("Action-Handler exceptionCaught", cause);
         if (ctx.channel().isActive()) {
             sendError(ctx, INTERNAL_SERVER_ERROR);
         }
@@ -184,4 +130,3 @@ public class ActionHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
         return INSTANCE;
     }
 }
-

@@ -13,18 +13,15 @@ import static com.gzf.video.core.http.request.PathAndParametersUtil.findPathEndI
 
 public class GetRequest extends Request {
 
-    private String uri;
-
     public GetRequest(final ChannelHandlerContext ctx,
                       final FullHttpRequest req,
                       final Set<Cookie> cookies,
                       final Session session) {
-        super(ctx, req.headers(), cookies, session);
-        uri = req.uri();
+        super(ctx, req, cookies, session);
     }
 
     @Override
-    public void release() {
+    public boolean release() {
         throw new UnsupportedOperationException();
     }
 

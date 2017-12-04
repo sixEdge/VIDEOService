@@ -36,7 +36,11 @@ public abstract class Request {
 
     private ChannelHandlerContext ctx;
 
-    private HttpHeaders headers;
+    private final HttpMethod method;
+
+    final String uri;
+
+    private final HttpHeaders headers;
 
     protected Map<String, String> parameters;
 
@@ -48,11 +52,15 @@ public abstract class Request {
 
 
     Request(final ChannelHandlerContext ctx,
-            final HttpHeaders headers,
+            final FullHttpRequest req,
             final Set<Cookie> cookies,
             @Nullable final Session session) {
         this.ctx = ctx;
-        this.headers = headers;
+
+        this.method  = req.method();
+        this.uri     = req.uri();
+        this.headers = req.headers();
+
         this.cookies = cookies;
         this.session = session;
     }
@@ -60,6 +68,14 @@ public abstract class Request {
 
     public ChannelHandlerContext getContext() {
         return ctx;
+    }
+
+    public HttpMethod getMethod() {
+        return method;
+    }
+
+    public String getUri() {
+        return uri;
     }
 
     public HttpHeaders getHeaders() {
@@ -71,10 +87,6 @@ public abstract class Request {
      */
     public Set<Cookie> cookies() {
         return cookies;
-    }
-
-    public String sessionId() {
-        return session().getSessionId();
     }
 
     /**
@@ -94,6 +106,10 @@ public abstract class Request {
         return isNewSessionId;
     }
 
+    public String sessionId() {
+        return session().getSessionId();
+    }
+
 
     //    ------------------------------ base
 
@@ -105,7 +121,7 @@ public abstract class Request {
         return ctx.alloc();
     }
 
-    public abstract void release();
+    public abstract boolean release();
 
     public <V> Promise<V> newPromise(Class<V> clazz) {
         return new DefaultPromise<>(ctx.executor());
