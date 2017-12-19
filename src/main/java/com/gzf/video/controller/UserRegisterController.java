@@ -1,8 +1,8 @@
 package com.gzf.video.controller;
 
-import com.gzf.video.core.annotation.Controller;
-import com.gzf.video.core.annotation.action.Get;
-import com.gzf.video.core.annotation.action.Post;
+import com.gzf.video.core.controller.Controller;
+import com.gzf.video.core.controller.action.method.Get;
+import com.gzf.video.core.controller.action.method.Post;
 import com.gzf.video.core.http.response.Response;
 import com.gzf.video.service.RSASecurityService;
 import com.gzf.video.service.UserRegisterService;
@@ -163,11 +163,14 @@ public class UserRegisterController {
 
     @Get("/rsa")
     public Response rsaPublicKey(final Request req) {
+        if (req.getUserId() != null) {
+            return req.okResponse();
+        }
+
         RSAKeyPair keyPair = rsaSecurityService.doGenerateKeyPair();
 
         req.addToSession(RSA_PRIVATE_KEY, keyPair.getPrivateKey());
-        req.writeResponse(OK, keyPair.getPublicKeyStr().getBytes(), TEXT_PLAIN);
 
-        return null;
+        return req.okResponse(keyPair.getPublicKeyStr().getBytes(), TEXT_PLAIN);
     }
 }

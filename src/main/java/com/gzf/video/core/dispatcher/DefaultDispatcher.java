@@ -18,8 +18,6 @@ package com.gzf.video.core.dispatcher;
 import com.gzf.video.core.controller.action.Action;
 import com.gzf.video.core.controller.ControllerScan;
 
-import java.util.Map;
-
 /**
  * Dispatch the specific {@link Action} according to request path.
  */
@@ -27,23 +25,11 @@ public class DefaultDispatcher implements Dispatcher {
 
     private final ActionDispatcher actionDispatcher = new ActionDispatcher();
 
-    private static final DefaultDispatcher INSTANCE = new DefaultDispatcher();
-
-    public static DefaultDispatcher getINSTANCE() {
-        return INSTANCE;
-    }
-
-
-    private Action doDispatch(final String path, final boolean get_or_post) {
-        return actionDispatcher.getAction(path, null, get_or_post);
-    }
 
     @Override
-    @Deprecated
-    public Action doDispatch(final String path, final Map<String, String> parameters, final boolean get_or_post) {
-        return this.doDispatch(path, get_or_post);
+    public Action doDispatch(final String path, final boolean get_or_post) {
+        return actionDispatcher.getAction(path, get_or_post);
     }
-
 
     private DefaultDispatcher() {
         try {
@@ -51,5 +37,11 @@ public class DefaultDispatcher implements Dispatcher {
         } catch (Exception e) {
             throw new Error(e);
         }
+    }
+
+    private static final DefaultDispatcher INSTANCE = new DefaultDispatcher();
+
+    public static DefaultDispatcher getINSTANCE() {
+        return INSTANCE;
     }
 }

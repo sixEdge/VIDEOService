@@ -7,6 +7,6 @@ import java.util.Map;
 
 public interface Dispatcher {
 
-    Action doDispatch(final String path, final Map<String, String> parameters, final boolean get_or_post);
+    Action doDispatch(final String path, final boolean get_or_post);
 
 }

@@ -3,14 +3,12 @@ package com.gzf.video.core.http.request;
 import com.gzf.video.core.http.response.Response;
 import com.gzf.video.core.session.Session;
 import com.gzf.video.core.session.storage.SessionStorage;
-import com.gzf.video.util.StringUtil;
 import com.sun.istack.internal.Nullable;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.cookie.Cookie;
-import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Promise;
 
@@ -18,18 +16,17 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.gzf.video.core.session.storage.SessionStorage.*;
-import static com.gzf.video.core.session.storage.SessionStorage.SESSION_ID_MAX_AGE;
-import static com.gzf.video.util.ControllerFunctions.encodeCookie;
-import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
-import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
-import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
-import static io.netty.handler.codec.http.HttpHeaderNames.SET_COOKIE;
+import static com.gzf.video.util.CookieFunctions.cookieSessionId;
+import static com.gzf.video.util.CookieFunctions.decodeCookies;
+import static com.gzf.video.util.CookieFunctions.getFromCookies;
+import static io.netty.handler.codec.http.HttpHeaderNames.*;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 /**
  * Must promise that there is only one thread use the instance at the same time.
  */
 public abstract class Request {
+
 
     private static final SessionStorage SESSION_STORAGE = SessionStorage.getINSTANCE();
 
@@ -53,7 +50,7 @@ public abstract class Request {
 
     Request(final ChannelHandlerContext ctx,
             final FullHttpRequest req,
-            final Set<Cookie> cookies,
+            @Nullable final Set<Cookie> cookies,
             @Nullable final Session session) {
         this.ctx = ctx;
 
@@ -82,21 +79,28 @@ public abstract class Request {
         return headers;
     }
 
+
     /**
      * Never return null.
      */
     public Set<Cookie> cookies() {
+        if (cookies == null) {
+            cookies = decodeCookies(headers.get(COOKIE));
+        }
         return cookies;
     }
 
     /**
      * Never return null.<br />
-     * <em>NOTE: Shouldn't be called in async context, unless you know what you are doing.</em>
      */
     public Session session() {
         if (session == null) {
-            session = SESSION_STORAGE.createSession();
-            isNewSessionId = true;
+            String sessionId = getFromCookies(cookies(), SESSION_ID);
+            if (sessionId == null
+                    || (session = SESSION_STORAGE.getSession(sessionId, false)) == null) {
+                session = SESSION_STORAGE.createSession();
+                isNewSessionId = true;
+            }
         }
 
         return session;
@@ -131,7 +135,7 @@ public abstract class Request {
      * Unreadable.
      */
     public ByteBuf newByteBuf(final int capacity) {
-        return ctx.alloc().ioBuffer(capacity, capacity);
+        return alloc().ioBuffer(capacity, capacity);
     }
 
     public ByteBuf newByteBuf(final byte[] bs) {
@@ -147,13 +151,12 @@ public abstract class Request {
      */
     public ChannelFuture writeResponse(final Response resp) {
         ChannelFuture future;
-        CharSequence connection = headers.get(CONNECTION);
 
         if (isNewSessionId) {
-            resp.headers().add(SET_COOKIE, encodeCookie(cookieSessionId(sessionId())));
+            resp.headers().add(SET_COOKIE, cookieSessionId(sessionId()));
         }
 
-        if (HttpHeaderValues.CLOSE.contentEqualsIgnoreCase(connection)) {
+        if (HttpHeaderValues.CLOSE.contentEqualsIgnoreCase(headers.get(CONNECTION))) {
             future = ctx.writeAndFlush(resp).addListener(ChannelFutureListener.CLOSE);
         } else {
             future = ctx.writeAndFlush(resp);
@@ -207,7 +210,7 @@ public abstract class Request {
 //    ------------------------------- cookie
 
     public String getCookie(final String key) {
-        return StringUtil.getFromCookies(cookies(), key);
+        return getFromCookies(cookies(), key);
     }
 
 
@@ -245,16 +248,6 @@ public abstract class Request {
         if (rememberMe) {
             SESSION_STORAGE.createLoginCache(sessionId, userId);
         }
-    }
-
-
-    public static Cookie cookieSessionId(final String sessionId) {
-        Cookie cookieSessionId = new DefaultCookie(SESSION_ID, sessionId);
-        cookieSessionId.setPath(SESSION_ID_PATH);
-        cookieSessionId.setHttpOnly(true);
-        cookieSessionId.setMaxAge(SESSION_ID_MAX_AGE);
-
-        return cookieSessionId;
     }
 
 

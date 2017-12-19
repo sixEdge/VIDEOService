@@ -15,8 +15,7 @@
  */
 package com.gzf.video.core.server;
 
-import com.gzf.video.core.server.handler.ActionHandler;
-import com.gzf.video.core.server.handler.InterceptorHandler;
+import com.gzf.video.core.server.handler.DispatcherHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -27,7 +26,7 @@ import io.netty.handler.ssl.SslContext;
 class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
 
     static {
-        ActionHandler.init();
+        DispatcherHandler.init();
     }
 
     private final SslContext sslCtx;
@@ -47,8 +46,6 @@ class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
 
         pipeline.addLast("Http-Codec",          new HttpServerCodec());
         pipeline.addLast("Http-Aggregator",     new HttpObjectAggregator(65536));
-
-        pipeline.addLast("Interceptor-Handler", InterceptorHandler.getINSTANCE());
-        pipeline.addLast("Action-Handler",      ActionHandler.getINSTANCE());
+        pipeline.addLast("Dispatcher-Handler",  DispatcherHandler.getINSTANCE());
     }
 }

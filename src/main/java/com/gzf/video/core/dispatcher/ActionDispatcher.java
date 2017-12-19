@@ -21,11 +21,6 @@ import com.typesafe.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Map;
-
-import static com.gzf.video.core.dispatcher.CustomParametersParser.CustomParameter;
-
 /**
  * Intercept, then dispatch.
  */
@@ -33,41 +28,42 @@ public class ActionDispatcher {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final Config dispatcherConfig = ConfigManager.getDispatcherConf();
-    public static final boolean notUseCustomParameter =
-            dispatcherConfig.getBoolean("notUseCustomParameter");
     public static final String PRE_INTERCEPT_PATH = dispatcherConfig.getString("preInterceptPath");
 
 
-    private final ActionMapper GET_MAPPER = new ActionMapper(notUseCustomParameter);
-    private final ActionMapper POST_MAPPER = new ActionMapper(notUseCustomParameter);
+    private final ActionMapper GET_MAPPER = new ActionMapper();
+    private final ActionMapper POST_MAPPER = new ActionMapper();
+
 
 
 
 
     public Action getAction(final String path,
-                            final Map<String, List<String>> parameters,
                             final boolean get_or_post) {
-        return (get_or_post ? GET_MAPPER : POST_MAPPER).get(path, parameters);
+        return (get_or_post ? GET_MAPPER : POST_MAPPER).get(path);
     }
+
+
+
 
 
     /**
-     * Set action with specify {@link CustomParameter}.
+     * Set action with corresponding path.
      *
-     * @param cp    the {@link CustomParameter} map to the action
-     * @param action the action
-     * @param get_or_post true for GET, false for POST
+     * @param path          the corresponding path maps to the action
+     * @param action        the action
+     * @param get_or_post   true for GET, false for POST
      */
-    public void setAction(final CustomParameter cp, final Action action, final boolean get_or_post) {
-        setAction0(cp, action, get_or_post ? GET_MAPPER : POST_MAPPER);
+    public void setAction(final String path, final Action action, final boolean get_or_post) {
+        setAction0(path, action, get_or_post ? GET_MAPPER : POST_MAPPER);
     }
 
-    private void setAction0(final CustomParameter cp, final Action action, final ActionMapper actionMapper) {
-        if (actionMapper.isConflicting(cp))
+    private void setAction0(final String path, final Action action, final ActionMapper actionMapper) {
+        if (actionMapper.isConflicting(path))
             logger.warn("Conflicting action, " +
-                            "two action are both mapped to the same CustomParameter {}.", cp);
+                            "two actions are both mapped to the same path {}.", path);
 
-        actionMapper.put(cp, action);
+        actionMapper.put(path, action);
     }
 
 

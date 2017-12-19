@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.gzf.video</groupId>
-    <artifactId>VIDEO-Service</artifactId>
+    <artifactId>VIDEOService</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -68,7 +68,6 @@
             <version>${io.netty-version}</version>
             <classifier>linux-x86_64</classifier>   <!-- linux_x86_64 -->
         </dependency>
-
 
 
         <!-- https://mvnrepository.com/artifact/com.typesafe/config -->

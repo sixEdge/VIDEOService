@@ -1,7 +1,6 @@
 package com.gzf.video.util;
 
 import com.mongodb.internal.HexUtils;
-import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
@@ -71,33 +70,5 @@ public class StringUtil {
 
     public static String hexMd5(final byte[] data) {
         return HexUtils.hexMD5(data);
-    }
-
-
-
-
-
-    private static ServerCookieDecoder cookieDecoder = ServerCookieDecoder.STRICT;
-
-    /**
-     * @param cookiesString cookies in string
-     * @return a set of cookies, never be null
-     */
-    public static Set<Cookie> decodeCookies(@Nullable final String cookiesString) {
-        if (cookiesString == null) {
-            return Collections.emptySet();
-        }
-
-        return cookieDecoder.decode(cookiesString);
-    }
-
-    public static String getFromCookies(@NotNull final Set<Cookie> cookies, @NotNull final String key) {
-        for (Cookie cookie : cookies) {
-            if (key.equals(cookie.name())) {
-                return cookie.value();
-            }
-        }
-
-        return null;
     }
 }

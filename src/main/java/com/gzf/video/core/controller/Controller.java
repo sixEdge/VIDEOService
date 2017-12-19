@@ -1,4 +1,4 @@
-package com.gzf.video.core.annotation;
+package com.gzf.video.core.controller;
 
 import java.lang.annotation.*;
 

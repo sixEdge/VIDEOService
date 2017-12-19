@@ -9,7 +9,6 @@ import sun.misc.Signal;
 public class Start {
     private static final Logger logger = LoggerFactory.getLogger(Start.class);
 
-
     private static final HttpServer server = new HttpServer();
 
     public static void main(String[] args) {

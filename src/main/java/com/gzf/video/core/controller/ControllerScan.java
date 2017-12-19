@@ -1,10 +1,9 @@
 package com.gzf.video.core.controller;
 
-import com.gzf.video.core.annotation.Controller;
-import com.gzf.video.core.annotation.action.Get;
-import com.gzf.video.core.annotation.action.Post;
+import com.gzf.video.core.controller.action.method.Get;
+import com.gzf.video.core.controller.action.method.Post;
 import com.gzf.video.core.http.request.Request;
-import com.gzf.video.core.dispatcher.CustomParametersParser;
+import com.gzf.video.core.dispatcher.RequestPathParser;
 import com.gzf.video.core.dispatcher.ActionDispatcher;
 import com.gzf.video.core.controller.action.Action;
 import com.gzf.video.core.ConfigManager;
@@ -36,7 +35,7 @@ public class ControllerScan {
     private final List<Object> controllerList = new LinkedList<>();
 
     private ActionDispatcher actionDispatcher;
-    private CustomParametersParser customParametersParser = new CustomParametersParser();
+    private RequestPathParser pathParser = new RequestPathParser();
 
     private final Config controllerConfig = ConfigManager.getControllerConf();
     private final Config actionConfig = controllerConfig.getConfig("action");
@@ -163,10 +162,8 @@ public class ControllerScan {
                 continue;
             }
 
-            checkUseCustomParameter(url);
-
             Action action = newAction(controllerClass, controllerObj, m);
-            actionDispatcher.setAction(customParametersParser.parseParams(m, url), action, get != null);
+            actionDispatcher.setAction(pathParser.parsePath(m, url), action, get != null);
         }
 
 
@@ -224,12 +221,6 @@ public class ControllerScan {
                 defineAction(controllerClass, actionName, cw.toByteArray());
 
         return lambdaGeneratorClass.newInstance().apply(controllerObj);
-    }
-
-    private void checkUseCustomParameter(final String url) {
-        if (ActionDispatcher.notUseCustomParameter
-                && (url.contains("{") || url.contains("}") || url.contains("?") || url.contains("&")))
-            throw new Error("don't use custom-parameter and request-parameter on an action");
     }
 
     private String getSourcePath(final String string, final String basePackagePath) {
