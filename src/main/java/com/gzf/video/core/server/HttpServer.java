@@ -84,7 +84,7 @@ public class HttpServer {
         try {
             return bindChannel.close().sync();
         } catch (InterruptedException e) {
-            logger.warn("Server shutdown interrupted.");
+            logger.error("Server shutdown interrupted.", e);
         }
         return null;
     }

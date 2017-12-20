@@ -8,8 +8,8 @@ import io.netty.handler.codec.http.cookie.Cookie;
 import java.util.Map;
 import java.util.Set;
 
-import static com.gzf.video.core.http.request.PathAndParametersUtil.decodeParams;
-import static com.gzf.video.core.http.request.PathAndParametersUtil.findPathEndIndex;
+import static com.gzf.video.util.PathAndParametersUtil.decodeParams;
+import static com.gzf.video.util.PathAndParametersUtil.findPathEndIndex;
 
 public class GetRequest extends Request {
 
@@ -18,11 +18,6 @@ public class GetRequest extends Request {
                       final Set<Cookie> cookies,
                       final Session session) {
         super(ctx, req, cookies, session);
-    }
-
-    @Override
-    public boolean release() {
-        throw new UnsupportedOperationException();
     }
 
     @Override

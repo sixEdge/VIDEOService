@@ -125,8 +125,6 @@ public abstract class Request {
         return ctx.alloc();
     }
 
-    public abstract boolean release();
-
     public <V> Promise<V> newPromise(Class<V> clazz) {
         return new DefaultPromise<>(ctx.executor());
     }

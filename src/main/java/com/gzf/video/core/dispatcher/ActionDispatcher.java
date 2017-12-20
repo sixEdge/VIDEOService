@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Intercept, then dispatch.
+ * Dispatch.
  */
 public class ActionDispatcher {
     private final Logger logger = LoggerFactory.getLogger(getClass());

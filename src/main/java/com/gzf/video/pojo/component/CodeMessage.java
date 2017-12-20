@@ -94,8 +94,6 @@ public class CodeMessage {
             return code;
         }
 
-
-
         @Override
         public String toString() {
             return "Code{" +

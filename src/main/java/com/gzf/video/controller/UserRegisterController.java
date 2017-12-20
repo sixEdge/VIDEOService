@@ -95,7 +95,6 @@ public class UserRegisterController {
             Response resp = req.okResponse(successCode(userId), APPLICATION_JSON);
             req.addIdentification(userId, true);
             req.writeResponse(resp);
-            req.release();
         }));
 
         return null;
@@ -111,7 +110,6 @@ public class UserRegisterController {
         }
 
         userRegisterService.doLogout(sessionId);
-        req.release();
 
         return req.okResponse(successCode(EMPTY_STRING), APPLICATION_JSON);
     }
@@ -154,7 +152,6 @@ public class UserRegisterController {
             } else {
                 req.writeResponse(OK, failedCode("注册失败"), APPLICATION_JSON);
             }
-            req.release();
         }));
 
         return null;

@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Set;
 
 import static com.gzf.video.core.dispatcher.ActionDispatcher.PRE_INTERCEPT_PATH;
-import static com.gzf.video.core.http.request.PathAndParametersUtil.decodeComponent;
-import static com.gzf.video.core.http.request.PathAndParametersUtil.findPathEndIndex;
+import static com.gzf.video.util.PathAndParametersUtil.decodeComponent;
+import static com.gzf.video.util.PathAndParametersUtil.findPathEndIndex;
 import static com.gzf.video.core.session.storage.SessionStorage.SESSION_ID;
 import static com.gzf.video.util.CookieFunctions.cookieSessionId;
 import static com.gzf.video.util.CookieFunctions.decodeCookies;

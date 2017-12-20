@@ -14,8 +14,6 @@ import java.util.*;
 public class PostRequest extends Request {
     private static final Logger logger = LoggerFactory.getLogger(PostRequest.class);
 
-    private HttpPostRequestDecoder postRequestDecoder;
-
     private Map<String, byte[]> fileContents;
 
     public PostRequest(final ChannelHandlerContext ctx,
@@ -24,16 +22,6 @@ public class PostRequest extends Request {
                        final Session session) {
         super(ctx, req, cookies, session);
         decode(req);
-    }
-
-
-    @Override
-    public boolean release() {
-        if (postRequestDecoder != null) {
-            postRequestDecoder.destroy();
-        }
-
-        return true;
     }
 
     @Override
@@ -47,7 +35,7 @@ public class PostRequest extends Request {
 
 
     private void decode(final FullHttpRequest request) {
-        postRequestDecoder = new HttpPostRequestDecoder(request);
+        HttpPostRequestDecoder postRequestDecoder = new HttpPostRequestDecoder(request);
         parameters = new HashMap<>();
         fileContents = new HashMap<>();
 
@@ -73,6 +61,8 @@ public class PostRequest extends Request {
             }
         } catch (IOException e) {
             logger.error("Post-request decode failed.", e);
+        } finally {
+            postRequestDecoder.destroy();
         }
     }
 }

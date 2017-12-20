@@ -10,11 +10,9 @@ public enum Sex implements JSONSerializable {
 
     private String info;
 
-
     Sex(final String info) {
         this.info = info;
     }
-
 
     public int getSex() {
         return this.ordinal();
@@ -23,7 +21,6 @@ public enum Sex implements JSONSerializable {
     public String getInfo() {
         return info;
     }
-
 
     @Override
     public void write(final JSONSerializer serializer, final Object fieldName, final Type fieldType, final int features) {

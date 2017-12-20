@@ -6,8 +6,8 @@ import com.gzf.video.core.controller.action.method.Post;
 
 import java.lang.reflect.Method;
 
-import static com.gzf.video.core.http.request.PathAndParametersUtil.decodeComponent;
-import static com.gzf.video.core.http.request.PathAndParametersUtil.findPathEndIndex;
+import static com.gzf.video.util.PathAndParametersUtil.decodeComponent;
+import static com.gzf.video.util.PathAndParametersUtil.findPathEndIndex;
 
 public class RequestPathParser {
 

@@ -1,4 +1,4 @@
-package com.gzf.video.core.http.request;
+package com.gzf.video.util;
 
 import io.netty.util.CharsetUtil;
 
@@ -19,7 +19,7 @@ public class PathAndParametersUtil {
 
     private static final int MAX_PARAMS_LIMIT = 1024;
 
-    static Map<String, String> decodeParams(String s, int from) {
+    public static Map<String, String> decodeParams(String s, int from) {
         int paramsLimit = MAX_PARAMS_LIMIT;
         int len = s.length();
         if (from >= len) {
