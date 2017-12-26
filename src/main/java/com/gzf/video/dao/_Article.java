@@ -39,15 +39,18 @@ public class _Article {
         articleCollection.insertOne(entity, callback);
     }
 
+
     public void _findArticle(final int articleId, final SingleResultCallback<Article> callback) {
         Document document = new Document()
                 .append(ARTICLE_ID, articleId);
         articleCollection.find(document).first(callback);
     }
 
+
     public FindIterable<Article> _findArticles(final Bson filter) {
         return articleCollection.find(filter, Article.class);
     }
+
 
     public void _deleteArticle(final int articleId, final SingleResultCallback<DeleteResult> callback) {
         Document document = new Document()

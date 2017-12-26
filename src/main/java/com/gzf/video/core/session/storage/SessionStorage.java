@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
-public abstract class SessionStorage {
+public abstract class SessionStorage implements LoginCacheStorage {
 
     private static final Config SESSION_CONFIG =
             ConfigManager.loadConfigFromModule(ConfigManager.coreModule, "sessionConfig");
@@ -62,45 +62,6 @@ public abstract class SessionStorage {
         }
         return INSTANCE;
     }
-
-
-
-    // cached-session
-
-    /**
-     * Create session id contacting with user id in cache.
-     *
-     * @param sessionId session id
-     * @param userId user id
-     */
-    public abstract void createLoginCache(final String sessionId, final String userId);
-
-    /**
-     * Destroy the user id contacting with the specified session id from cache.
-     *
-     * @param sessionId session id
-     */
-    public abstract void destroyLoginCache(final String sessionId);
-
-    /**
-     * Get the user id contacting with the specified session id from cache,
-     * if the user id does not exist, simply return null.
-     *
-     * @param sessionId session id
-     * @return user id
-     */
-    public abstract String getLoginUserIdCache(final String sessionId);
-
-    /**
-     * Weather there is a cached-session contacting with the specified session id.
-     *
-     * @param sessionId session id
-     * @return weather contains the disk cached-session
-     */
-    public abstract boolean containLoginCache(final String sessionId);
-
-
-
 
 
     // internal-session implementation

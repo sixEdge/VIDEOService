@@ -47,6 +47,7 @@ public class _Login {
         loginCollection.find(document).first(callback);
     }
 
+
     public void _signUp(final String username,
                         final String mail,
                         final String password,
@@ -66,6 +67,7 @@ public class _Login {
                             final SingleResultCallback callback) {
         // TODO admin login
     }
+
 
     public void _adminSignUp(final String username,
                              final String mail,
