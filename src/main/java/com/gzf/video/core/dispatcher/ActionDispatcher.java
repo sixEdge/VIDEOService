@@ -28,10 +28,6 @@ import org.slf4j.LoggerFactory;
 public class ActionDispatcher implements Dispatcher  {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private static final Config dispatcherConfig = ConfigManager.getDispatcherConf();
-    public static final String PRE_INTERCEPT_PATH = dispatcherConfig.getString("preInterceptPath");
-
-
     private final ActionMapper GET_MAPPER = new ActionMapper();
     private final ActionMapper POST_MAPPER = new ActionMapper();
 

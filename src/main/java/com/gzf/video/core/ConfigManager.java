@@ -11,7 +11,6 @@ public class ConfigManager {
     public static final String APP_NAME = appConf.getString("appName");
 
 
-
     public static final Config coreModule =
             ConfigFactory.load(appConf.getConfig("core").getString("configModule"));
 
@@ -21,13 +20,12 @@ public class ConfigManager {
     public static final Config serviceModule =
             ConfigFactory.load(appConf.getConfig("service").getString("configModule"));
 
+
     private static final Config controllerConf = appConf.getConfig("controller");
 
     private static final Config serverConf = appConf.getConfig("server");
 
-    private static final Config dispatcherConf = appConf.getConfig("dispatcher");
-
-
+    private static final Config interceptorConf = appConf.getConfig("interceptor");
 
 
     public static Config getControllerConf() {
@@ -38,8 +36,8 @@ public class ConfigManager {
         return serverConf;
     }
 
-    public static Config getDispatcherConf() {
-        return dispatcherConf;
+    public static Config getInterceptorConf() {
+        return interceptorConf;
     }
 
 

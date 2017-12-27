@@ -1,5 +1,6 @@
 package com.gzf.video.core.server.handler;
 
+import com.gzf.video.core.ConfigManager;
 import com.gzf.video.core.controller.action.Action;
 import com.gzf.video.core.dispatcher.ActionDispatcher;
 import com.gzf.video.core.dispatcher.Dispatcher;
@@ -20,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
-import static com.gzf.video.core.dispatcher.ActionDispatcher.PRE_INTERCEPT_PATH;
 import static com.gzf.video.util.PathAndParametersUtil.decodeComponent;
 import static com.gzf.video.util.PathAndParametersUtil.findPathEndIndex;
 import static com.gzf.video.core.session.storage.SessionStorage.SESSION_ID;
@@ -39,6 +39,9 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 @Sharable
 public class DispatcherHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     private final Logger logger = LoggerFactory.getLogger(getClass());
+
+
+    private static final String PRE_INTERCEPT_PATH = ConfigManager.getInterceptorConf().getString("preInterceptPath");
 
 
     private static final SessionStorage SESSION_STORAGE = SessionStorage.getINSTANCE();
