@@ -1,6 +1,6 @@
 package com.gzf.video.core.session.storage;
 
-public interface LoginCacheStorage {
+public interface LoginStateCache {
     /**
      * Create session id contacting with user id in cache.
      *

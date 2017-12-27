@@ -2,7 +2,6 @@ package com.gzf.video.core.http.request;
 
 import com.gzf.video.core.http.response.Response;
 import com.gzf.video.core.session.Session;
-import com.gzf.video.core.session.storage.SessionStorage;
 import com.sun.istack.internal.Nullable;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -15,21 +14,14 @@ import io.netty.util.concurrent.Promise;
 import java.util.Map;
 import java.util.Set;
 
-import static com.gzf.video.core.session.storage.SessionStorage.*;
 import static com.gzf.video.util.CookieFunctions.cookieSessionId;
-import static com.gzf.video.util.CookieFunctions.decodeCookies;
-import static com.gzf.video.util.CookieFunctions.getFromCookies;
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 /**
  * Must promise that there is only one thread use the instance at the same time.
  */
-public abstract class Request {
-
-
-    private static final SessionStorage SESSION_STORAGE = SessionStorage.getINSTANCE();
-
+public abstract class Request extends SessionRequest {
 
     private ChannelHandlerContext ctx;
 
@@ -37,29 +29,19 @@ public abstract class Request {
 
     final String uri;
 
-    private final HttpHeaders headers;
-
-    protected Map<String, String> parameters;
-
-    private Set<Cookie> cookies;
-
-    private volatile Session session;
-
-    private volatile boolean isNewSessionId;
+    Map<String, String> parameters;
 
 
     Request(final ChannelHandlerContext ctx,
             final FullHttpRequest req,
             @Nullable final Set<Cookie> cookies,
             @Nullable final Session session) {
+        super(req.headers(), cookies, session);
+
         this.ctx = ctx;
 
         this.method  = req.method();
         this.uri     = req.uri();
-        this.headers = req.headers();
-
-        this.cookies = cookies;
-        this.session = session;
     }
 
 
@@ -81,37 +63,12 @@ public abstract class Request {
 
 
     /**
-     * Never return null.
+     * Never be null.
      */
-    public Set<Cookie> cookies() {
-        if (cookies == null) {
-            cookies = decodeCookies(headers.get(COOKIE));
-        }
-        return cookies;
-    }
+    public abstract Map<String, String> parameters();
 
-    /**
-     * Never return null.<br />
-     */
-    public Session session() {
-        if (session == null) {
-            String sessionId = getFromCookies(cookies(), SESSION_ID);
-            if (sessionId == null
-                    || (session = SESSION_STORAGE.getSession(sessionId, false)) == null) {
-                session = SESSION_STORAGE.createSession();
-                isNewSessionId = true;
-            }
-        }
-
-        return session;
-    }
-
-    public boolean isNewSessionId() {
-        return isNewSessionId;
-    }
-
-    public String sessionId() {
-        return session().getSessionId();
+    public String getParameter(final String key) {
+        return parameters().get(key);
     }
 
 
@@ -141,7 +98,6 @@ public abstract class Request {
     }
 
 
-
     //    ------------------------------ transform
 
     /**
@@ -150,7 +106,7 @@ public abstract class Request {
     public ChannelFuture writeResponse(final Response resp) {
         ChannelFuture future;
 
-        if (isNewSessionId) {
+        if (isNewSessionId()) {
             resp.headers().add(SET_COOKIE, cookieSessionId(sessionId()));
         }
 
@@ -183,72 +139,6 @@ public abstract class Request {
     }
 
 
-
-//    ------------------------------- request parameter
-
-    /**
-     * Never be null.
-     */
-    public abstract Map<String, String> parameters();
-
-    public String getParameter(final String key) {
-        return parameters().get(key);
-    }
-
-
-
-//    ------------------------------- request header
-
-    public String getHeader(final CharSequence key) {
-        return headers.get(key);
-    }
-
-
-
-//    ------------------------------- cookie
-
-    public String getCookie(final String key) {
-        return getFromCookies(cookies(), key);
-    }
-
-
-
-//    ------------------------------- session
-
-    public Object getFromSession(final String key) {
-        return session().get(key);
-    }
-
-    public Object addToSession(final String key, final Object val) {
-        return session().put(key, val);
-    }
-
-    public String getUserId() {
-        return session().getUserId();
-    }
-
-    public void setUserId(final String userId) {
-        session().put(USER_ID, userId);
-    }
-
-    /**
-     * Add session id and user id as cookies to response headers.<br />
-     * Create an internal-session. <br />
-     * Create session in the cache when {@code rememberMe} is true.
-     *
-     * @param userId user id
-     * @param rememberMe remember me
-     */
-    public void addIdentification(final String userId, final boolean rememberMe) {
-        String sessionId = sessionId();
-        setUserId(userId);
-
-        if (rememberMe) {
-            SESSION_STORAGE.createLoginCache(sessionId, userId);
-        }
-    }
-
-
     // Response
 
     public Response okResponse() {
@@ -276,6 +166,7 @@ public abstract class Request {
         resp.headers().add(CONTENT_TYPE, contentType);
         return resp;
     }
+
 
     public Response failedResponse(final HttpResponseStatus status) {
         return new Response(status);

@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
-public abstract class SessionStorage implements LoginCacheStorage {
+public abstract class SessionStorage implements LoginStateCache {
 
     private static final Config SESSION_CONFIG =
             ConfigManager.loadConfigFromModule(ConfigManager.coreModule, "sessionConfig");
