@@ -11,7 +11,7 @@ public class AsyncTask {
 
     private static final Config ASYNC_CONFIG =
             ConfigManager.loadConfigFromModule(ConfigManager.coreModule, "asyncConfig");
-    private static final Config SERVICE_POOL_CONFIG = ASYNC_CONFIG.getConfig("servicePool");
+    private static final Config SERVICE_POOL_CONFIG = ASYNC_CONFIG.getConfig("asyncPool");
 
 
 

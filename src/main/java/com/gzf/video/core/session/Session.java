@@ -40,7 +40,7 @@ public class Session extends ConcurrentHashMap<String, Object> {
     }
 
     public void setUserId(final String userId) {
-        this.userId.set(userId);
+        this.userId.compareAndSet(null, userId);  // only update when no userId
     }
 
     public Instant getLastAccessTime() {
