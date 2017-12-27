@@ -15,6 +15,7 @@
  */
 package com.gzf.video.core.dispatcher;
 
+import com.gzf.video.core.controller.ControllerScan;
 import com.gzf.video.core.controller.action.Action;
 import com.gzf.video.core.ConfigManager;
 import com.typesafe.config.Config;
@@ -24,7 +25,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Dispatch.
  */
-public class ActionDispatcher {
+public class ActionDispatcher implements Dispatcher  {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final Config dispatcherConfig = ConfigManager.getDispatcherConf();
@@ -35,16 +36,19 @@ public class ActionDispatcher {
     private final ActionMapper POST_MAPPER = new ActionMapper();
 
 
-
-
-
-    public Action getAction(final String path,
-                            final boolean get_or_post) {
+    @Override
+    public Action doDispatch(final String path, final boolean get_or_post) {
         return (get_or_post ? GET_MAPPER : POST_MAPPER).get(path);
     }
 
-
-
+    @Override
+    public void init() {
+        try {
+            new ControllerScan(INSTANCE).refresh();
+        } catch (Exception e) {
+            throw new Error(e);
+        }
+    }
 
 
     /**
@@ -67,5 +71,11 @@ public class ActionDispatcher {
     }
 
 
-    ActionDispatcher() {}
+    private static final ActionDispatcher INSTANCE = new ActionDispatcher();
+
+    public static ActionDispatcher getINSTANCE() {
+        return INSTANCE;
+    }
+
+    private ActionDispatcher() {}
 }

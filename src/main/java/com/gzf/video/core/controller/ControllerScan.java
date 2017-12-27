@@ -3,7 +3,7 @@ package com.gzf.video.core.controller;
 import com.gzf.video.core.controller.action.method.Get;
 import com.gzf.video.core.controller.action.method.Post;
 import com.gzf.video.core.http.request.Request;
-import com.gzf.video.core.dispatcher.RequestPathParser;
+import com.gzf.video.core.dispatcher.ActionPathParser;
 import com.gzf.video.core.dispatcher.ActionDispatcher;
 import com.gzf.video.core.controller.action.Action;
 import com.gzf.video.core.ConfigManager;
@@ -35,7 +35,7 @@ public class ControllerScan {
     private final List<Object> controllerList = new LinkedList<>();
 
     private ActionDispatcher actionDispatcher;
-    private RequestPathParser pathParser = new RequestPathParser();
+    private ActionPathParser pathParser = new ActionPathParser();
 
     private final Config controllerConfig = ConfigManager.getControllerConf();
     private final Config actionConfig = controllerConfig.getConfig("action");
