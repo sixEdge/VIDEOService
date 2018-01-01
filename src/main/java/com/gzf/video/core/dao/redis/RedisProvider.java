@@ -11,9 +11,11 @@ import static com.gzf.video.core.ConfigManager.daoModule;
 
 public class RedisProvider {
 
-    private static final RedisProvider INSTANCE = new RedisProvider();
+    private static final Config REDIS_CONFIG =
+            ConfigManager.loadConfigFromModule(daoModule, "redisConfig");
 
-
+    public static final String LOGIN_MAP =
+            StringUtil.notNullOrEmpty(REDIS_CONFIG.getString("loginMap"));
 
 
     /**
@@ -22,15 +24,6 @@ public class RedisProvider {
     public Jedis getJedis() {
         return jedisPool.getResource();
     }
-
-
-
-
-    private static final Config REDIS_CONFIG =
-            ConfigManager.loadConfigFromModule(daoModule, "redisConfig");
-
-    public static final String LOGIN_MAP =
-            StringUtil.notNullOrEmpty(REDIS_CONFIG.getString("loginMap"));
 
 
 
@@ -50,10 +43,11 @@ public class RedisProvider {
                     REDIS_CONFIG.getInt("port"));
     }
 
+    private static final RedisProvider INSTANCE = new RedisProvider();
+
     public static RedisProvider getINSTANCE() {
         return INSTANCE;
     }
-
 
     private RedisProvider() {}
 }

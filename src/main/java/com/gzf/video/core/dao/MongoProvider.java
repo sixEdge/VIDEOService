@@ -106,9 +106,6 @@ public class MongoProvider {
     }
 
 
-
-
-
     private final MongoDatabase db_0 = mongoClient.getDatabase(dbsConfig.get(0).getString("db"));
 
 
@@ -129,9 +126,6 @@ public class MongoProvider {
                                                 final Class<T> clazz) {
         return mongoClient.getDatabase(db).getCollection(collection, clazz);
     }
-
-
-
 
 
     private static final MongoProvider INSTANCE = new MongoProvider();

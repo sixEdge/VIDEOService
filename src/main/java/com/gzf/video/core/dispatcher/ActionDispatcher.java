@@ -17,8 +17,6 @@ package com.gzf.video.core.dispatcher;
 
 import com.gzf.video.core.controller.ControllerScan;
 import com.gzf.video.core.controller.action.Action;
-import com.gzf.video.core.ConfigManager;
-import com.typesafe.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
