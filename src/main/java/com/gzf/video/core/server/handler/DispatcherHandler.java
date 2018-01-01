@@ -20,6 +20,7 @@ import io.netty.handler.codec.http.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Set;
 
 import static com.gzf.video.util.PathAndParametersUtil.decodeComponent;
@@ -42,7 +43,7 @@ public class DispatcherHandler extends SimpleChannelInboundHandler<FullHttpReque
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
 
-    private static final String PRE_INTERCEPT_PATH = ConfigManager.getInterceptorConf().getString("preInterceptPath");
+    private static final List<String> PRE_INTERCEPT_PATH = ConfigManager.getInterceptorConf().getStringList("preInterceptPath");
 
 
     private static final SessionStorage SESSION_STORAGE = SessionStorage.getINSTANCE();
@@ -88,7 +89,7 @@ public class DispatcherHandler extends SimpleChannelInboundHandler<FullHttpReque
 
         String uri = req.uri();
 
-        if (uri.startsWith(PRE_INTERCEPT_PATH)) {
+        if (PRE_INTERCEPT_PATH.stream().anyMatch(uri::startsWith)) {
 
             // sync session id
             cookies = decodeCookies(req.headers().get(COOKIE));

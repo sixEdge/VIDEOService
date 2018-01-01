@@ -45,14 +45,13 @@ public class ControllerScan {
 
     private static final String objectName = Type.getInternalName(Object.class);
     private static final Type objectType = Type.getType(Object.class);
-    private final Type actionType = Type.getType(Action.class);
     private final String functionName = Type.getInternalName(Function.class);
 
-
-    private static final String actionMethodName = "doAction";
-    private final Type actionMethodType;
     private final String applyMethodDesc = Type.getMethodDescriptor(Type.getType(Object.class), Type.getType(Object.class));
 
+    private final Type actionType = Type.getType(Action.class);
+    private static final String actionMethodName = "doAction";
+    private final Type actionMethodType;
 
     private static final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
@@ -118,10 +117,12 @@ public class ControllerScan {
                 scanControllers0(f, basePackagePath);
             }
 
+            if (!f.getName().endsWith(SOURCE_EX_NAME)) {
+                continue;
+            }
+
             if (f.isHidden() || !f.canRead()) {
                 logger.warn("can't read file {}", f.getAbsolutePath());
-                continue;
-            } else if (!f.getName().endsWith(SOURCE_EX_NAME)) {
                 continue;
             }
 
@@ -131,6 +132,7 @@ public class ControllerScan {
             if (clazz.getDeclaredAnnotation(Controller.class) == null) {
                 continue;
             }
+
             if (clazz.isInterface())
                 throw new Error("controller must be declared as a class " + clazz);
 
