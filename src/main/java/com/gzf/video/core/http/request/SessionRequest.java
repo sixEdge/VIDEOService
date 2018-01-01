@@ -100,22 +100,4 @@ public abstract class SessionRequest {
     public void setUserId(final String userId) {
         session().put(USER_ID, userId);
     }
-
-
-    /**
-     * Add session id and user id as cookies to response headers.<br />
-     * Create an internal-session. <br />
-     * Create session in the cache when {@code rememberMe} is true.
-     *
-     * @param userId user id
-     * @param rememberMe remember me
-     */
-    public void addIdentification(final String userId, final boolean rememberMe) {
-        String sessionId = sessionId();
-        setUserId(userId);
-
-        if (rememberMe) {
-            SESSION_STORAGE.createLoginCache(sessionId, userId);
-        }
-    }
 }

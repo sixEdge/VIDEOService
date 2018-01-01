@@ -1,5 +1,6 @@
 package com.gzf.video.service;
 
+import com.gzf.video.core.session.Session;
 import com.gzf.video.core.session.storage.SessionStorage;
 import com.gzf.video.dao._Login;
 import com.gzf.video.util.StringUtil;
@@ -17,21 +18,30 @@ import static java.lang.Boolean.TRUE;
 public class UserRegisterService {
 
     private static final SessionStorage SESSION_STORAGE = SessionStorage.getINSTANCE();
+
     private static final _Login LOGIN_DAO = new _Login();
 
 
-    public void doLogin(final String identity,
+    public void doLogin(final Session session,
+                        final String identity,
                         final String password,
                         final boolean useUsername,
+                        final boolean rememberMe,
                         final Promise<String> promise) {
         SingleResultCallback<Document> callback = (result, t) -> {
-            if (result != null)
-                promise.setSuccess(result.getInteger(USER_ID).toString());
-            else
+            if (result != null) {
+                String userId = result.getInteger(USER_ID).toString();
+                session.setUserId(userId);
+                if (rememberMe) {
+                    SESSION_STORAGE.createLoginCache(session.getSessionId(), userId);
+                }
+                promise.setSuccess(userId);
+            } else {
                 promise.setSuccess(null);
+            }
         };
 
-        // can be async
+        // encrypt
         String pwd = StringUtil.hexMd5(password.getBytes());
 
         if (useUsername) {

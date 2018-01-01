@@ -5,6 +5,7 @@ import com.gzf.video.core.controller.action.method.Get;
 import com.gzf.video.core.controller.action.method.Post;
 import com.gzf.video.core.http.HttpExchange;
 import com.gzf.video.core.http.response.Response;
+import com.gzf.video.core.session.Session;
 import com.gzf.video.service.RSASecurityService;
 import com.gzf.video.service.UserRegisterService;
 import com.gzf.video.core.http.request.Request;
@@ -52,7 +53,7 @@ public class UserRegisterController {
         // has login
         String preUserId;
         if ((preUserId = req.getUserId()) != null) {
-            return ex.okResponse(ex.newByteBuf(successCode(preUserId)), APPLICATION_JSON);
+            return ex.okResponse(successCode(preUserId), APPLICATION_JSON);
         }
 
         String identity = req.getParameter(IDENTITY_PARAM);
@@ -63,16 +64,17 @@ public class UserRegisterController {
             return ex.failedResponse(BAD_REQUEST);
         }
 
+        Session session = req.session();
 
         // get rsa private key
-        PrivateKey privateKey = (PrivateKey) req.session().remove(RSA_PRIVATE_KEY);
+        PrivateKey privateKey = (PrivateKey) session.remove(RSA_PRIVATE_KEY);
         if (privateKey == null) {
             return ex.failedResponse(BAD_REQUEST);
         }
 
         Optional<String> opPwd;
 
-        // rsa decode
+        // rsa decrypt
         try {
             opPwd = rsaSecurityService.doDecode(password, privateKey);
         } catch (IOException e) {
@@ -87,17 +89,18 @@ public class UserRegisterController {
             return ex.failedResponse(BAD_REQUEST);
         }
 
-        userRegisterService.doLogin(identity, opPwd.get(), modeStr.charAt(0) == '0', ex.newPromise(String.class).addListener(f -> {
-            String userId = (String) f.getNow();
-            if (userId == null) {
-                ex.writeResponse(OK, failedCode("用户名或密码错误"), APPLICATION_JSON);
-                return;
-            }
+        userRegisterService.doLogin(session, identity, opPwd.get(), modeStr.charAt(0) == '0', true,
+                ex.newPromise(String.class).addListener(f -> {
+                    String userId = (String) f.getNow();
+                    if (userId == null) {
+                        ex.writeResponse(OK, failedCode("用户名或密码错误"), APPLICATION_JSON);
+                        return;
+                    }
 
-            Response resp = ex.okResponse(successCode(userId), APPLICATION_JSON);
-            req.addIdentification(userId, true);
-            ex.writeResponse(resp);
-        }));
+                    Response resp = ex.okResponse(successCode(userId), APPLICATION_JSON);
+                    ex.writeResponse(resp);
+                })
+        );
 
         return null;
     }

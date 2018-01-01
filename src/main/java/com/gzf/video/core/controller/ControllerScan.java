@@ -167,8 +167,6 @@ public class ControllerScan {
             Action action = newAction(controllerClass, controllerObj, m);
             actionDispatcher.setAction(pathParser.parsePath(m, url), action, get != null);
         }
-
-
     }
 
     private Action newAction(

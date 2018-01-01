@@ -35,7 +35,7 @@ public class ActionPathParser {
      * @return path to access this action
      */
     public String parsePath(Method method, String methodUrl) {
-        // prefix url from its class's annotation @CookieFunctions
+        // prefix url from its class's annotation @Controller
         Controller controller = method.getDeclaringClass().getDeclaredAnnotation(Controller.class);
         String classUrl = controller == null ? "" : controller.value();
 

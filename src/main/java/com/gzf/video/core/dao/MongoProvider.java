@@ -140,6 +140,5 @@ public class MongoProvider {
         return INSTANCE;
     }
 
-
     private MongoProvider() {}
 }
