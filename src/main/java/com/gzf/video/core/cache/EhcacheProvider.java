@@ -17,14 +17,6 @@ class EhcacheProvider {
                     Objects.requireNonNull(
                             EhcacheProvider.class.getClassLoader().getResource("ehcache.xml")));
 
-
-    private static final EhcacheProvider INSTANCE = new EhcacheProvider();
-
-    public static EhcacheProvider getINSTANCE() {
-        return INSTANCE;
-    }
-
-
     {
         cacheManager = CacheManagerBuilder.newCacheManager(xmlConfiguration);
         cacheManager.init();
@@ -36,6 +28,11 @@ class EhcacheProvider {
         return cacheManager.getCache(cacheName, keyClass, valClass);
     }
 
+    private static final EhcacheProvider INSTANCE = new EhcacheProvider();
+
+    public static EhcacheProvider getINSTANCE() {
+        return INSTANCE;
+    }
 
     private EhcacheProvider() {}
 }

@@ -10,15 +10,6 @@ public class EhcacheProviderMetric {
     private final EhcacheProvider cacheProvider = EhcacheProvider.getINSTANCE();
     // -----------------
 
-    private static final EhcacheProviderMetric INSTANCE = new EhcacheProviderMetric();
-
-    public static EhcacheProviderMetric getINSTANCE() {
-        return INSTANCE;
-    }
-
-
-
-
     public synchronized Cache<String, String> getLoginCache() {
         if (loginCache == null) {
             loginCache = cacheProvider.initCache("login", String.class, String.class);
@@ -33,6 +24,11 @@ public class EhcacheProviderMetric {
         return articleCache;
     }
 
+    private static final EhcacheProviderMetric INSTANCE = new EhcacheProviderMetric();
+
+    public static EhcacheProviderMetric getINSTANCE() {
+        return INSTANCE;
+    }
 
     private EhcacheProviderMetric() {}
 }

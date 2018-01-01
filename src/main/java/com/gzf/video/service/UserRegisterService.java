@@ -30,11 +30,8 @@ public class UserRegisterService {
                         final Promise<String> promise) {
         SingleResultCallback<Document> callback = (result, t) -> {
             if (result != null) {
-                String userId = result.getInteger(USER_ID).toString();
-                session.setUserId(userId);
-                if (rememberMe) {
-                    SESSION_STORAGE.createLoginCache(session.getSessionId(), userId);
-                }
+                String userId = "" + result.getInteger(USER_ID);
+                createIdentification(session, userId, rememberMe);
                 promise.setSuccess(userId);
             } else {
                 promise.setSuccess(null);
@@ -66,6 +63,14 @@ public class UserRegisterService {
             else
                 promise.setSuccess(FALSE);
         });
+    }
+
+
+    private static void createIdentification(final Session session, final String userId, final boolean rememberMe) {
+        session.setUserId(userId);
+        if (rememberMe) {
+            SESSION_STORAGE.createLoginCache(session.getSessionId(), userId);
+        }
     }
 
 
