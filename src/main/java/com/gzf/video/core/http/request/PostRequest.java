@@ -1,7 +1,6 @@
 package com.gzf.video.core.http.request;
 
 import com.gzf.video.core.session.Session;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.multipart.*;
@@ -16,11 +15,10 @@ public class PostRequest extends Request {
 
     private Map<String, byte[]> fileContents;
 
-    public PostRequest(final ChannelHandlerContext ctx,
-                       final FullHttpRequest req,
+    public PostRequest(final FullHttpRequest req,
                        final Set<Cookie> cookies,
                        final Session session) {
-        super(ctx, req, cookies, session);
+        super(req, cookies, session);
         decode(req);
     }
 

@@ -2,7 +2,7 @@ package com.gzf.video.core.controller;
 
 import com.gzf.video.core.controller.action.method.Get;
 import com.gzf.video.core.controller.action.method.Post;
-import com.gzf.video.core.http.request.Request;
+import com.gzf.video.core.http.HttpExchange;
 import com.gzf.video.core.dispatcher.ActionPathParser;
 import com.gzf.video.core.dispatcher.ActionDispatcher;
 import com.gzf.video.core.controller.action.Action;
@@ -66,7 +66,7 @@ public class ControllerScan {
 
     public ControllerScan(final ActionDispatcher actionDispatcher) throws NoSuchMethodException {
         this.actionDispatcher = actionDispatcher;
-        Method actionMethod = Action.class.getMethod(actionMethodName, Request.class);
+        Method actionMethod = Action.class.getMethod(actionMethodName, HttpExchange.class);
         actionMethodType = Type.getType(actionMethod);
     }
 

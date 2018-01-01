@@ -29,9 +29,9 @@ public abstract class SessionRequest {
     private volatile boolean isNewSessionId;
 
 
-    public SessionRequest(final HttpHeaders headers,
-                          @Nullable final Set<Cookie> cookies,
-                          @Nullable final Session session) {
+    SessionRequest(final HttpHeaders headers,
+                   @Nullable final Set<Cookie> cookies,
+                   @Nullable final Session session) {
         this.headers = headers;
         this.cookies = cookies;
         this.session = session;

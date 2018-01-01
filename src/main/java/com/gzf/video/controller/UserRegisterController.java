@@ -3,6 +3,7 @@ package com.gzf.video.controller;
 import com.gzf.video.core.controller.Controller;
 import com.gzf.video.core.controller.action.method.Get;
 import com.gzf.video.core.controller.action.method.Post;
+import com.gzf.video.core.http.HttpExchange;
 import com.gzf.video.core.http.response.Response;
 import com.gzf.video.service.RSASecurityService;
 import com.gzf.video.service.UserRegisterService;
@@ -45,12 +46,13 @@ public class UserRegisterController {
 
 
     @Post("/login")
-    public Response login(final Request req) {
+    public Response login(final HttpExchange ex) {
+        Request req = ex.request();
 
         // has login
         String preUserId;
         if ((preUserId = req.getUserId()) != null) {
-            return req.okResponse(req.newByteBuf(successCode(preUserId)), APPLICATION_JSON);
+            return ex.okResponse(ex.newByteBuf(successCode(preUserId)), APPLICATION_JSON);
         }
 
         String identity = req.getParameter(IDENTITY_PARAM);
@@ -58,14 +60,14 @@ public class UserRegisterController {
         String modeStr  = req.getParameter(LOGIN_MODE_PARAM);
 
         if (anyNullOrEmpty(identity, modeStr, password) || identity.length() > 64) {
-            return req.failedResponse(BAD_REQUEST);
+            return ex.failedResponse(BAD_REQUEST);
         }
 
 
         // get rsa private key
         PrivateKey privateKey = (PrivateKey) req.session().remove(RSA_PRIVATE_KEY);
         if (privateKey == null) {
-            return req.failedResponse(BAD_REQUEST);
+            return ex.failedResponse(BAD_REQUEST);
         }
 
         Optional<String> opPwd;
@@ -75,26 +77,26 @@ public class UserRegisterController {
             opPwd = rsaSecurityService.doDecode(password, privateKey);
         } catch (IOException e) {
             logger.error("RSA decode error.", e);
-            return req.failedResponse(INTERNAL_SERVER_ERROR);
+            return ex.failedResponse(INTERNAL_SERVER_ERROR);
         }
 
         if (!opPwd.isPresent()) {
             logger.warn("no RSA private key found, for client {}, user {}.",
-                    req.channel().remoteAddress(),
+                    ex.channel().remoteAddress(),
                     identity);
-            return req.failedResponse(BAD_REQUEST);
+            return ex.failedResponse(BAD_REQUEST);
         }
 
-        userRegisterService.doLogin(identity, opPwd.get(), modeStr.charAt(0) == '0', req.newPromise(String.class).addListener(f -> {
+        userRegisterService.doLogin(identity, opPwd.get(), modeStr.charAt(0) == '0', ex.newPromise(String.class).addListener(f -> {
             String userId = (String) f.getNow();
             if (userId == null) {
-                req.writeResponse(OK, failedCode("用户名或密码错误"), APPLICATION_JSON);
+                ex.writeResponse(OK, failedCode("用户名或密码错误"), APPLICATION_JSON);
                 return;
             }
 
-            Response resp = req.okResponse(successCode(userId), APPLICATION_JSON);
+            Response resp = ex.okResponse(successCode(userId), APPLICATION_JSON);
             req.addIdentification(userId, true);
-            req.writeResponse(resp);
+            ex.writeResponse(resp);
         }));
 
         return null;
@@ -102,33 +104,35 @@ public class UserRegisterController {
 
 
     @Post("/logout")
-    public Response logout(final Request req) {
-        String sessionId = req.getParameter(SESSION_ID);
+    public Response logout(final HttpExchange ex) {
+        String sessionId = ex.request().getParameter(SESSION_ID);
 
         if (isNullOrEmpty(sessionId) || sessionId.length() > 128) {
-            return req.failedResponse(BAD_REQUEST);
+            return ex.failedResponse(BAD_REQUEST);
         }
 
         userRegisterService.doLogout(sessionId);
 
-        return req.okResponse(successCode(EMPTY_STRING), APPLICATION_JSON);
+        return ex.okResponse(successCode(EMPTY_STRING), APPLICATION_JSON);
     }
 
 
     @Post("/signUp")
-    public Response signUp(final Request req) {
+    public Response signUp(final HttpExchange ex) {
+        Request req = ex.request();
+
         String username = req.getParameter(USER_NAME_PARAM);
         String mail     = req.getParameter(MAIL_PARAM);
         String password = req.getParameter(PASSWORD_PARAM);
 
         if (anyNullOrEmpty(username, mail) || password == null ||
                 username.length() > 64 || password.length() < 8 || password.length() > 16) {
-            return req.failedResponse(BAD_REQUEST);
+            return ex.failedResponse(BAD_REQUEST);
         }
 
         PrivateKey privateKey = (PrivateKey) req.session().remove(RSA_PRIVATE_KEY);
         if (privateKey == null) {
-            return req.failedResponse(BAD_REQUEST);
+            return ex.failedResponse(BAD_REQUEST);
         }
 
         Optional<String> opPwd;
@@ -137,20 +141,20 @@ public class UserRegisterController {
             opPwd = rsaSecurityService.doDecode(password, privateKey);
         } catch (IOException e) {
             logger.error("RSA decode error.", e);
-            return req.failedResponse(INTERNAL_SERVER_ERROR);
+            return ex.failedResponse(INTERNAL_SERVER_ERROR);
         }
 
         if (!opPwd.isPresent()) {
-            logger.warn("RSA decode wrong, from {}.", req.channel().remoteAddress());
-            return req.failedResponse(BAD_REQUEST);
+            logger.warn("RSA decode wrong, from {}.", ex.channel().remoteAddress());
+            return ex.failedResponse(BAD_REQUEST);
         }
 
-        userRegisterService.doSignUp(username, mail, opPwd.get(), req.newPromise(Boolean.class).addListener(f -> {
+        userRegisterService.doSignUp(username, mail, opPwd.get(), ex.newPromise(Boolean.class).addListener(f -> {
             Boolean isSuccess = (Boolean) f.getNow();
             if (isSuccess) {
-                req.writeResponse(OK, successCode("注册成功"), APPLICATION_JSON);
+                ex.writeResponse(OK, successCode("注册成功"), APPLICATION_JSON);
             } else {
-                req.writeResponse(OK, failedCode("注册失败"), APPLICATION_JSON);
+                ex.writeResponse(OK, failedCode("注册失败"), APPLICATION_JSON);
             }
         }));
 
@@ -159,15 +163,17 @@ public class UserRegisterController {
 
 
     @Get("/rsa")
-    public Response rsaPublicKey(final Request req) {
+    public Response rsaPublicKey(final HttpExchange ex) {
+        Request req = ex.request();
+
         if (req.getUserId() != null) {
-            return req.okResponse();
+            return ex.okResponse();
         }
 
         RSAKeyPair keyPair = rsaSecurityService.doGenerateKeyPair();
 
         req.addToSession(RSA_PRIVATE_KEY, keyPair.getPrivateKey());
 
-        return req.okResponse(keyPair.getPublicKeyStr().getBytes(), TEXT_PLAIN);
+        return ex.okResponse(keyPair.getPublicKeyStr().getBytes(), TEXT_PLAIN);
     }
 }

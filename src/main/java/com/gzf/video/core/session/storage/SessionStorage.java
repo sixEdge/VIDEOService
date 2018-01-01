@@ -1,7 +1,6 @@
 package com.gzf.video.core.session.storage;
 
 import com.gzf.video.core.ConfigManager;
-import com.gzf.video.core.async.AsyncTask;
 import com.gzf.video.core.session.Session;
 import com.gzf.video.core.session.SessionIdGenerator;
 import com.typesafe.config.Config;
@@ -104,19 +103,6 @@ public abstract class SessionStorage implements LoginStateCache {
     }
 
     /**
-     * <em>Will not create a new session.</em>
-     *
-     * @param sessionId session id
-     * @return user id if it exists, otherwise null
-     */
-    public String getUserId(final String sessionId) {
-        Session session = SESSION_MAP.get(sessionId);
-        return session == null
-                ? null
-                : session.getUserId();
-    }
-
-    /**
      * Get the current session associated with the specified session id.<br />
      *
      * @param sessionId session id
@@ -191,22 +177,20 @@ public abstract class SessionStorage implements LoginStateCache {
     }
 
     private void checkExpiredSessions(final Instant currentTime) {
-        AsyncTask.execute(() -> {
-            if (expirationCheckLock.tryLock()) {
-                try {
-                    Iterator<Session> iterator = SESSION_MAP.values().iterator();
-                    while (iterator.hasNext()) {
-                        Session session = iterator.next();
-                        if (session.isExpired(currentTime)) {
-                            iterator.remove();
-                            session.clear();
-                        }
+        if (expirationCheckLock.tryLock()) {
+            try {
+                Iterator<Session> iterator = SESSION_MAP.values().iterator();
+                while (iterator.hasNext()) {
+                    Session session = iterator.next();
+                    if (session.isExpired(currentTime)) {
+                        iterator.remove();
+                        session.clear();
                     }
-                } finally {
-                    nextExpirationCheckTime = currentTime.plus(EXPIRATION_CHECK_PERIOD);
-                    expirationCheckLock.unlock();
                 }
+            } finally {
+                nextExpirationCheckTime = currentTime.plus(EXPIRATION_CHECK_PERIOD);
+                expirationCheckLock.unlock();
             }
-        });
+        }
     }
 }

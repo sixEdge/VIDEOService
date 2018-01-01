@@ -4,6 +4,7 @@ import com.gzf.video.core.ConfigManager;
 import com.gzf.video.core.controller.action.Action;
 import com.gzf.video.core.dispatcher.ActionDispatcher;
 import com.gzf.video.core.dispatcher.Dispatcher;
+import com.gzf.video.core.http.HttpExchange;
 import com.gzf.video.core.http.request.GetRequest;
 import com.gzf.video.core.http.request.PostRequest;
 import com.gzf.video.core.http.request.Request;
@@ -130,13 +131,13 @@ public class DispatcherHandler extends SimpleChannelInboundHandler<FullHttpReque
         // construct request
 
         Request request = getOrPost
-                ? new GetRequest(ctx, req, cookies, session)
-                : new PostRequest(ctx, req, cookies, session);
+                ? new GetRequest(req, cookies, session)
+                : new PostRequest(req, cookies, session);
 
 
         // do action
 
-        Response response = action.doAction(request);
+        Response response = action.doAction(new HttpExchange(ctx, request));
 
 
         // send if need
