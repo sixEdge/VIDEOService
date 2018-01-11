@@ -53,12 +53,12 @@ public class HttpExchange extends SessionContext {
     /**
      * Unreadable io buffer.
      */
-    public ByteBuf newByteBuf(final int capacity) {
+    public ByteBuf ioByteBuf(final int capacity) {
         return alloc().ioBuffer(capacity, capacity);
     }
 
-    public ByteBuf newByteBuf(final byte[] bs) {
-        return newByteBuf(bs.length).writeBytes(bs);
+    public ByteBuf ioByteBuf(final byte[] bs) {
+        return ioByteBuf(bs.length).writeBytes(bs);
     }
 
     public Response okResponse() {
@@ -69,11 +69,11 @@ public class HttpExchange extends SessionContext {
      * Construct ok response with content-type {@code application/json}.
      */
     public Response okResponse(final byte[] content) {
-        return okResponse(newByteBuf(content), APPLICATION_JSON);
+        return okResponse(ioByteBuf(content));
     }
 
     public Response okResponse(final byte[] content, final CharSequence contentType) {
-        return okResponse(newByteBuf(content), contentType);
+        return okResponse(ioByteBuf(content), contentType);
     }
 
     /**
@@ -146,16 +146,13 @@ public class HttpExchange extends SessionContext {
      * Write response with content-type {@code application/json}.
      */
     public ChannelFuture writeResponse(final HttpResponseStatus status, final byte[] bs) {
-        Response resp = new Response(status, newByteBuf(bs));
-        resp.headers().add(CONTENT_TYPE, APPLICATION_JSON);
-        resp.headers().add(CONTENT_LENGTH, bs.length);
-        return writeResponse(resp);
+        return writeResponse(status, bs, APPLICATION_JSON);
     }
 
     public ChannelFuture writeResponse(final HttpResponseStatus status,
                                        final byte[] bs,
                                        final CharSequence contentType) {
-        Response resp = new Response(status, newByteBuf(bs));
+        Response resp = new Response(status, ioByteBuf(bs));
         resp.headers().add(CONTENT_TYPE, contentType);
         resp.headers().add(CONTENT_LENGTH, bs.length);
         return writeResponse(resp);

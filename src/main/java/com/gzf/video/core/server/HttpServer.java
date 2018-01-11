@@ -28,6 +28,9 @@ import io.netty.handler.ssl.util.SelfSignedCertificate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static io.netty.channel.ChannelOption.SO_BACKLOG;
+import static io.netty.channel.ChannelOption.SO_REUSEADDR;
+
 public class HttpServer {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -61,12 +64,16 @@ public class HttpServer {
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
+                    .option(SO_BACKLOG, 1024)
+                    .option(SO_REUSEADDR, true)
+                    .childOption(SO_REUSEADDR, true)
                     .channel(ProjectDependent.serverSocketChannelClass())
+//                    .handler(new LoggingHandler(LogLevel.DEBUG))
                     .childHandler(new HttpServerInitializer(sslCtx));
 
             ChannelFuture f = b.bind(PORT).sync();
 
-            logger.info("Server start, open you browser and navigate to " +
+            logger.info("Server start at " +
                     "http" + (SSL ? "s" : "") + "://localhost:" + (SSL ? sslPort : port));
 
             bindChannel = f.channel();
