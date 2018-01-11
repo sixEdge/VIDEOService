@@ -2,6 +2,7 @@ package com.gzf.video.core.http;
 
 import com.gzf.video.core.http.request.Request;
 import com.gzf.video.core.http.response.Response;
+import com.gzf.video.core.session.Session;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
@@ -15,21 +16,26 @@ import io.netty.util.concurrent.Promise;
 
 import static com.gzf.video.util.CookieFunctions.cookieSessionId;
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
+import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
-public class HttpExchange {
+public class HttpExchange extends SessionContext {
 
     private ChannelHandlerContext context;
 
-    private Request request;
-
-    public HttpExchange(final ChannelHandlerContext context, final Request request) {
+    public HttpExchange(final ChannelHandlerContext context,
+                        final Request request,
+                        final Session session) {
+        super(request, session);
         this.context = context;
-        this.request = request;
     }
 
     public ChannelHandlerContext context() {
         return context;
+    }
+
+    public Request request() {
+        return request;
     }
 
     public Channel channel() {
@@ -44,12 +50,8 @@ public class HttpExchange {
         return new DefaultPromise<>(context.executor());
     }
 
-    public Request request() {
-        return request;
-    }
-
     /**
-     * Unreadable.
+     * Unreadable io buffer.
      */
     public ByteBuf newByteBuf(final int capacity) {
         return alloc().ioBuffer(capacity, capacity);
@@ -59,9 +61,15 @@ public class HttpExchange {
         return newByteBuf(bs.length).writeBytes(bs);
     }
 
-
     public Response okResponse() {
         return new Response(OK);
+    }
+
+    /**
+     * Construct ok response with content-type {@code application/json}.
+     */
+    public Response okResponse(final byte[] content) {
+        return okResponse(newByteBuf(content), APPLICATION_JSON);
     }
 
     public Response okResponse(final byte[] content, final CharSequence contentType) {
@@ -69,20 +77,21 @@ public class HttpExchange {
     }
 
     /**
+     * Construct ok response with content-type {@code application/json}.
+     * <br />
      * <em>Note: The {@code content} must has not been read before.</em>
      *
      * @param content content
      * @return {@link Response}
      */
     public Response okResponse(final ByteBuf content) {
-        Response resp = new Response(OK, content);
-        resp.headers().add(CONTENT_LENGTH, content.writerIndex());
-        return resp;
+        return okResponse(content, APPLICATION_JSON);
     }
 
     public Response okResponse(final ByteBuf content, final CharSequence contentType) {
         Response resp = okResponse(content);
         resp.headers().add(CONTENT_TYPE, contentType);
+        resp.headers().add(CONTENT_LENGTH, content.writerIndex());
         return resp;
     }
 
@@ -91,11 +100,19 @@ public class HttpExchange {
         return new Response(status);
     }
 
+    /**
+     * Construct failed response with content-type {@code application-json}.
+     */
+    public Response failedResponse(final HttpResponseStatus status, final ByteBuf content) {
+        return failedResponse(status, content, APPLICATION_JSON);
+    }
+
     public Response failedResponse(final HttpResponseStatus status,
                                    final ByteBuf content,
                                    final CharSequence contentType) {
         Response resp = new Response(status, content);
         resp.headers().add(CONTENT_TYPE, contentType);
+        resp.headers().add(CONTENT_LENGTH, content.writerIndex());
         return resp;
     }
 
@@ -108,8 +125,8 @@ public class HttpExchange {
     public ChannelFuture writeResponse(final Response resp) {
         ChannelFuture future;
 
-        if (request.isNewSessionId()) {
-            resp.headers().add(SET_COOKIE, cookieSessionId(request.sessionId()));
+        if (isNewSessionId()) {
+            resp.headers().add(SET_COOKIE, cookieSessionId(sessionId()));
         }
 
         if (HttpHeaderValues.CLOSE.contentEqualsIgnoreCase(request.getHeader(CONNECTION))) {
@@ -121,16 +138,20 @@ public class HttpExchange {
         return future;
     }
 
-    /**
-     * With flush.
-     */
     public ChannelFuture writeResponse(final HttpResponseStatus status) {
         return writeResponse(new Response(status));
     }
 
     /**
-     * With flush.
+     * Write response with content-type {@code application/json}.
      */
+    public ChannelFuture writeResponse(final HttpResponseStatus status, final byte[] bs) {
+        Response resp = new Response(status, newByteBuf(bs));
+        resp.headers().add(CONTENT_TYPE, APPLICATION_JSON);
+        resp.headers().add(CONTENT_LENGTH, bs.length);
+        return writeResponse(resp);
+    }
+
     public ChannelFuture writeResponse(final HttpResponseStatus status,
                                        final byte[] bs,
                                        final CharSequence contentType) {

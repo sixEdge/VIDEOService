@@ -21,15 +21,15 @@ public class RedisProvider {
     /**
      * <em>NOTE: Close resource when not use.</em>
      */
-    public Jedis getJedis() {
+    public static Jedis getJedis() {
         return jedisPool.getResource();
     }
 
 
 
-    private final JedisPool jedisPool = getPool();
+    private static final JedisPool jedisPool = getPool();
 
-    private JedisPool getPool() {
+    private static JedisPool getPool() {
             JedisPoolConfig config = new JedisPoolConfig();
 
             config.setBlockWhenExhausted(REDIS_CONFIG.getBoolean("blockWhenExhausted"));
@@ -41,12 +41,6 @@ public class RedisProvider {
             return new JedisPool(config,
                     REDIS_CONFIG.getString("host"),
                     REDIS_CONFIG.getInt("port"));
-    }
-
-    private static final RedisProvider INSTANCE = new RedisProvider();
-
-    public static RedisProvider getINSTANCE() {
-        return INSTANCE;
     }
 
     private RedisProvider() {}

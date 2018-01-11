@@ -1,6 +1,7 @@
 package com.gzf.video.core.session.storage;
 
 import com.gzf.video.core.ConfigManager;
+import com.gzf.video.core.async.AsyncTask;
 import com.gzf.video.core.session.Session;
 import com.gzf.video.core.session.SessionIdGenerator;
 import com.typesafe.config.Config;
@@ -14,7 +15,7 @@ import java.time.ZoneId;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class SessionStorage implements LoginStateCache {
 
@@ -126,18 +127,9 @@ public abstract class SessionStorage implements LoginStateCache {
      * @return the session associates with the specified session id,
      *         never be null
      */
+    @Deprecated
     public Session getSession(final String sessionId) {
         return getSession(sessionId, true);
-    }
-
-    public Object getFromSession(final String sessionId, final String key) {
-        Session session = getSession(sessionId);
-        return session.get(key);
-    }
-
-    public Object addToSession(final String sessionId, final String key, final Object val) {
-        Session session = getSession(sessionId);
-        return session.put(key, val);
     }
 
 
@@ -153,7 +145,7 @@ public abstract class SessionStorage implements LoginStateCache {
 
     private volatile Instant nextExpirationCheckTime = Instant.now(CLOCK).plus(EXPIRATION_CHECK_PERIOD);
 
-    private final ReentrantLock expirationCheckLock = new ReentrantLock();
+    private final AtomicBoolean isExpirationChecked = new AtomicBoolean(false);
 
 
     private Session retrieveSession(final String sessionId) {
@@ -177,20 +169,21 @@ public abstract class SessionStorage implements LoginStateCache {
     }
 
     private void checkExpiredSessions(final Instant currentTime) {
-        if (expirationCheckLock.tryLock()) {
-            try {
-                Iterator<Session> iterator = SESSION_MAP.values().iterator();
-                while (iterator.hasNext()) {
-                    Session session = iterator.next();
-                    if (session.isExpired(currentTime)) {
-                        iterator.remove();
-                        session.clear();
+        if (isExpirationChecked.compareAndSet(false, true)) {
+            AsyncTask.execute(() -> {
+                try {
+                    Iterator<Session> iterator = SESSION_MAP.values().iterator();
+                    while (iterator.hasNext()) {
+                        Session session = iterator.next();
+                        if (session.isExpired(currentTime)) {
+                            iterator.remove();
+                            session.clear();
+                        }
                     }
+                } finally {
+                    nextExpirationCheckTime = currentTime.plus(EXPIRATION_CHECK_PERIOD);
                 }
-            } finally {
-                nextExpirationCheckTime = currentTime.plus(EXPIRATION_CHECK_PERIOD);
-                expirationCheckLock.unlock();
-            }
+            });
         }
     }
 }

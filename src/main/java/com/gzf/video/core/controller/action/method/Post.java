@@ -1,6 +1,10 @@
 package com.gzf.video.core.controller.action.method;
 
+import io.netty.handler.codec.http.HttpMethod;
+
 import java.lang.annotation.*;
+
+import static io.netty.handler.codec.http.HttpMethod.POST;
 
 /**
  * <em>For POST-Action</em>
@@ -15,6 +19,6 @@ public @interface Post {
     /** Request url */
     String value();
 
-    String method = "POST";
+    HttpMethod method = POST;
 
 }

@@ -11,9 +11,7 @@ public class Start {
 
     private static final HttpServer server = new HttpServer();
 
-
     public static void main(String[] args) {
-
         // start server
         try {
             server.startServer();
@@ -21,7 +19,6 @@ public class Start {
             logger.error("Server start failed", e);
         }
     }
-
 
     static {
         Signal signal = new Signal(PlatformDependent.isWindows() ? "INT" : "USR2");

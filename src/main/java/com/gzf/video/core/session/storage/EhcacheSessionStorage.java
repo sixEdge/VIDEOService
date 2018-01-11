@@ -5,10 +5,7 @@ import org.ehcache.Cache;
 
 public class EhcacheSessionStorage extends SessionStorage {
 
-    private final EhcacheProviderMetric cacheProviderMetric =
-            EhcacheProviderMetric.getINSTANCE();
-
-    private final Cache<String, String> loginCache = cacheProviderMetric.getLoginCache();
+    private final Cache<String, String> loginCache = EhcacheProviderMetric.getLoginCache();
 
 
     @Override

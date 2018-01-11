@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Optional;
 
 import static javax.crypto.Cipher.DECRYPT_MODE;
 
@@ -62,7 +61,7 @@ public class RSASecurityService {
         );
     }
 
-    public Optional<String> doDecode(final String encodedString, final PrivateKey privateKey) throws IOException {
+    public String doDecode(String encodedString, PrivateKey privateKey) throws IOException {
         Cipher cipher;
         byte[] bs;
 
@@ -75,10 +74,10 @@ public class RSASecurityService {
                 | InvalidKeyException
                 | BadPaddingException
                 | IllegalBlockSizeException e) {
-            return Optional.empty();
+            return null;
         }
 
-        return Optional.of(new String(bs).trim());
+        return new String(bs).trim();
     }
 
 

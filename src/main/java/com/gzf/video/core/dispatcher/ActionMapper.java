@@ -8,9 +8,7 @@ class ActionMapper {
 
     private final HashMap<String, Action> mapper = new HashMap<>();
 
-
     ActionMapper() {}
-
 
     void put(final String path, final Action action) {
         mapper.put(path, action);

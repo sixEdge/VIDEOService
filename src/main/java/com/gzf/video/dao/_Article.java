@@ -35,24 +35,24 @@ public class _Article {
             MONGO_PROVIDER.getCollection(ARTICLE_COLLECTION, Article.class);
 
 
-    public void _insertArticle(final Article entity, final SingleResultCallback<Void> callback) {
+    public void _insertArticle(Article entity, SingleResultCallback<Void> callback) {
         articleCollection.insertOne(entity, callback);
     }
 
 
-    public void _findArticle(final int articleId, final SingleResultCallback<Article> callback) {
+    public void _findArticle(int articleId, SingleResultCallback<Article> callback) {
         Document document = new Document()
                 .append(ARTICLE_ID, articleId);
         articleCollection.find(document).first(callback);
     }
 
 
-    public FindIterable<Article> _findArticles(final Bson filter) {
+    public FindIterable<Article> _findArticles(Bson filter) {
         return articleCollection.find(filter, Article.class);
     }
 
 
-    public void _deleteArticle(final int articleId, final SingleResultCallback<DeleteResult> callback) {
+    public void _deleteArticle(int articleId, SingleResultCallback<DeleteResult> callback) {
         Document document = new Document()
                 .append(ARTICLE_ID, articleId);
         articleCollection.deleteOne(document, callback);

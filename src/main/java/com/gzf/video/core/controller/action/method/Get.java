@@ -1,6 +1,10 @@
 package com.gzf.video.core.controller.action.method;
 
+import io.netty.handler.codec.http.HttpMethod;
+
 import java.lang.annotation.*;
+
+import static io.netty.handler.codec.http.HttpMethod.GET;
 
 /**
  * <em>For GET-Action</em>
@@ -15,6 +19,5 @@ public @interface Get {
     /** Request url */
     String value();
 
-    String method = "GET";
-
+    HttpMethod method = GET;
 }

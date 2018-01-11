@@ -1,6 +1,5 @@
 package com.gzf.video.core.http.request;
 
-import com.gzf.video.core.session.Session;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.cookie.Cookie;
 
@@ -12,10 +11,8 @@ import static com.gzf.video.util.PathAndParametersUtil.findPathEndIndex;
 
 public class GetRequest extends Request {
 
-    public GetRequest(final FullHttpRequest req,
-                      final Set<Cookie> cookies,
-                      final Session session) {
-        super(req, cookies, session);
+    public GetRequest(final FullHttpRequest req, final Set<Cookie> cookies) {
+        super(req, cookies);
     }
 
     @Override

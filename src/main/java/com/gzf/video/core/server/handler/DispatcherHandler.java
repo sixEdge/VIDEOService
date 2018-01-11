@@ -132,21 +132,21 @@ public class DispatcherHandler extends SimpleChannelInboundHandler<FullHttpReque
         // construct request
 
         Request request = getOrPost
-                ? new GetRequest(req, cookies, session)
-                : new PostRequest(req, cookies, session);
+                ? new GetRequest(req, cookies)
+                : new PostRequest(req, cookies);
 
 
         // do action
 
-        Response response = action.doAction(new HttpExchange(ctx, request));
+        HttpExchange ex = new HttpExchange(ctx, request, session);
+        Response response = action.doAction(ex);
 
 
         // send if need
 
         if (response != null) {
-            if (request.isNewSessionId()) {
-                response.headers()
-                        .add(SET_COOKIE, cookieSessionId(request.sessionId()));
+            if (ex.isNewSessionId()) {
+                response.headers().add(SET_COOKIE, cookieSessionId(ex.sessionId()));
             }
 
             if (HttpHeaderValues.CLOSE.contentEqualsIgnoreCase(request.getHeader(CONNECTION))) {

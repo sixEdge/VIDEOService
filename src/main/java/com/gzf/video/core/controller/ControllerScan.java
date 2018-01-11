@@ -8,6 +8,7 @@ import com.gzf.video.core.dispatcher.ActionDispatcher;
 import com.gzf.video.core.controller.action.Action;
 import com.gzf.video.core.ConfigManager;
 import com.typesafe.config.Config;
+import io.netty.handler.codec.http.HttpMethod;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.slf4j.Logger;
@@ -153,19 +154,24 @@ public class ControllerScan {
 
         for (Method m : ms) {
             m.setAccessible(true);
+
             Get get;
             Post post;
+            HttpMethod method;
             String url;
+
             if ((get = m.getDeclaredAnnotation(Get.class)) != null) {
                 url = get.value();
+                method = get.method;
             } else if ((post = m.getDeclaredAnnotation(Post.class)) != null) {
                 url = post.value();
+                method = post.method;
             } else {
                 continue;
             }
 
             Action action = newAction(controllerClass, controllerObj, m);
-            actionDispatcher.setAction(pathParser.parsePath(m, url), action, get != null);
+            actionDispatcher.setAction(pathParser.parsePath(m, url), action, method);
         }
     }
 

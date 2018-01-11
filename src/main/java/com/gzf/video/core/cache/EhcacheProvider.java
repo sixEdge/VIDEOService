@@ -27,12 +27,4 @@ class EhcacheProvider {
     <K, V> Cache<K, V> initCache(final String cacheName, Class<K> keyClass, Class<V> valClass) {
         return cacheManager.getCache(cacheName, keyClass, valClass);
     }
-
-    private static final EhcacheProvider INSTANCE = new EhcacheProvider();
-
-    public static EhcacheProvider getINSTANCE() {
-        return INSTANCE;
-    }
-
-    private EhcacheProvider() {}
 }
