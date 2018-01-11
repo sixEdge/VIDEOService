@@ -35,8 +35,8 @@ public class ActionDispatcher implements Dispatcher {
 
 
     @Override
-    public Action doDispatch(final String path, final boolean get_or_post) {
-        return (get_or_post ? GET_MAPPER : POST_MAPPER).get(path);
+    public Action doDispatch(final String path, final HttpMethod method) {
+        return chooseMapper(method).get(path);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class ActionDispatcher implements Dispatcher {
         ActionMapper mapper;
         try {
             mapper = chooseMapper(method);
-        } catch (Exception e) {
+        } catch (Error e) {
             logger.error(e.getMessage(), e);
             return;
         }
@@ -72,7 +72,7 @@ public class ActionDispatcher implements Dispatcher {
         mapper.put(path, action);
     }
 
-    private ActionMapper chooseMapper(final HttpMethod method) throws Exception {
+    private ActionMapper chooseMapper(final HttpMethod method) {
         ActionMapper mapper;
 
         if (GET.equals(method)) {
@@ -80,7 +80,7 @@ public class ActionDispatcher implements Dispatcher {
         } else if (POST.equals(method)) {
             mapper = POST_MAPPER;
         } else {
-            throw new Exception("Request method not support: {}" + method);
+            throw new Error("Request method not support: {}" + method);
         }
 
         return mapper;

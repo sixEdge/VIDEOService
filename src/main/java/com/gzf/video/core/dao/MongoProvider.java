@@ -1,6 +1,7 @@
 package com.gzf.video.core.dao;
 
 import com.gzf.video.core.ConfigManager;
+import com.gzf.video.core.ProjectDependent;
 import com.mongodb.MongoCredential;
 import com.mongodb.ReadPreference;
 import com.mongodb.ServerAddress;
@@ -11,8 +12,8 @@ import com.mongodb.selector.*;
 import com.typesafe.config.Config;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
@@ -21,9 +22,11 @@ import sun.misc.Cleaner;
 import sun.nio.ch.DefaultSelectorProvider;
 
 import java.util.List;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import static com.gzf.video.core.ConfigManager.coreModule;
+import static com.gzf.video.core.ProjectDependent.canUseEpoll;
 import static java.util.stream.Collectors.toList;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
@@ -36,12 +39,10 @@ public class MongoProvider {
     private static final int CONNECTION_POOL_THREADS = MONGO_CONFIG.getInt("connectionPoolThreadNum");
 
 
-    // TODO use EpollEventLoopGroup under linux
-    private static final EventLoopGroup MONGO_EVENT_LOOP_GROUP =
-            new NioEventLoopGroup(
-                    CONNECTION_POOL_THREADS,
-                    new DefaultThreadFactory("Thread-Factory-Mongo-Connection"),
-                    DefaultSelectorProvider.create());
+    private static final ThreadFactory threadFactory = new DefaultThreadFactory("Thread-Factory-Mongo-Connection");
+    private static final EventLoopGroup MONGO_EVENT_LOOP_GROUP = canUseEpoll()
+            ? new EpollEventLoopGroup(CONNECTION_POOL_THREADS, threadFactory)
+            : new NioEventLoopGroup(CONNECTION_POOL_THREADS, threadFactory, DefaultSelectorProvider.create());
 
 
     private static final CodecRegistry pojoCodecRegistry =
@@ -57,7 +58,7 @@ public class MongoProvider {
             .connectionPoolSettings(ConnectionPoolSettings.builder()
                     .maxSize(1024)
                     .maxWaitTime(8, TimeUnit.SECONDS)
-                    .minSize(2)
+                    .minSize(0)
                     .build()
             )
             .credentialList(dbsConfig.stream()
@@ -90,9 +91,7 @@ public class MongoProvider {
             .codecRegistry(pojoCodecRegistry)
             .serverSettings(ServerSettings.builder().build())
             .streamFactoryFactory(NettyStreamFactoryFactory.builder()
-
-                    // TODO use EpollSocketChannel under linux
-                    .socketChannelClass(NioSocketChannel.class)
+                    .socketChannelClass(ProjectDependent.socketChannelClass())
                     .allocator(PooledByteBufAllocator.DEFAULT)
                     .eventLoopGroup(MONGO_EVENT_LOOP_GROUP)
                     .build()

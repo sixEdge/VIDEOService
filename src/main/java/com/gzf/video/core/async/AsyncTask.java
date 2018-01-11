@@ -14,18 +14,12 @@ public class AsyncTask {
     private static final Config SERVICE_POOL_CONFIG = ASYNC_CONFIG.getConfig("asyncPool");
 
 
-
-
-
     private static final ForkJoinPool SERVICE_POOL = new ForkJoinPool(
             SERVICE_POOL_CONFIG.getInt("parallelism"),
             ForkJoinPool.defaultForkJoinWorkerThreadFactory,
             null,
             SERVICE_POOL_CONFIG.getBoolean("asyncMode")
     );
-
-
-
 
 
     public static <T> List<Future<T>> invokeAll(final Collection<? extends Callable<T>> tasks) {

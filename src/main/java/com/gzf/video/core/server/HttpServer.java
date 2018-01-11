@@ -16,13 +16,12 @@
 package com.gzf.video.core.server;
 
 import com.gzf.video.core.ConfigManager;
+import com.gzf.video.core.ProjectDependent;
 import com.typesafe.config.Config;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
@@ -31,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 public class HttpServer {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
 
     private Config serverConf = ConfigManager.getServerConf();
 
@@ -58,12 +56,12 @@ public class HttpServer {
             sslCtx = null;
         }
 
-        EventLoopGroup bossGroup = new NioEventLoopGroup(serverConf.getInt("bossGroupSize"));
-        EventLoopGroup workerGroup = new NioEventLoopGroup(serverConf.getInt("workerGroupSize"));
+        EventLoopGroup bossGroup = ProjectDependent.newEventLoopGroup(serverConf.getInt("bossGroupSize"));
+        EventLoopGroup workerGroup = ProjectDependent.newEventLoopGroup(serverConf.getInt("workerGroupSize"));
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
-                    .channel(NioServerSocketChannel.class)
+                    .channel(ProjectDependent.serverSocketChannelClass())
                     .childHandler(new HttpServerInitializer(sslCtx));
 
             ChannelFuture f = b.bind(PORT).sync();

@@ -8,12 +8,6 @@ public class StringUtil {
 
     public static final char SEP = File.separatorChar;
     public static final String EMPTY_STRING = "";
-    public static final String CLASS_PATH = StringUtil.class.getResource("/").getPath();
-    public static final String LOCAL_HOST_IPV4 = "127.0.0.1";
-    public static final String LOCAL_HOST_IPV6 = "0:0:0:0:0:0:0:1";
-
-
-
 
 
     public static String concatWith(final String[] xs, final String insert) {
@@ -26,9 +20,6 @@ public class StringUtil {
         }
         return s.toString();
     }
-
-
-
 
 
     public static boolean isNullOrEmpty(final String s) {
@@ -58,9 +49,6 @@ public class StringUtil {
 
         return s;
     }
-
-
-
 
 
     public static String hex(final byte[] data) {

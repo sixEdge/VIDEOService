@@ -3,7 +3,7 @@ package com.gzf.video.core.controller;
 import java.lang.annotation.*;
 
 /**
- * Specific the request path to access this controller. <br />
+ * Specify the request path to access this controller. <br />
  * Only can be used on controller classes.
  */
 @Inherited
@@ -16,5 +16,4 @@ public @interface Controller {
      * The request path to access this controller
      */
     String value() default "";
-
 }

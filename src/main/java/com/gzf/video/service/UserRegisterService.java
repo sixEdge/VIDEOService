@@ -42,7 +42,7 @@ public class UserRegisterService {
             if (result != null) {
                 String userId = "" + result.getInteger(USER_ID);
                 createIdentification(session, userId, rememberMe);
-                ex.writeResponse(ex.okResponse(successCode(userId)));
+                ex.writeResponse(OK, successCode(userId));
             } else {
                 ex.writeResponse(OK, failedCode("用户名或密码错误"));
             }

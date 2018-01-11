@@ -71,10 +71,8 @@ public class DispatcherHandler extends SimpleChannelInboundHandler<FullHttpReque
             return;
         }
 
-        boolean getOrPost;
-        if (req.method() == GET) getOrPost = true;
-        else if (req.method() == POST) getOrPost = false;
-        else {
+        HttpMethod method = req.method();
+        if (method != GET && method != POST) {
             sendError(ctx, METHOD_NOT_ALLOWED);
             return;
         }
@@ -122,7 +120,7 @@ public class DispatcherHandler extends SimpleChannelInboundHandler<FullHttpReque
 
         String path = decodeComponent(uri, 0, findPathEndIndex(uri));
 
-        Action action = DISPATCHER.doDispatch(path, getOrPost);
+        Action action = DISPATCHER.doDispatch(path, method);
         if (action == null) {
             sendError(ctx, NOT_FOUND);
             return;
@@ -131,9 +129,7 @@ public class DispatcherHandler extends SimpleChannelInboundHandler<FullHttpReque
 
         // construct request
 
-        Request request = getOrPost
-                ? new GetRequest(req, cookies)
-                : new PostRequest(req, cookies);
+        Request request = constructRequest(method, req, cookies);
 
 
         // do action
@@ -168,10 +164,22 @@ public class DispatcherHandler extends SimpleChannelInboundHandler<FullHttpReque
     }
 
 
-    private static void sendError(final ChannelHandlerContext ctx,
-                                  final HttpResponseStatus status) {
+    private static void sendError(final ChannelHandlerContext ctx, final HttpResponseStatus status) {
         FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, status);
         ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+    }
+
+    private static Request constructRequest(final HttpMethod method,
+                                            final FullHttpRequest req,
+                                            final Set<Cookie> cookies) {
+        if (method == GET) {
+            return new GetRequest(req, cookies);
+        } else if (method == POST) {
+            return new PostRequest(req, cookies);
+        }
+
+        // assert not null
+        return null;
     }
 
 

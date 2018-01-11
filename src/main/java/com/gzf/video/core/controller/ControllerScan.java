@@ -24,7 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
 
-import static com.gzf.video.util.StringUtil.CLASS_PATH;
+import static com.gzf.video.core.ProjectDependent.CLASS_PATH;
 import static com.gzf.video.util.StringUtil.SEP;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.*;
