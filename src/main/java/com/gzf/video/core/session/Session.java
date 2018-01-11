@@ -5,12 +5,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class Session extends ConcurrentHashMap<String, Object> {
 
     private static final Clock CLOCK = Clock.system(ZoneId.of("GMT"));
-
 
 //    private final Instant creationTime = Instant.now(CLOCK);
 
@@ -23,7 +21,7 @@ public class Session extends ConcurrentHashMap<String, Object> {
 
     private final String sessionId;
 
-    private final AtomicReference<String> userId = new AtomicReference<>();
+    private volatile String userId;
 
 
     public Session(final String sessionId) {
@@ -36,11 +34,11 @@ public class Session extends ConcurrentHashMap<String, Object> {
     }
 
     public String getUserId() {
-        return userId.get();
+        return userId;
     }
 
     public void setUserId(final String userId) {
-        this.userId.compareAndSet(null, userId);  // only update when userId is null
+        this.userId = userId;
     }
 
     public Instant getLastAccessTime() {
