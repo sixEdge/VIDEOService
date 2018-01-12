@@ -1,6 +1,5 @@
-package com.gzf.video.dao;
+package com.gzf.video.dao.collections;
 
-import com.gzf.video.core.dao.MongoProvider;
 import com.gzf.video.pojo.entry.Article;
 import com.mongodb.async.SingleResultCallback;
 import com.mongodb.async.client.FindIterable;
@@ -9,17 +8,14 @@ import com.mongodb.client.result.DeleteResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import static com.gzf.video.dao._Article.ArticleStruct.ARTICLE_ID;
+import static com.gzf.video.dao.collections._Article.ArticleStruct.ARTICLE_ID;
 
 /**
  * Article.
  */
-public class _Article {
+public class _Article extends BaseCollection {
 
-    private static final MongoProvider MONGO_PROVIDER = MongoProvider.getINSTANCE();
-
-
-    public static final String ARTICLE_COLLECTION = "article";
+    public static final String COLLECTION = "article";
     public interface ArticleStruct {
         String ARTICLE_ID       =   "aId";      // int
         String ARTICLE_NAME     =   "aname";    // string
@@ -30,9 +26,7 @@ public class _Article {
         String RELEASE_TIME     =   "rlstime";  // timestamp
     }
 
-
-    private final MongoCollection<Article> articleCollection =
-            MONGO_PROVIDER.getCollection(ARTICLE_COLLECTION, Article.class);
+    private static final MongoCollection<Article> articleCollection = getCollection(COLLECTION, Article.class);
 
 
     public void _insertArticle(Article entity, SingleResultCallback<Void> callback) {

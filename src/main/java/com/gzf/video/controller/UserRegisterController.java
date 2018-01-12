@@ -5,7 +5,7 @@ import com.gzf.video.core.controller.action.method.Get;
 import com.gzf.video.core.controller.action.method.Post;
 import com.gzf.video.core.http.HttpExchange;
 import com.gzf.video.core.http.response.Response;
-import com.gzf.video.service.RSASecurityService;
+import com.gzf.video.dao.RSADAO;
 import com.gzf.video.service.UserRegisterService;
 import com.gzf.video.core.http.request.Request;
 import org.slf4j.Logger;
@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import static com.gzf.video.core.session.storage.SessionStorage.RSA_PRIVATE_KEY;
 import static com.gzf.video.pojo.component.CodeMessage.successCode;
-import static com.gzf.video.service.RSASecurityService.RSAKeyPair;
 import static com.gzf.video.util.StringUtil.EMPTY_STRING;
 import static com.gzf.video.util.StringUtil.anyNullOrEmpty;
 import static io.netty.handler.codec.http.HttpHeaderValues.TEXT_PLAIN;
@@ -33,7 +32,6 @@ public class UserRegisterController {
 
 
     private UserRegisterService userRegisterService = UserRegisterService.getINSTANCE();
-    private RSASecurityService rsaSecurityService   = RSASecurityService.getINSTANCE();
 
 
     @Post("/login")
@@ -93,7 +91,7 @@ public class UserRegisterController {
             return ex.okResponse();
         }
 
-        RSAKeyPair keyPair = rsaSecurityService.doGenerateKeyPair();
+        RSADAO.RSAKeyPair keyPair = userRegisterService.doGetKeyPair();
 
         ex.addToSession(RSA_PRIVATE_KEY, keyPair.getPrivateKey());
 

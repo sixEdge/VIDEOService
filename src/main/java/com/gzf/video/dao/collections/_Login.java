@@ -1,29 +1,25 @@
-package com.gzf.video.dao;
+package com.gzf.video.dao.collections;
 
-import com.gzf.video.core.dao.MongoProvider;
 import com.mongodb.async.SingleResultCallback;
 import com.mongodb.async.client.MongoCollection;
 import org.bson.Document;
 
-import static com.gzf.video.dao._Login.LoginStruct.*;
+import static com.gzf.video.dao.collections._Login.LoginStruct.*;
 
 /**
  * Login & Sign up.
  */
-public class _Login {
+public class _Login extends BaseCollection {
 
-    private static final MongoProvider MONGO_PROVIDER = MongoProvider.getINSTANCE();
-
-    public static final String LOGIN_COLLECTION = "login";
+    public static final String COLLECTION = "login";
     public interface LoginStruct {
-        String USER_ID      =   "uId";      // int
-        String USERNAME     =   "uname";    // string
-        String MAIL         =   "mail";     // string
-        String PASSWORD     =   "pwd";      // string
+        String USER_ID      =   "uId";    // int
+        String USERNAME     =   "uname";  // string
+        String MAIL         =   "mail";   // string
+        String PASSWORD     =   "pwd";    // string
     }
 
-    private final MongoCollection<Document> loginCollection =
-            MONGO_PROVIDER.getCollection(LOGIN_COLLECTION);
+    private static final MongoCollection<Document> loginCollection = getCollection(COLLECTION);
 
 
     public void _nameLogin(String username,
@@ -58,7 +54,7 @@ public class _Login {
     }
 
 
-    public void _adminLogin(String mail,
+   /* public void _adminLogin(String mail,
                             String password,
                             SingleResultCallback callback) {
         // TODO admin login
@@ -70,5 +66,5 @@ public class _Login {
                              String password,
                              SingleResultCallback callback) {
         // TODO admin sign up
-    }
+    }*/
 }

@@ -15,7 +15,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import sun.misc.Cleaner;
@@ -39,13 +38,13 @@ public class MongoProvider {
     private static final int CONNECTION_POOL_THREADS = MONGO_CONFIG.getInt("connectionPoolThreadNum");
 
 
-    private static final ThreadFactory threadFactory = new DefaultThreadFactory("Thread-Factory-Mongo-Connection");
-    private static final EventLoopGroup MONGO_EVENT_LOOP_GROUP = canUseEpoll()
+    private final ThreadFactory threadFactory = new DefaultThreadFactory("Thread-Factory-Mongo-Connection");
+    private final EventLoopGroup MONGO_EVENT_LOOP_GROUP = canUseEpoll()
             ? new EpollEventLoopGroup(CONNECTION_POOL_THREADS, threadFactory)
             : new NioEventLoopGroup(CONNECTION_POOL_THREADS, threadFactory, DefaultSelectorProvider.create());
 
 
-    private static final CodecRegistry pojoCodecRegistry =
+    private final CodecRegistry pojoCodecRegistry =
             fromRegistries(MongoClients.getDefaultCodecRegistry(),
                     fromProviders(PojoCodecProvider.builder()
                             .register(MONGO_CONFIG.getStringList("pojoPackages").toArray(new String[0]))
@@ -107,23 +106,12 @@ public class MongoProvider {
 
     private final MongoDatabase db_0 = mongoClient.getDatabase(dbsConfig.get(0).getString("db"));
 
-
-    public MongoCollection<Document> getCollection(final String collection) {
-        return db_0.getCollection(collection);
+    public MongoDatabase getDefaultDatabase() {
+        return db_0;
     }
 
-    public <T> MongoCollection<T> getCollection(final String collection, final Class<T> clazz) {
-        return db_0.getCollection(collection, clazz);
-    }
-
-    public MongoCollection<Document> getCollection(final String db, final String collection) {
-        return mongoClient.getDatabase(db).getCollection(collection);
-    }
-
-    public <T> MongoCollection<T> getCollection(final String db,
-                                                final String collection,
-                                                final Class<T> clazz) {
-        return mongoClient.getDatabase(db).getCollection(collection, clazz);
+    public MongoDatabase getDatabase(final String db) {
+        return mongoClient.getDatabase(db);
     }
 
 

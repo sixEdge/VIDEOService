@@ -3,7 +3,8 @@ package com.gzf.video.service;
 import com.gzf.video.core.http.HttpExchange;
 import com.gzf.video.core.session.Session;
 import com.gzf.video.core.session.storage.SessionStorage;
-import com.gzf.video.dao._Login;
+import com.gzf.video.dao.RSADAO;
+import com.gzf.video.dao.collections._Login;
 import com.gzf.video.util.StringUtil;
 import com.mongodb.async.SingleResultCallback;
 import org.bson.Document;
@@ -14,7 +15,7 @@ import java.io.IOException;
 import java.security.PrivateKey;
 
 import static com.gzf.video.core.session.storage.SessionStorage.RSA_PRIVATE_KEY;
-import static com.gzf.video.dao._Login.LoginStruct.USER_ID;
+import static com.gzf.video.dao.collections._Login.LoginStruct.USER_ID;
 import static com.gzf.video.pojo.component.CodeMessage.failedCode;
 import static com.gzf.video.pojo.component.CodeMessage.successCode;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
@@ -27,9 +28,9 @@ public class UserRegisterService {
 
     private static final SessionStorage SESSION_STORAGE = SessionStorage.getINSTANCE();
 
-    private static final RSASecurityService rsaSecurityService = RSASecurityService.getINSTANCE();
+    private static final RSADAO RSA_DAO = new RSADAO();
 
-    private static final _Login LOGIN_DAO = new _Login();
+    private static final _Login _LOGIN = new _Login();
 
 
     public void doLogin(Session session,
@@ -57,9 +58,9 @@ public class UserRegisterService {
         }
 
         if (useUsername) {
-            LOGIN_DAO._nameLogin(identity, pwd, callback);
+            _LOGIN._nameLogin(identity, pwd, callback);
         } else {
-            LOGIN_DAO._mailLogin(identity, pwd, callback);
+            _LOGIN._mailLogin(identity, pwd, callback);
         }
     }
 
@@ -67,7 +68,7 @@ public class UserRegisterService {
     public void doLogout(Session session) {
         SESSION_STORAGE.destroyLoginCache(session.getSessionId());
 
-        // TODO Maybe better to use SESSION_STORAGE#destroySession()
+        // TODO Maybe better to use SessionStorage#destroySession()
         session.setUserId(null);
         session.clear();
     }
@@ -85,13 +86,18 @@ public class UserRegisterService {
             return;
         }
 
-        LOGIN_DAO._signUp(username, mail, pwd, (result, t) -> {
+        _LOGIN._signUp(username, mail, pwd, (result, t) -> {
             if (t != null) {
                 ex.writeResponse(OK, successCode("注册成功"));
             } else {
                 ex.writeResponse(OK, failedCode("注册失败"));
             }
         });
+    }
+
+
+    public RSADAO.RSAKeyPair doGetKeyPair() {
+        return RSA_DAO.getKeyPair();
     }
 
 
@@ -114,7 +120,7 @@ public class UserRegisterService {
 
         String pwd;
         try {
-            pwd = rsaSecurityService.doDecode(cryptPwd, privateKey);
+            pwd = RSA_DAO.decode(cryptPwd, privateKey);
         } catch (IOException e) {
             logger.error("RSA decode error.", e);
             return null;
