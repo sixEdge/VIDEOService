@@ -26,7 +26,6 @@ public class RedisProvider {
     }
 
 
-
     private static final JedisPool jedisPool = getPool();
 
     private static JedisPool getPool() {
