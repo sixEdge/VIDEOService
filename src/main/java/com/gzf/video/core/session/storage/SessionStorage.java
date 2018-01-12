@@ -182,6 +182,7 @@ public abstract class SessionStorage implements LoginStateCache {
                     }
                 } finally {
                     nextExpirationCheckTime = currentTime.plus(EXPIRATION_CHECK_PERIOD);
+                    isExpirationChecked.set(false);
                 }
             });
         }
