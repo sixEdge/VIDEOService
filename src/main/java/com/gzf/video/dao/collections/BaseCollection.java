@@ -7,7 +7,7 @@ import org.bson.Document;
 
 abstract class BaseCollection {
 
-    private static final MongoDatabase DEFAULT_DB = MongoProvider.getINSTANCE().getDefaultDatabase();
+    private static final MongoDatabase DEFAULT_DB = MongoProvider.getDefaultDatabase();
 
     static MongoCollection<Document> getCollection(String collection) {
         return DEFAULT_DB.getCollection(collection);

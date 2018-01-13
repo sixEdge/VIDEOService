@@ -38,13 +38,13 @@ public class MongoProvider {
     private static final int CONNECTION_POOL_THREADS = MONGO_CONFIG.getInt("connectionPoolThreadNum");
 
 
-    private final ThreadFactory threadFactory = new DefaultThreadFactory("Thread-Factory-Mongo-Connection");
-    private final EventLoopGroup MONGO_EVENT_LOOP_GROUP = canUseEpoll()
+    private static final ThreadFactory threadFactory = new DefaultThreadFactory("Thread-Factory-Mongo-Connection");
+    private static final EventLoopGroup MONGO_EVENT_LOOP_GROUP = canUseEpoll()
             ? new EpollEventLoopGroup(CONNECTION_POOL_THREADS, threadFactory)
             : new NioEventLoopGroup(CONNECTION_POOL_THREADS, threadFactory, DefaultSelectorProvider.create());
 
 
-    private final CodecRegistry pojoCodecRegistry =
+    private static final CodecRegistry pojoCodecRegistry =
             fromRegistries(MongoClients.getDefaultCodecRegistry(),
                     fromProviders(PojoCodecProvider.builder()
                             .register(MONGO_CONFIG.getStringList("pojoPackages").toArray(new String[0]))
@@ -53,7 +53,7 @@ public class MongoProvider {
                     ));
 
 
-    private final MongoClient mongoClient = MongoClients.create(MongoClientSettings.builder()
+    private static final MongoClient mongoClient = MongoClients.create(MongoClientSettings.builder()
             .connectionPoolSettings(ConnectionPoolSettings.builder()
                     .maxSize(1024)
                     .maxWaitTime(8, TimeUnit.SECONDS)
@@ -99,27 +99,18 @@ public class MongoProvider {
             .build());
 
 
-    {
-        Cleaner.create(this, mongoClient::close);
+    static {
+        Cleaner.create(mongoClient, mongoClient::close);
     }
 
 
-    private final MongoDatabase db_0 = mongoClient.getDatabase(dbsConfig.get(0).getString("db"));
+    private static final MongoDatabase db_0 = mongoClient.getDatabase(dbsConfig.get(0).getString("db"));
 
-    public MongoDatabase getDefaultDatabase() {
+    public static MongoDatabase getDefaultDatabase() {
         return db_0;
     }
 
-    public MongoDatabase getDatabase(final String db) {
+    public static MongoDatabase getDatabase(final String db) {
         return mongoClient.getDatabase(db);
     }
-
-
-    private static final MongoProvider INSTANCE = new MongoProvider();
-
-    public static MongoProvider getINSTANCE() {
-        return INSTANCE;
-    }
-
-    private MongoProvider() {}
 }
