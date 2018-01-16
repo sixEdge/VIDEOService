@@ -6,7 +6,7 @@ import com.typesafe.config.ConfigFactory;
 public class ConfigManager {
 
     /** Application config */
-    private static final Config appConf = ConfigFactory.defaultApplication();
+    public static final Config appConf = ConfigFactory.defaultApplication();
 
     public static final String APP_NAME = appConf.getString("appName");
 

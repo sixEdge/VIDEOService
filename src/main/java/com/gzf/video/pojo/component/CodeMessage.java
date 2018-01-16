@@ -45,9 +45,6 @@ public class CodeMessage {
     }
 
 
-
-
-
     /**
      *  Success state.
      *
@@ -67,9 +64,6 @@ public class CodeMessage {
     }
 
 
-
-
-
     @Override
     public String toString() {
         return "CodeMessage{" +
@@ -77,8 +71,6 @@ public class CodeMessage {
                 ", message='" + message + '\'' +
                 '}';
     }
-
-
 
 
     public enum Code implements JSONSerializable {

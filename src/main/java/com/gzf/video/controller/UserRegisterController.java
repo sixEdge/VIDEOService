@@ -1,5 +1,6 @@
 package com.gzf.video.controller;
 
+import com.gzf.video.core.bean.inject.Autowire;
 import com.gzf.video.core.controller.Controller;
 import com.gzf.video.core.controller.action.method.Get;
 import com.gzf.video.core.controller.action.method.Post;
@@ -31,7 +32,8 @@ public class UserRegisterController {
     private static final String LOGIN_MODE_PARAM    = "mode";
 
 
-    private UserRegisterService userRegisterService = UserRegisterService.getINSTANCE();
+    @Autowire
+    private UserRegisterService userRegisterService;
 
 
     @Post("/login")

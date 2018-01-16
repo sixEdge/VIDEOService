@@ -1,6 +1,7 @@
 package com.gzf.video.dao;
 
 import com.gzf.video.core.async.AsyncTask;
+import com.gzf.video.core.bean.Bean;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
@@ -19,6 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static javax.crypto.Cipher.DECRYPT_MODE;
 
+@Bean
 public class RSADAO {
 
     private static final BASE64Encoder BASE_64_ENCODER = new BASE64Encoder();

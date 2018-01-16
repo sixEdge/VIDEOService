@@ -1,5 +1,6 @@
 package com.gzf.video.dao.collections;
 
+import com.gzf.video.core.bean.Bean;
 import com.mongodb.async.SingleResultCallback;
 import com.mongodb.async.client.MongoCollection;
 import org.bson.Document;
@@ -9,6 +10,7 @@ import static com.gzf.video.dao.collections._Login.LoginStruct.*;
 /**
  * Login & Sign up.
  */
+@Bean
 public class _Login extends BaseCollection {
 
     public static final String COLLECTION = "login";

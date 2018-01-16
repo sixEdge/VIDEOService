@@ -15,6 +15,7 @@
  */
 package com.gzf.video.core.server;
 
+import com.gzf.video.core.bean.inject.AutomaticInjector;
 import com.gzf.video.core.server.handler.DispatcherHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -26,6 +27,7 @@ import io.netty.handler.ssl.SslContext;
 class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
 
     static {
+        AutomaticInjector.init();
         DispatcherHandler.init();
     }
 

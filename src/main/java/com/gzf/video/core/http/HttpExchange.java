@@ -77,7 +77,7 @@ public class HttpExchange extends SessionContext {
     }
 
     /**
-     * Construct ok response with content-type {@code application/json}.
+     * Construct ok response with default content-type {@code application/json}.
      * <br />
      * <em>Note: The {@code content} must has not been read before.</em>
      *
@@ -116,7 +116,6 @@ public class HttpExchange extends SessionContext {
         return resp;
     }
 
-
     //    ------------------------------ transform
 
     /**
@@ -136,10 +135,6 @@ public class HttpExchange extends SessionContext {
         }
 
         return future;
-    }
-
-    public ChannelFuture writeResponse(final HttpResponseStatus status) {
-        return writeResponse(new Response(status));
     }
 
     /**

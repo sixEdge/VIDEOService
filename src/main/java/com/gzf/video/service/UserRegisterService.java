@@ -1,5 +1,7 @@
 package com.gzf.video.service;
 
+import com.gzf.video.core.bean.Bean;
+import com.gzf.video.core.bean.inject.Autowire;
 import com.gzf.video.core.http.HttpExchange;
 import com.gzf.video.core.session.Session;
 import com.gzf.video.core.session.storage.SessionStorage;
@@ -23,14 +25,17 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 /**
  * Login & Logout & Sign up.
  */
+@Bean
 public class UserRegisterService {
     private static final Logger logger = LoggerFactory.getLogger(UserRegisterService.class);
 
     private static final SessionStorage SESSION_STORAGE = SessionStorage.getINSTANCE();
 
-    private static final RSADAO RSA_DAO = new RSADAO();
+    @Autowire
+    private RSADAO RSA_DAO;
 
-    private static final _Login _LOGIN = new _Login();
+    @Autowire
+    private _Login _LOGIN;
 
 
     public void doLogin(Session session,
@@ -53,7 +58,7 @@ public class UserRegisterService {
         String pwd = md5Password(ex, password);
 
         if (pwd == null) {
-            ex.writeResponse(OK, failedCode("注册失败"));
+            ex.writeResponse(OK, failedCode("用户名或密码错误"));
             return;
         }
 
@@ -68,7 +73,7 @@ public class UserRegisterService {
     public void doLogout(Session session) {
         SESSION_STORAGE.destroyLoginCache(session.getSessionId());
 
-        // TODO Maybe better to use SessionStorage#destroySession()
+        // TODO maybe better to use SessionStorage#destroySession()
         session.setUserId(null);
         session.clear();
     }
@@ -101,7 +106,7 @@ public class UserRegisterService {
     }
 
 
-    private static String md5Password(final HttpExchange ex, final String cryptPwd) {
+    private String md5Password(final HttpExchange ex, final String cryptPwd) {
         // rsa decrypt
         String pwd = decryptPassword(ex, cryptPwd);
 
@@ -112,7 +117,7 @@ public class UserRegisterService {
         return StringUtil.hexMd5(pwd.getBytes());
     }
 
-    private static String decryptPassword(final HttpExchange ex, final String cryptPwd) {
+    private String decryptPassword(final HttpExchange ex, final String cryptPwd) {
         PrivateKey privateKey = (PrivateKey) ex.removeFromSession(RSA_PRIVATE_KEY);
         if (privateKey == null) {
             return null;
@@ -135,13 +140,4 @@ public class UserRegisterService {
             SESSION_STORAGE.createLoginCache(session.getSessionId(), userId);
         }
     }
-
-
-    private static final UserRegisterService INSTANCE = new UserRegisterService();
-
-    public static UserRegisterService getINSTANCE() {
-        return INSTANCE;
-    }
-
-    private UserRegisterService() {}
 }

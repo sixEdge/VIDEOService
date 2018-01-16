@@ -12,29 +12,28 @@ import static com.gzf.video.util.PathAndParametersUtil.findPathEndIndex;
 public class ActionPathParser {
 
     /**
-     * Parse <code>path</code>
+     * Parse path
      * via annotations:
      * {@link Controller},
-     * {@link Get}, {@link Post},
-     *<br/>
+     * {@link Get}, {@link Post}, <br/>
      * <pre>e.g.
-     * <em>@Controller</em>("/prefix")
-     *     class MyController {
+     *      <em>@Controller</em>("/prefix")
+     *      class MyController {
      *
-     *     <em>@Get</em>("/path/to/action/")
-     *         {@link com.gzf.video.core.http.request.Request}
-     *         myAction({@link com.gzf.video.core.http.response.Response} response) {
-     *
-     *         }
-     *     }
+     *          <em>@Get</em>("/path/to/action/")
+     *          {@link com.gzf.video.core.http.response.Response}
+     *          myAction({@link com.gzf.video.core.http.HttpExchange} response) {
+     *              ...
+     *          }
+     *      }
      * </pre>
      * The request which has path: {@code /prefix/path/to/action/},<br />
      * will be dispatched to this action method. <br />
      *
-     * @param method the method has {@link Get} or {@link Post}
+     * @param method method ∈ { {@link Get}, {@link Post} }
      * @return path to access this action
      */
-    public String parsePath(Method method, String methodUrl) {
+    public static String parsePath(Method method, String methodUrl) {
         // prefix url from its class's annotation @Controller
         Controller controller = method.getDeclaringClass().getDeclaredAnnotation(Controller.class);
         String classUrl = controller == null ? "" : controller.value();

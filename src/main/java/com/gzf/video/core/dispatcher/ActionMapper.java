@@ -1,24 +1,18 @@
 package com.gzf.video.core.dispatcher;
 
+import com.gzf.video.core.SingleInstanceFactory;
 import com.gzf.video.core.controller.action.Action;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.*;
+public class ActionMapper extends SingleInstanceFactory<String, Action> {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-class ActionMapper {
+    @Override
+    public void put(final String path, final Action action) {
+        if (super.isConflicting(path))
+            logger.warn("Conflicting action, two actions are both mapped to the same path {}.", path);
 
-    private final HashMap<String, Action> mapper = new HashMap<>();
-
-    ActionMapper() {}
-
-    void put(final String path, final Action action) {
-        mapper.put(path, action);
-    }
-
-    Action get(final String path) {
-        return mapper.get(path);
-    }
-
-    boolean isConflicting(final String path) {
-        return get(path) != null;
+        super.put(path, action);
     }
 }

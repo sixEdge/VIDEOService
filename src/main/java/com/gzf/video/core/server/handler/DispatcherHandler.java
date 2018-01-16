@@ -43,13 +43,13 @@ public class DispatcherHandler extends SimpleChannelInboundHandler<FullHttpReque
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
 
-    private static final List<String> PRE_INTERCEPT_PATH = ConfigManager.getInterceptorConf().getStringList("preInterceptPath");
+    private static final List<String> PRE_INTERCEPT_PATH = ConfigManager.getInterceptorConf().getStringList("preInterceptPaths");
 
 
     private static final SessionStorage SESSION_STORAGE = SessionStorage.getINSTANCE();
 
 
-    private static final Dispatcher DISPATCHER = ActionDispatcher.getINSTANCE();
+    private static final Dispatcher DISPATCHER = new ActionDispatcher();
 
 
     public static void init() {
@@ -172,16 +172,10 @@ public class DispatcherHandler extends SimpleChannelInboundHandler<FullHttpReque
     private static Request constructRequest(final HttpMethod method,
                                             final FullHttpRequest req,
                                             final Set<Cookie> cookies) {
-        if (method == GET) {
-            return new GetRequest(req, cookies);
-        } else if (method == POST) {
-            return new PostRequest(req, cookies);
-        }
-
-        // assert not null
-        return null;
+        return method == GET
+                ? new GetRequest(req, cookies)
+                : new PostRequest(req, cookies);
     }
-
 
     private static final DispatcherHandler INSTANCE = new DispatcherHandler();
 

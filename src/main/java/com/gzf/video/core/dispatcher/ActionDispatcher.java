@@ -1,38 +1,25 @@
-/*
- * Copyright (c) 2017  Six Edge.
- *
- * This Project licenses this file to you under the Apache License,
- * version 2.0 (the "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at:
- *
- *               http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- */
 package com.gzf.video.core.dispatcher;
 
-import com.gzf.video.core.controller.ControllerScan;
+import com.gzf.video.core.ConfigManager;
+import com.gzf.video.core.bean.inject.AutomaticInjector;
+import com.gzf.video.core.controller.ControllerScanner;
 import com.gzf.video.core.controller.action.Action;
 import io.netty.handler.codec.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpMethod.POST;
 
-/**
- * Dispatch.
- */
 public class ActionDispatcher implements Dispatcher {
-    private static final Logger logger = LoggerFactory.getLogger(ActionDispatcher.class);
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    private static final String CONTROLLER_PACKAGE = ConfigManager.getControllerConf().getString("package");
 
     private final ActionMapper GET_MAPPER = new ActionMapper();
     private final ActionMapper POST_MAPPER = new ActionMapper();
-
 
     @Override
     public Action doDispatch(final String path, final HttpMethod method) {
@@ -42,56 +29,38 @@ public class ActionDispatcher implements Dispatcher {
     @Override
     public void init() {
         try {
-            new ControllerScan(INSTANCE).refresh();
+            List<Object> controllerList = ControllerScanner.scanControllers(this, CONTROLLER_PACKAGE);
+            logger.info("{} controllers has benn scanned.", controllerList.size());
+
+            // controller auto-inject
+            controllerList.forEach(c -> AutomaticInjector.autoInject(c, c.getClass()));
         } catch (Exception e) {
             throw new Error(e);
         }
     }
 
-
     /**
      * Set action with corresponding path.
      *
+     * @param method   GET or POST
      * @param path     the corresponding path maps to the action
      * @param action   the action
-     * @param method   GET or POST
      */
-    public void setAction(final String path, final Action action, final HttpMethod method) {
-        ActionMapper mapper;
+    public void setAction(final HttpMethod method, final String path, final Action action) {
         try {
-            mapper = chooseMapper(method);
-        } catch (Error e) {
+            chooseMapper(method).put(path, action);
+        } catch (RuntimeException e) {
             logger.error(e.getMessage(), e);
-            return;
         }
-
-        if (mapper.isConflicting(path))
-            logger.warn("Conflicting action, " +
-                    "two actions are both mapped to the same path {}.", path);
-
-        mapper.put(path, action);
     }
 
     private ActionMapper chooseMapper(final HttpMethod method) {
-        ActionMapper mapper;
-
         if (GET.equals(method)) {
-            mapper = GET_MAPPER;
+            return GET_MAPPER;
         } else if (POST.equals(method)) {
-            mapper = POST_MAPPER;
+            return POST_MAPPER;
         } else {
-            throw new Error("Request method not support: {}" + method);
+            throw new RuntimeException("Request method not support: {}" + method);
         }
-
-        return mapper;
     }
-
-
-    private static final ActionDispatcher INSTANCE = new ActionDispatcher();
-
-    public static ActionDispatcher getINSTANCE() {
-        return INSTANCE;
-    }
-
-    private ActionDispatcher() {}
 }

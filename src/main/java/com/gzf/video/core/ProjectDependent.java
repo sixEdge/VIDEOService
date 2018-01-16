@@ -9,7 +9,6 @@ import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.util.internal.PlatformDependent;
 
 public class ProjectDependent {
 
@@ -17,7 +16,7 @@ public class ProjectDependent {
 
     public static final String OS_ARCH = System.getProperty("os.arch");
 
-    public static final String CLASS_PATH = ProjectDependent.class.getResource("/").getPath();
+    public static final String CLASSPATH = ProjectDependent.class.getResource("/").getPath();
 
 
     public static boolean canUseEpoll() {

@@ -32,7 +32,7 @@ import static io.netty.channel.ChannelOption.SO_BACKLOG;
 import static io.netty.channel.ChannelOption.SO_REUSEADDR;
 
 public class HttpServer {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private Config serverConf = ConfigManager.getServerConf();
 
