@@ -1,13 +1,13 @@
 package com.gzf.video.core.bean;
 
-import com.gzf.video.core.Scanner;
+import com.gzf.video.core.ClassScanner;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.stream.Stream;
 
-public class BeanScanner extends Scanner {
+public class BeanScanner extends ClassScanner {
 
     private final BeanFactory beanFactory;
 

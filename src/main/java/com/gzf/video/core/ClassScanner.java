@@ -7,7 +7,7 @@ import java.io.File;
 
 import static com.gzf.video.util.StringUtil.SEP;
 
-public abstract class Scanner {
+public abstract class ClassScanner {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();

@@ -1,6 +1,6 @@
 package com.gzf.video.core.controller;
 
-import com.gzf.video.core.Scanner;
+import com.gzf.video.core.ClassScanner;
 import com.gzf.video.core.controller.action.Action;
 import com.gzf.video.core.controller.action.ActionGenerator;
 import com.gzf.video.core.controller.action.method.Get;
@@ -16,7 +16,7 @@ import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ControllerScanner extends Scanner {
+public class ControllerScanner extends ClassScanner {
     private final ActionDispatcher actionDispatcher;
 
     // will have more usage in future
