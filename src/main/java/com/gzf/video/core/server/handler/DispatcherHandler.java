@@ -2,7 +2,7 @@ package com.gzf.video.core.server.handler;
 
 import com.gzf.video.core.ConfigManager;
 import com.gzf.video.core.controller.action.Action;
-import com.gzf.video.core.dispatcher.ActionDispatcher;
+import com.gzf.video.core.dispatcher.DefaultDispatcher;
 import com.gzf.video.core.dispatcher.Dispatcher;
 import com.gzf.video.core.http.HttpExchange;
 import com.gzf.video.core.http.request.GetRequest;
@@ -49,7 +49,7 @@ public class DispatcherHandler extends SimpleChannelInboundHandler<FullHttpReque
     private static final SessionStorage SESSION_STORAGE = SessionStorage.getINSTANCE();
 
 
-    private static final Dispatcher DISPATCHER = new ActionDispatcher();
+    private static final Dispatcher DISPATCHER = new DefaultDispatcher();
 
 
     public static void init() {

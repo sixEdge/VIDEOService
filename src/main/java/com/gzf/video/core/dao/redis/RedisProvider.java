@@ -1,21 +1,17 @@
 package com.gzf.video.core.dao.redis;
 
 import com.gzf.video.core.ConfigManager;
-import com.gzf.video.util.StringUtil;
 import com.typesafe.config.Config;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
-import static com.gzf.video.core.ConfigManager.daoModule;
+import static com.gzf.video.core.ConfigManager.coreModule;
 
 public class RedisProvider {
 
-    private static final Config REDIS_CONFIG =
-            ConfigManager.loadConfigFromModule(daoModule, "redisConfig");
-
-    public static final String LOGIN_MAP =
-            StringUtil.notNullOrEmpty(REDIS_CONFIG.getString("loginMap"));
+    private static final Config REDIS_CONFIG = ConfigManager.loadConfigFromModule(coreModule, "redisConfig");
+    public static final String LOGIN_MAP = REDIS_CONFIG.getString("loginMap");
 
 
     /**

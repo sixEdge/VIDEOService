@@ -1,30 +1,21 @@
 package com.gzf.video.dao;
 
-import com.gzf.video.core.async.AsyncTask;
 import com.gzf.video.core.bean.Bean;
+import com.gzf.video.util.StringUtil;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import java.io.IOException;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static javax.crypto.Cipher.DECRYPT_MODE;
 
 @Bean
-public class RSADAO {
-
-    private static final BASE64Encoder BASE_64_ENCODER = new BASE64Encoder();
-    private static final BASE64Decoder BASE_64_DECODER = new BASE64Decoder();
+public class RsaDAO {
 
     private static final KeyPairGenerator KEY_PAIR_GENERATOR;
 
@@ -39,15 +30,15 @@ public class RSADAO {
 
 
     public static class RSAKeyPair {
-        private final String publicKeyStr;
+        private final byte[] publicKeyStr;
         private final PrivateKey privateKey;
 
-        private RSAKeyPair(final String publicKeyStr, final PrivateKey privateKey) {
+        private RSAKeyPair(final byte[] publicKeyStr, final PrivateKey privateKey) {
             this.publicKeyStr = publicKeyStr;
             this.privateKey = privateKey;
         }
 
-        public String getPublicKeyStr() {
+        public byte[] getPublicKeyStr() {
             return publicKeyStr;
         }
 
@@ -57,33 +48,36 @@ public class RSADAO {
     }
 
 
-    private static final Queue<RSAKeyPair> rsaKeyPairs = new ConcurrentLinkedQueue<>();
-
-    private static final AtomicBoolean needGenerate = new AtomicBoolean(true);
-
     private RSAKeyPair generateKeyPair() {
         KeyPair keyPair = KEY_PAIR_GENERATOR.generateKeyPair();
         RSAPublicKey rsaPublicKey = (RSAPublicKey) keyPair.getPublic();
         RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) keyPair.getPrivate();
 
         return new RSAKeyPair(
-                BASE_64_ENCODER.encode(rsaPublicKey.getEncoded()),
+                StringUtil.base64Encode(rsaPublicKey.getEncoded()),
                 rsaPrivateKey
         );
     }
 
+    /*private static final int MAX_KEY_PAIR_NUMBER = 256;
+
+    private static final Queue<RSAKeyPair> rsaKeyPairs = new ConcurrentLinkedQueue<>();
+
+    private static final AtomicBoolean needGenerate = new AtomicBoolean(true);*/
 
     /**
      * Get a pair of rsa key. <br />
-     * Will generate 256 key pairs when no key pair left.
+     * <s>Will generate MAX_KEY_PAIR_NUMBER key pairs when no key pair left.</s>
      */
     public RSAKeyPair getKeyPair() {
+        return generateKeyPair();
+        /*
         RSAKeyPair pair = rsaKeyPairs.poll();
         if (pair == null) {
             if (needGenerate.compareAndSet(true, false)) {
                 AsyncTask.execute(() -> {
                     try {
-                        for (int i = 0; i < 256; i++) {
+                        for (int i = 0; i < MAX_KEY_PAIR_NUMBER; i++) {
                             rsaKeyPairs.add(generateKeyPair());
                         }
                     } finally {
@@ -93,18 +87,18 @@ public class RSADAO {
             }
             return generateKeyPair();
         }
-        return pair;
+        return pair;*/
     }
 
 
-    public String decode(String encodedString, PrivateKey privateKey) throws IOException {
+    public byte[] decode(String encodedString, PrivateKey privateKey) {
         Cipher cipher;
         byte[] bs;
 
         try {
             cipher = Cipher.getInstance("RSA/None/PKCS1Padding");
             cipher.init(DECRYPT_MODE, privateKey);
-            bs = cipher.doFinal(BASE_64_DECODER.decodeBuffer(encodedString));
+            bs = cipher.doFinal(StringUtil.base64Decode(encodedString));
         } catch ( NoSuchAlgorithmException
                 | NoSuchPaddingException
                 | InvalidKeyException
@@ -113,6 +107,6 @@ public class RSADAO {
             return null;
         }
 
-        return new String(bs).trim();
+        return bs;
     }
 }

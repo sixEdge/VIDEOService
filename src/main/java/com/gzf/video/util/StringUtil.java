@@ -1,6 +1,7 @@
 package com.gzf.video.util;
 
 import com.mongodb.internal.HexUtils;
+import org.bouncycastle.util.encoders.Base64;
 
 import java.io.File;
 
@@ -8,18 +9,6 @@ public class StringUtil {
 
     public static final char SEP = File.separatorChar;
     public static final String EMPTY_STRING = "";
-
-
-    public static String concatWith(final String[] xs, final String insert) {
-        StringBuilder s = new StringBuilder();
-        for (int i = 0; i < xs.length; i++) {
-            if (i != 0) {
-                s.append(insert);
-            }
-            s.append(xs[i]);
-        }
-        return s.toString();
-    }
 
 
     public static boolean isNullOrEmpty(final String s) {
@@ -32,7 +21,6 @@ public class StringUtil {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -40,16 +28,18 @@ public class StringUtil {
         return s != null && !s.isEmpty();
     }
 
-    public static String notNullOrEmpty(final String s) {
-        if (s == null) {
-            throw new RuntimeException("null");
-        } else if (s.isEmpty()) {
-            throw new RuntimeException("empty string");
-        }
 
-        return s;
+    public static byte[] base64Encode(final byte[] data) {
+        return Base64.encode(data);
     }
 
+    public static byte[] base64Decode(final byte[] data) {
+        return Base64.decode(data);
+    }
+
+    public static byte[] base64Decode(final String data) {
+        return Base64.decode(data);
+    }
 
     public static String hex(final byte[] data) {
         return HexUtils.toHex(data);

@@ -6,7 +6,7 @@ import com.gzf.video.core.controller.action.method.Get;
 import com.gzf.video.core.controller.action.method.Post;
 import com.gzf.video.core.http.HttpExchange;
 import com.gzf.video.core.http.response.Response;
-import com.gzf.video.dao.RSADAO;
+import com.gzf.video.dao.RsaDAO.RSAKeyPair;
 import com.gzf.video.service.UserRegisterService;
 import com.gzf.video.core.http.request.Request;
 import org.slf4j.Logger;
@@ -38,14 +38,13 @@ public class UserRegisterController {
 
     @Post("/login")
     public Response login(HttpExchange ex) {
-        Request req = ex.request();
-
         // has login
         String preUserId;
         if ((preUserId = ex.getUserId()) != null) {
             return ex.okResponse(successCode(preUserId));
         }
 
+        Request req = ex.request();
         String identity = req.getParameter(IDENTITY_PARAM);
         String password = req.getParameter(PASSWORD_PARAM);
         String modeStr  = req.getParameter(LOGIN_MODE_PARAM);
@@ -93,10 +92,9 @@ public class UserRegisterController {
             return ex.okResponse();
         }
 
-        RSADAO.RSAKeyPair keyPair = userRegisterService.doGetKeyPair();
-
+        RSAKeyPair keyPair = userRegisterService.doGetKeyPair();
         ex.addToSession(RSA_PRIVATE_KEY, keyPair.getPrivateKey());
 
-        return ex.okResponse(keyPair.getPublicKeyStr().getBytes(), TEXT_PLAIN);
+        return ex.okResponse(keyPair.getPublicKeyStr(), TEXT_PLAIN);
     }
 }

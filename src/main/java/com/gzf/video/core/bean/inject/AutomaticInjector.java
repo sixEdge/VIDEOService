@@ -28,9 +28,9 @@ public class AutomaticInjector {
         for (Field field : clazz.getDeclaredFields()){
             field.setAccessible(true);
             if (field.getAnnotation(Autowire.class) != null) {
-                String className = field.getType().getName();
+                String fieldTypeName = field.getType().getName();
                 try {
-                    field.set(obj, beanFactory.get(className));
+                    field.set(obj, beanFactory.get(fieldTypeName));
                 } catch (IllegalAccessException e) {
                     throw new Error(e);
                 }

@@ -89,7 +89,7 @@ public class HttpExchange extends SessionContext {
     }
 
     public Response okResponse(final ByteBuf content, final CharSequence contentType) {
-        Response resp = okResponse(content);
+        Response resp = new Response(OK, content);
         resp.headers().add(CONTENT_TYPE, contentType);
         resp.headers().add(CONTENT_LENGTH, content.writerIndex());
         return resp;

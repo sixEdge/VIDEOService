@@ -2,10 +2,11 @@ package com.gzf.video.service;
 
 import com.gzf.video.core.bean.Bean;
 import com.gzf.video.core.bean.inject.Autowire;
+import com.gzf.video.core.bean.inject.Component;
 import com.gzf.video.core.http.HttpExchange;
 import com.gzf.video.core.session.Session;
 import com.gzf.video.core.session.storage.SessionStorage;
-import com.gzf.video.dao.RSADAO;
+import com.gzf.video.dao.RsaDAO;
 import com.gzf.video.dao.collections._Login;
 import com.gzf.video.util.StringUtil;
 import com.mongodb.async.SingleResultCallback;
@@ -13,7 +14,6 @@ import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.security.PrivateKey;
 
 import static com.gzf.video.core.session.storage.SessionStorage.RSA_PRIVATE_KEY;
@@ -26,13 +26,14 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
  * Login & Logout & Sign up.
  */
 @Bean
+@Component
 public class UserRegisterService {
-    private static final Logger logger = LoggerFactory.getLogger(UserRegisterService.class);
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final SessionStorage SESSION_STORAGE = SessionStorage.getINSTANCE();
 
     @Autowire
-    private RSADAO RSA_DAO;
+    private RsaDAO RSA_DAO;
 
     @Autowire
     private _Login _LOGIN;
@@ -101,37 +102,30 @@ public class UserRegisterService {
     }
 
 
-    public RSADAO.RSAKeyPair doGetKeyPair() {
+    public RsaDAO.RSAKeyPair doGetKeyPair() {
         return RSA_DAO.getKeyPair();
     }
 
 
     private String md5Password(final HttpExchange ex, final String cryptPwd) {
         // rsa decrypt
-        String pwd = decryptPassword(ex, cryptPwd);
-
+        byte[] pwd = decryptPassword(ex, cryptPwd);
         if (pwd == null) {
             return null;
         }
 
-        return StringUtil.hexMd5(pwd.getBytes());
+        // md5 encrypt
+        return StringUtil.hexMd5(pwd);
     }
 
-    private String decryptPassword(final HttpExchange ex, final String cryptPwd) {
+    private byte[] decryptPassword(final HttpExchange ex, final String cryptPwd) {
         PrivateKey privateKey = (PrivateKey) ex.removeFromSession(RSA_PRIVATE_KEY);
         if (privateKey == null) {
+            logger.warn("no rsa private key found, client ip: {}.", ex.channel().remoteAddress());
             return null;
         }
 
-        String pwd;
-        try {
-            pwd = RSA_DAO.decode(cryptPwd, privateKey);
-        } catch (IOException e) {
-            logger.error("RSA decode error.", e);
-            return null;
-        }
-
-        return pwd;
+        return RSA_DAO.decode(cryptPwd, privateKey);
     }
 
     private static void createIdentification(final Session session, final String userId, final boolean rememberMe) {

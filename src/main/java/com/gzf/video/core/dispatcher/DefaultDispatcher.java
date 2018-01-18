@@ -13,7 +13,7 @@ import java.util.List;
 import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpMethod.POST;
 
-public class ActionDispatcher implements Dispatcher {
+public class DefaultDispatcher implements Dispatcher {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final String CONTROLLER_PACKAGE = ConfigManager.getControllerConf().getString("package");

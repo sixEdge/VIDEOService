@@ -5,7 +5,7 @@ import com.gzf.video.core.controller.action.Action;
 import com.gzf.video.core.controller.action.ActionGenerator;
 import com.gzf.video.core.controller.action.method.Get;
 import com.gzf.video.core.controller.action.method.Post;
-import com.gzf.video.core.dispatcher.ActionDispatcher;
+import com.gzf.video.core.dispatcher.DefaultDispatcher;
 import com.gzf.video.core.dispatcher.ActionPathParser;
 import io.netty.handler.codec.http.HttpMethod;
 
@@ -17,12 +17,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ControllerScanner extends ClassScanner {
-    private final ActionDispatcher actionDispatcher;
+    private final DefaultDispatcher actionDispatcher;
 
     // will have more usage in future
     private final List<Object> controllers = new LinkedList<>();
 
-    private ControllerScanner(final ActionDispatcher actionDispatcher) {
+    private ControllerScanner(final DefaultDispatcher actionDispatcher) {
         this.actionDispatcher = actionDispatcher;
     }
 
@@ -30,7 +30,7 @@ public class ControllerScanner extends ClassScanner {
      * Scan controllers and process actions.
      * @param actionDispatcher actionDispatcher
      */
-    public static List<Object> scanControllers(final ActionDispatcher actionDispatcher, final String pkg)
+    public static List<Object> scanControllers(final DefaultDispatcher actionDispatcher, final String pkg)
             throws Exception {
         ControllerScanner scanner = new ControllerScanner(actionDispatcher);
         scanner.scan(pkg);
