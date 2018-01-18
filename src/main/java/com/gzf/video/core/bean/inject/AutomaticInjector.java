@@ -14,7 +14,7 @@ public class AutomaticInjector {
 
     static {
         packages = ConfigManager.appConf.getConfig("bean").getStringList("scanPackages")
-                .toArray(new String[3]);
+                .toArray(new String[0]);
     }
 
     private static final BeanFactory beanFactory = new BeanFactory();

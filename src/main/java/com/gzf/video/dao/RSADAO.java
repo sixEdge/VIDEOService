@@ -75,20 +75,22 @@ public class RSADAO {
 
     /**
      * Get a pair of rsa key. <br />
-     * Will generate 150 key pairs when no key pair left.
+     * Will generate 256 key pairs when no key pair left.
      */
     public RSAKeyPair getKeyPair() {
         RSAKeyPair pair = rsaKeyPairs.poll();
-        if (pair == null && needGenerate.compareAndSet(true, false)) {
-            AsyncTask.execute(() -> {
-                try {
-                    for (int i = 0; i < 150; i++) {
-                        rsaKeyPairs.add(generateKeyPair());
+        if (pair == null) {
+            if (needGenerate.compareAndSet(true, false)) {
+                AsyncTask.execute(() -> {
+                    try {
+                        for (int i = 0; i < 256; i++) {
+                            rsaKeyPairs.add(generateKeyPair());
+                        }
+                    } finally {
+                        needGenerate.set(true);
                     }
-                } finally {
-                    needGenerate.set(true);
-                }
-            });
+                });
+            }
             return generateKeyPair();
         }
         return pair;
