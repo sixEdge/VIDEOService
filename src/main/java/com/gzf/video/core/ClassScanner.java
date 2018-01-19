@@ -50,7 +50,7 @@ public abstract class ClassScanner {
                 continue;
             }
 
-            String sourcePath = getSourcePath(f.getAbsolutePath(), packagePath);
+            String sourcePath = getSourcePackage(f.getAbsolutePath(), packagePath);
             Class<?> clazz = classLoader.loadClass(sourcePath);
 
             if (isThis(clazz)) {
@@ -60,7 +60,7 @@ public abstract class ClassScanner {
         }
     }
 
-    private static String getSourcePath(final String absolutePath, final String basePackagePath) {
+    private static String getSourcePackage(final String absolutePath, final String basePackagePath) {
         return absolutePath
                 .substring(absolutePath.indexOf(basePackagePath), absolutePath.lastIndexOf(SOURCE_EX_NAME))
                 .replace(SEP, '.');

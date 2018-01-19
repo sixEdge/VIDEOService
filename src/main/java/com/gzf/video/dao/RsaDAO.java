@@ -30,16 +30,16 @@ public class RsaDAO {
 
 
     public static class RSAKeyPair {
-        private final byte[] publicKeyStr;
+        private final byte[] publicKeyBytes;
         private final PrivateKey privateKey;
 
         private RSAKeyPair(final byte[] publicKeyStr, final PrivateKey privateKey) {
-            this.publicKeyStr = publicKeyStr;
+            this.publicKeyBytes = publicKeyStr;
             this.privateKey = privateKey;
         }
 
-        public byte[] getPublicKeyStr() {
-            return publicKeyStr;
+        public byte[] getPublicKeyBytes() {
+            return publicKeyBytes;
         }
 
         public PrivateKey getPrivateKey() {

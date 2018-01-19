@@ -102,8 +102,10 @@ public class UserRegisterService {
     }
 
 
-    public RsaDAO.RSAKeyPair doGetKeyPair() {
-        return RSA_DAO.getKeyPair();
+    public byte[] doGetRsaPublicKey(HttpExchange ex) {
+        RsaDAO.RSAKeyPair keyPair = RSA_DAO.getKeyPair();
+        ex.addToSession(RSA_PRIVATE_KEY, keyPair.getPrivateKey());
+        return keyPair.getPublicKeyBytes();
     }
 
 

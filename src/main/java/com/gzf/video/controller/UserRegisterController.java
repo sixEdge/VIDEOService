@@ -6,13 +6,11 @@ import com.gzf.video.core.controller.action.method.Get;
 import com.gzf.video.core.controller.action.method.Post;
 import com.gzf.video.core.http.HttpExchange;
 import com.gzf.video.core.http.response.Response;
-import com.gzf.video.dao.RsaDAO.RSAKeyPair;
 import com.gzf.video.service.UserRegisterService;
 import com.gzf.video.core.http.request.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.gzf.video.core.session.storage.SessionStorage.RSA_PRIVATE_KEY;
 import static com.gzf.video.pojo.component.CodeMessage.successCode;
 import static com.gzf.video.util.StringUtil.EMPTY_STRING;
 import static com.gzf.video.util.StringUtil.anyNullOrEmpty;
@@ -92,9 +90,8 @@ public class UserRegisterController {
             return ex.okResponse();
         }
 
-        RSAKeyPair keyPair = userRegisterService.doGetKeyPair();
-        ex.addToSession(RSA_PRIVATE_KEY, keyPair.getPrivateKey());
+        byte[] publicKey = userRegisterService.doGetRsaPublicKey(ex);
 
-        return ex.okResponse(keyPair.getPublicKeyStr(), TEXT_PLAIN);
+        return ex.okResponse(publicKey, TEXT_PLAIN);
     }
 }
