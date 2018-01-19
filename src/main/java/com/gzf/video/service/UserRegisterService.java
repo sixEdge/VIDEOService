@@ -39,12 +39,12 @@ public class UserRegisterService {
     private _Login _LOGIN;
 
 
-    public void doLogin(Session session,
+    public void doLogin(HttpExchange ex,
                         String identity,
                         String password,
                         boolean useUsername,
-                        boolean rememberMe,
-                        HttpExchange ex) {
+                        boolean rememberMe) {
+        Session session = ex.session();
         SingleResultCallback<Document> callback = (result, t) -> {
             if (result != null) {
                 String userId = "" + result.getInteger(USER_ID);
@@ -80,10 +80,10 @@ public class UserRegisterService {
     }
 
 
-    public void doSignUp(String username,
+    public void doSignUp(HttpExchange ex,
+                         String username,
                          String mail,
-                         String password,
-                         HttpExchange ex) {
+                         String password) {
         // rsa decrypt & md5 encrypt
         String pwd = md5Password(ex, password);
 

@@ -51,7 +51,7 @@ public class UserRegisterController {
             return ex.failedResponse(BAD_REQUEST);
         }
 
-        userRegisterService.doLogin(ex.session(), identity, password, modeStr.charAt(0) == '0', true, ex);
+        userRegisterService.doLogin(ex, identity, password, modeStr.charAt(0) == '0', true);
 
         return null;
     }
@@ -78,7 +78,7 @@ public class UserRegisterController {
             return ex.failedResponse(BAD_REQUEST);
         }
 
-        userRegisterService.doSignUp(username, mail, password, ex);
+        userRegisterService.doSignUp(ex, username, mail, password);
 
         return null;
     }
