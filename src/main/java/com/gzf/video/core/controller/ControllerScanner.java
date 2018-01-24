@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ControllerScanner extends ClassScanner {
+
     private final DefaultDispatcher actionDispatcher;
 
     // will have more usage in future
@@ -75,15 +76,15 @@ public class ControllerScanner extends ClassScanner {
 
             Get get;
             Post post;
-            HttpMethod method;
+            HttpMethod reqMethod;
             String url;
 
             if ((get = m.getDeclaredAnnotation(Get.class)) != null) {
                 url = get.value();
-                method = get.method;
+                reqMethod = get.method;
             } else if ((post = m.getDeclaredAnnotation(Post.class)) != null) {
                 url = post.value();
-                method = post.method;
+                reqMethod = post.method;
             } else {
                 continue;
             }
@@ -91,7 +92,7 @@ public class ControllerScanner extends ClassScanner {
             Action action = ActionGenerator.newAction(controllerClass, controllerObj, m);
 
             // corresponding action with request method and path
-            actionDispatcher.setAction(method, ActionPathParser.parsePath(m, url), action);
+            actionDispatcher.setAction(reqMethod, ActionPathParser.parsePath(m, url), action);
         }
     }
 }

@@ -41,6 +41,11 @@ public class Article {
      */
     private BsonTimestamp releaseTime;
 
+    /**
+     * Hit times.
+     */
+    private int hit;
+
 
     public Article() {}
 
@@ -50,7 +55,8 @@ public class Article {
                    final int userId,
                    final String userName,
                    final String articleUrl,
-                   final BsonTimestamp releaseTime) {
+                   final BsonTimestamp releaseTime,
+                   final int hit) {
         this.articleId = articleId;
         this.articleName = articleName;
         this.articleType = articleType;
@@ -58,6 +64,7 @@ public class Article {
         this.userName = userName;
         this.articleUrl = articleUrl;
         this.releaseTime = releaseTime;
+        this.hit = hit;
     }
 
 
@@ -115,5 +122,13 @@ public class Article {
 
     public void setReleaseTime(final BsonTimestamp releaseTime) {
         this.releaseTime = releaseTime;
+    }
+
+    public int getHit() {
+        return hit;
+    }
+
+    public void setHit(final int hit) {
+        this.hit = hit;
     }
 }

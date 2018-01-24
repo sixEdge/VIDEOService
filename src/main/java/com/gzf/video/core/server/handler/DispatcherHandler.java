@@ -26,13 +26,10 @@ import java.util.Set;
 import static com.gzf.video.util.PathAndParametersUtil.decodeComponent;
 import static com.gzf.video.util.PathAndParametersUtil.findPathEndIndex;
 import static com.gzf.video.core.session.storage.SessionStorage.SESSION_ID;
-import static com.gzf.video.util.CookieFunctions.cookieSessionId;
 import static com.gzf.video.util.CookieFunctions.decodeCookies;
 import static com.gzf.video.util.CookieFunctions.getFromCookies;
 import static io.netty.channel.ChannelHandler.Sharable;
-import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaderNames.COOKIE;
-import static io.netty.handler.codec.http.HttpHeaderNames.SET_COOKIE;
 import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpMethod.POST;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
@@ -72,7 +69,7 @@ public class DispatcherHandler extends SimpleChannelInboundHandler<FullHttpReque
         }
 
         HttpMethod method = req.method();
-        if (method != GET && method != POST) {
+        if (!GET.equals(method) && !POST.equals(method)) {
             sendError(ctx, METHOD_NOT_ALLOWED);
             return;
         }
@@ -127,29 +124,20 @@ public class DispatcherHandler extends SimpleChannelInboundHandler<FullHttpReque
         }
 
 
-        // construct request
+        // construct request & http-exchange
 
-        Request request = constructRequest(method, req, cookies);
+        HttpExchange ex = new HttpExchange(ctx, constructRequest(method, req, cookies), session);
 
 
         // do action
 
-        HttpExchange ex = new HttpExchange(ctx, request, session);
         Response response = action.doAction(ex);
 
 
         // send if need
 
         if (response != null) {
-            if (ex.isNewSessionId()) {
-                response.headers().add(SET_COOKIE, cookieSessionId(ex.sessionId()));
-            }
-
-            if (HttpHeaderValues.CLOSE.contentEqualsIgnoreCase(request.getHeader(CONNECTION))) {
-                ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-            } else {
-                ctx.writeAndFlush(response);
-            }
+            ex.writeResponse(response);
         }
     }
 

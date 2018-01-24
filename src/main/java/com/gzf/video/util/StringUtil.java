@@ -8,6 +8,7 @@ import java.io.File;
 public class StringUtil {
 
     public static final char SEP = File.separatorChar;
+
     public static final String EMPTY_STRING = "";
 
 

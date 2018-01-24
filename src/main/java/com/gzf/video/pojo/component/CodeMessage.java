@@ -15,15 +15,12 @@ public class CodeMessage {
 
     private String message;
 
-
     public CodeMessage() {}
 
     public CodeMessage(final Code code, final String message) {
         this.code = code;
         this.message = message;
     }
-
-
 
     @JSONField
     public Code getCode() {
@@ -33,7 +30,6 @@ public class CodeMessage {
     public void setCode(final Code code) {
         this.code = code;
     }
-
 
     @JSONField
     public String getMessage() {
@@ -46,30 +42,57 @@ public class CodeMessage {
 
 
     /**
-     *  Success state.
+     *  Success message.
      *
-     * @return {"code" : 0, "message" : ""}
+     * @return {"code" : 0, "message" : msg}
      */
-    public static byte[] successCode(final String msg) {
-        return ("{\"code\" : 0, \"message\" : \"" + msg + "\"}").getBytes();
+    public static byte[] successMsg(final String msg) {
+        return ("{\"code\":0,\"message\":\"" + msg + "\"}").getBytes();
     }
 
     /**
-     *  Failed state.
+     *  Failed message.
      *
-     * @return {"code" : 1, "message" : ""}
+     * @return {"code" : 1, "message" : msg}
      */
-    public static byte[] failedCode(final String msg) {
-        return ("{\"code\" : 1, \"message\" : \"" + msg + "\"}").getBytes();
+    public static byte[] failedMsg(final String msg) {
+        return ("{\"code\":1,\"message\":\"" + msg + "\"}").getBytes();
     }
 
+    /**
+     *  Success json.
+     *
+     * @return {"code" : 0, "message" : msg, "data" : json}
+     */
+    public static byte[] successJson(final String msg, final String json) {
+        return ("{\"code\":0,\"message\":\"" + msg + "\",\"data\":" + json + "}").getBytes();
+    }
 
-    @Override
-    public String toString() {
-        return "CodeMessage{" +
-                "code=" + code +
-                ", message='" + message + '\'' +
-                '}';
+    /**
+     *  Failed json.
+     *
+     * @return {"code" : 1, "message" : msg, "data" : json}
+     */
+    public static byte[] failedJson(final String msg, final String json) {
+        return ("{\"code\":1,\"message\":\"" + msg + "\",\"data\":" + json + "}").getBytes();
+    }
+
+    /**
+     *  Success json array.
+     *
+     * @return {"code" : 0, "message" : msg, "data" : jsonArray}
+     */
+    public static byte[] successJsonArray(final String msg, final String jsonArray) {
+        return ("{\"code\":0,\"message\":\"" + msg + "\",\"data\":" + jsonArray + "}").getBytes();
+    }
+
+    /**
+     *  Failed json array.
+     *
+     * @return {"code" : 1, "message" : msg, "data" : jsonArray}
+     */
+    public static byte[] failedJsonArray(final String msg, final String jsonArray) {
+        return ("{\"code\":1,\"message\":\"" + msg + "\",\"data\":" + jsonArray + "}").getBytes();
     }
 
 

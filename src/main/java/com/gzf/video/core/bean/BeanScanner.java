@@ -1,6 +1,8 @@
 package com.gzf.video.core.bean;
 
 import com.gzf.video.core.ClassScanner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -8,6 +10,7 @@ import java.lang.reflect.Modifier;
 import java.util.stream.Stream;
 
 public class BeanScanner extends ClassScanner {
+    private static final Logger logger = LoggerFactory.getLogger(BeanScanner.class);
 
     private final BeanFactory beanFactory;
 
@@ -24,8 +27,9 @@ public class BeanScanner extends ClassScanner {
         Stream.of(packages).forEach(pkg -> {
             try {
                 beanScanner.scan(pkg);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Throwable t) {
+                logger.error("scanBeans", t);
+                System.exit(1);
             }
         });
     }

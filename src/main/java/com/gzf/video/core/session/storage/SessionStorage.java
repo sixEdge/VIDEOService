@@ -40,11 +40,11 @@ public abstract class SessionStorage implements LoginStateCache {
 
 
     /**
-     * Should only be invoked in static context.
+     * Should only be invoked in single-thread context.
      *
      * @return the single-instance of {@link SessionStorage}
      */
-    public synchronized static SessionStorage getINSTANCE() {
+    public static SessionStorage getINSTANCE() {
         if (INSTANCE == null) {
             try {
                 // in Java9, Class#newInstance() has been marked as @Deprecated, so we use this

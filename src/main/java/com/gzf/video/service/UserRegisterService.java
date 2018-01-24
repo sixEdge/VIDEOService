@@ -18,8 +18,8 @@ import java.security.PrivateKey;
 
 import static com.gzf.video.core.session.storage.SessionStorage.RSA_PRIVATE_KEY;
 import static com.gzf.video.dao.collections._Login.LoginStruct.USER_ID;
-import static com.gzf.video.pojo.component.CodeMessage.failedCode;
-import static com.gzf.video.pojo.component.CodeMessage.successCode;
+import static com.gzf.video.pojo.component.CodeMessage.failedMsg;
+import static com.gzf.video.pojo.component.CodeMessage.successMsg;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 /**
@@ -36,7 +36,7 @@ public class UserRegisterService {
     private RsaDAO RSA_DAO;
 
     @Autowire
-    private _Login _LOGIN;
+    private _Login login;
 
 
     public void doLogin(HttpExchange ex,
@@ -49,9 +49,9 @@ public class UserRegisterService {
             if (result != null) {
                 String userId = "" + result.getInteger(USER_ID);
                 createIdentification(session, userId, rememberMe);
-                ex.writeResponse(OK, successCode(userId));
+                ex.writeResponse(OK, successMsg(userId));
             } else {
-                ex.writeResponse(OK, failedCode("用户名或密码错误"));
+                ex.writeResponse(OK, failedMsg("用户名或密码错误"));
             }
         };
 
@@ -59,14 +59,14 @@ public class UserRegisterService {
         String pwd = md5Password(ex, password);
 
         if (pwd == null) {
-            ex.writeResponse(OK, failedCode("用户名或密码错误"));
+            ex.writeResponse(OK, failedMsg("用户名或密码错误"));
             return;
         }
 
         if (useUsername) {
-            _LOGIN._nameLogin(identity, pwd, callback);
+            login._nameLogin(identity, pwd, callback);
         } else {
-            _LOGIN._mailLogin(identity, pwd, callback);
+            login._mailLogin(identity, pwd, callback);
         }
     }
 
@@ -88,15 +88,15 @@ public class UserRegisterService {
         String pwd = md5Password(ex, password);
 
         if (pwd == null) {
-            ex.writeResponse(OK, failedCode("注册失败"));
+            ex.writeResponse(OK, failedMsg("注册失败"));
             return;
         }
 
-        _LOGIN._signUp(username, mail, pwd, (result, t) -> {
+        login._signUp(username, mail, pwd, (result, t) -> {
             if (t != null) {
-                ex.writeResponse(OK, successCode("注册成功"));
+                ex.writeResponse(OK, successMsg("注册成功"));
             } else {
-                ex.writeResponse(OK, failedCode("注册失败"));
+                ex.writeResponse(OK, failedMsg("注册失败"));
             }
         });
     }

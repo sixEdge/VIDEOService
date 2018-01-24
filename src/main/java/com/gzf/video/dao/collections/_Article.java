@@ -26,9 +26,12 @@ public class _Article extends BaseCollection {
         String USERNAME         =   "uname";    // string
         String ARTICLE_URL      =   "aurl";     // string
         String RELEASE_TIME     =   "rlstime";  // timestamp
+        String HIT_TIMES        =   "hit";      // int
     }
 
     private static final MongoCollection<Article> articleCollection = getCollection(COLLECTION, Article.class);
+
+    private static final MongoCollection<Document> articleCollection1 = getCollection(COLLECTION);
 
 
     public void _insertArticle(Article entity, SingleResultCallback<Void> callback) {
@@ -36,15 +39,18 @@ public class _Article extends BaseCollection {
     }
 
 
-    public void _findArticle(int articleId, SingleResultCallback<Article> callback) {
+    /**
+     * Find by unique aid.
+     */
+    public void _findArticle(int articleId, SingleResultCallback<Document> callback) {
         Document document = new Document()
                 .append(ARTICLE_ID, articleId);
-        articleCollection.find(document).first(callback);
+        articleCollection1.find(document).first(callback);
     }
 
 
-    public FindIterable<Article> _findArticles(Bson filter) {
-        return articleCollection.find(filter, Article.class);
+    public FindIterable<Document> _findArticles(Bson filter) {
+        return articleCollection1.find(filter);
     }
 
 

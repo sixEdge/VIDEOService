@@ -11,7 +11,7 @@ import com.gzf.video.core.http.request.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.gzf.video.pojo.component.CodeMessage.successCode;
+import static com.gzf.video.pojo.component.CodeMessage.successMsg;
 import static com.gzf.video.util.StringUtil.EMPTY_STRING;
 import static com.gzf.video.util.StringUtil.anyNullOrEmpty;
 import static io.netty.handler.codec.http.HttpHeaderValues.TEXT_PLAIN;
@@ -39,7 +39,7 @@ public class UserRegisterController {
         // has login
         String preUserId;
         if ((preUserId = ex.getUserId()) != null) {
-            return ex.okResponse(successCode(preUserId));
+            return ex.okResponse(successMsg(preUserId));
         }
 
         Request req = ex.request();
@@ -61,7 +61,7 @@ public class UserRegisterController {
     public Response logout(HttpExchange ex) {
         userRegisterService.doLogout(ex.session());
 
-        return ex.okResponse(successCode(EMPTY_STRING));
+        return ex.okResponse(successMsg(EMPTY_STRING));
     }
 
 

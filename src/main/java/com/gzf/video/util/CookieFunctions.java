@@ -17,7 +17,6 @@ import static com.gzf.video.core.session.storage.SessionStorage.SESSION_ID_PATH;
 
 public abstract class CookieFunctions {
 
-
     // encode
 
     private static ServerCookieEncoder cookieEncoder = ServerCookieEncoder.STRICT;

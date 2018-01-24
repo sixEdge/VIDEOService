@@ -16,6 +16,7 @@
 
 package com.gzf.video;
 
+import com.gzf.video.core.bean.inject.AutomaticInjector;
 import com.gzf.video.core.server.HttpServer;
 import io.netty.util.internal.PlatformDependent;
 import org.slf4j.Logger;
@@ -28,6 +29,9 @@ public class Start {
     private static final HttpServer server = new HttpServer();
 
     public static void main(String[] args) {
+        // init auto-injector
+        AutomaticInjector.init();
+
         // start server
         try {
             server.startServer();
