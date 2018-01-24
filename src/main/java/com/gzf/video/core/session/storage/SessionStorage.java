@@ -33,7 +33,7 @@ public abstract class SessionStorage implements LoginStateCache {
     private final Map<String, Session> SESSION_MAP = new ConcurrentHashMap<>(1024);
 
 
-    private static SessionStorage INSTANCE;
+    private volatile static SessionStorage INSTANCE;
 
 
     SessionStorage() {}
@@ -46,18 +46,22 @@ public abstract class SessionStorage implements LoginStateCache {
      */
     public static SessionStorage getINSTANCE() {
         if (INSTANCE == null) {
-            try {
-                // in Java9, Class#newInstance() has been marked as @Deprecated, so we use this
-                Constructor constructor =
-                        Class.forName(SESSION_CONFIG.getString("sessionCacheProvider"))
-                                .getConstructor();
-                INSTANCE = (SessionStorage) constructor.newInstance();
-            } catch ( ClassNotFoundException
-                    | IllegalAccessException
-                    | InstantiationException
-                    | NoSuchMethodException
-                    | InvocationTargetException e) {
-                throw new Error(e);
+            synchronized (SessionStorage.class){
+                if (INSTANCE == null){
+                    try {
+                        // in Java9, Class#newInstance() has been marked as @Deprecated, so we use this
+                        Constructor constructor =
+                                Class.forName(SESSION_CONFIG.getString("sessionCacheProvider"))
+                                        .getConstructor();
+                        INSTANCE = (SessionStorage) constructor.newInstance();
+                    } catch ( ClassNotFoundException
+                            | IllegalAccessException
+                            | InstantiationException
+                            | NoSuchMethodException
+                            | InvocationTargetException e) {
+                        throw new Error(e);
+                    }
+                }
             }
         }
         return INSTANCE;
