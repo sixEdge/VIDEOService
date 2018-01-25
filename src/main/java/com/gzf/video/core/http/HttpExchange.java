@@ -18,6 +18,7 @@ import static com.gzf.video.util.CookieFunctions.cookieSessionId;
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
 import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import static io.netty.handler.codec.http.HttpResponseStatus.TEMPORARY_REDIRECT;
 
 public class HttpExchange extends SessionContext {
 
@@ -119,22 +120,16 @@ public class HttpExchange extends SessionContext {
     //    ------------------------------ transform
 
     /**
-     * With flush.
+     * Temporary redirect.
      */
-    public ChannelFuture writeResponse(final Response resp) {
-        ChannelFuture future;
+    public ChannelFuture sendRedirect(final String uri) {
+        Response response = new Response(TEMPORARY_REDIRECT);
+        response.headers().add(LOCATION, uri);
+        return writeResponse(response);
+    }
 
-        if (isNewSessionId()) {
-            resp.headers().add(SET_COOKIE, cookieSessionId(sessionId()));
-        }
-
-        if (HttpHeaderValues.CLOSE.contentEqualsIgnoreCase(request.getHeader(CONNECTION))) {
-            future = context.writeAndFlush(resp).addListener(ChannelFutureListener.CLOSE);
-        } else {
-            future = context.writeAndFlush(resp);
-        }
-
-        return future;
+    public ChannelFuture writeResponse(final HttpResponseStatus status) {
+        return writeResponse(new Response(status));
     }
 
     /**
@@ -151,5 +146,24 @@ public class HttpExchange extends SessionContext {
         resp.headers().add(CONTENT_TYPE, contentType);
         resp.headers().add(CONTENT_LENGTH, bs.length);
         return writeResponse(resp);
+    }
+
+    /**
+     * With flush.
+     */
+    public ChannelFuture writeResponse(final Response resp) {
+        ChannelFuture future;
+
+        if (isNewSessionId()) {
+            resp.headers().add(SET_COOKIE, cookieSessionId(sessionId()));
+        }
+
+        if (HttpHeaderValues.CLOSE.contentEqualsIgnoreCase(request.getHeader(CONNECTION))) {
+            future = context.writeAndFlush(resp).addListener(ChannelFutureListener.CLOSE);
+        } else {
+            future = context.writeAndFlush(resp);
+        }
+
+        return future;
     }
 }

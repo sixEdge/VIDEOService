@@ -90,8 +90,6 @@ public class UserRegisterController {
             return ex.okResponse();
         }
 
-        byte[] publicKey = userRegisterService.doGetRsaPublicKey(ex);
-
-        return ex.okResponse(publicKey, TEXT_PLAIN);
+        return ex.okResponse(userRegisterService.doGetRsaPublicKey(ex), TEXT_PLAIN);
     }
 }

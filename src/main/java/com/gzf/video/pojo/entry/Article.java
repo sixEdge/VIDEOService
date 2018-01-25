@@ -1,49 +1,61 @@
 package com.gzf.video.pojo.entry;
 
 import org.bson.BsonTimestamp;
+import org.bson.codecs.pojo.annotations.BsonProperty;
 
+import java.util.Date;
 import java.util.List;
+
+import static com.gzf.video.dao.collections._Article.ArticleStruct.*;
 
 public class Article {
 
     /**
      * Article id.
      */
+    @BsonProperty(ARTICLE_ID)
     private int articleId;
 
     /**
      * Article name.
      */
+    @BsonProperty(ARTICLE_NAME)
     private String articleName;
 
     /**
      * Article type.
      */
+    @BsonProperty(ARTICLE_TYPE)
     private List<String> articleType;
 
     /**
      * Author id.
      */
-    private int userId;
+    @BsonProperty(AUTHOR_ID)
+    private int authorId;
 
     /**
      * Author name.
      */
-    private String userName;
+    @BsonProperty(AUTHOR_NAME)
+    private String authorName;
 
     /**
      * Author url.
      */
+    @BsonProperty(ARTICLE_URL)
     private String articleUrl;
 
     /**
      * Release time.
      */
-    private BsonTimestamp releaseTime;
+    @BsonProperty(RELEASE_TIME)
+    private Date releaseTime;
 
     /**
      * Hit times.
      */
+    @BsonProperty(HIT_TIMES)
     private int hit;
 
 
@@ -52,16 +64,16 @@ public class Article {
     public Article(final int articleId,
                    final String articleName,
                    final List<String> articleType,
-                   final int userId,
-                   final String userName,
+                   final int authorId,
+                   final String authorName,
                    final String articleUrl,
-                   final BsonTimestamp releaseTime,
+                   final Date releaseTime,
                    final int hit) {
         this.articleId = articleId;
         this.articleName = articleName;
         this.articleType = articleType;
-        this.userId = userId;
-        this.userName = userName;
+        this.authorId = authorId;
+        this.authorName = authorName;
         this.articleUrl = articleUrl;
         this.releaseTime = releaseTime;
         this.hit = hit;
@@ -92,20 +104,20 @@ public class Article {
         this.articleType = articleType;
     }
 
-    public int getUserId() {
-        return userId;
+    public int getAuthorId() {
+        return authorId;
     }
 
-    public void setUserId(final int userId) {
-        this.userId = userId;
+    public void setAuthorId(final int authorId) {
+        this.authorId = authorId;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getAuthorName() {
+        return authorName;
     }
 
-    public void setUserName(final String userName) {
-        this.userName = userName;
+    public void setAuthorName(final String authorName) {
+        this.authorName = authorName;
     }
 
     public String getArticleUrl() {
@@ -116,11 +128,11 @@ public class Article {
         this.articleUrl = articleUrl;
     }
 
-    public BsonTimestamp getReleaseTime() {
+    public Date getReleaseTime() {
         return releaseTime;
     }
 
-    public void setReleaseTime(final BsonTimestamp releaseTime) {
+    public void setReleaseTime(final Date releaseTime) {
         this.releaseTime = releaseTime;
     }
 

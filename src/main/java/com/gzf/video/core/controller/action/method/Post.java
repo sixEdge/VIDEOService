@@ -17,7 +17,7 @@ import static io.netty.handler.codec.http.HttpMethod.POST;
 public @interface Post {
 
     /** Request url */
-    String value();
+    String value() default "/";
 
     HttpMethod method = POST;
 

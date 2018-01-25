@@ -24,14 +24,13 @@ public class ActionGenerator {
             .getString("package").replace('.', '/');
 
     private static final String objectName = Type.getInternalName(Object.class);
-    private static final Type objectType = Type.getType(Object.class);
+    private static final Type   objectType = Type.getType(Object.class);
     private static final String functionName = Type.getInternalName(Function.class);
-
     private static final String applyMethodDesc = Type.getMethodDescriptor(Type.getType(Object.class), Type.getType(Object.class));
 
-    private static final Type actionType = Type.getType(Action.class);
     private static final String actionMethodName = "doAction";
-    private static final Type actionMethodType;
+    private static final Type   actionType = Type.getType(Action.class);
+    private static final Type   actionMethodType;
 
     private static int actionIdx = 0;
 

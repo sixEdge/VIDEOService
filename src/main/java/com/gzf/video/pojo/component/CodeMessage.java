@@ -77,24 +77,6 @@ public class CodeMessage {
         return ("{\"code\":1,\"message\":\"" + msg + "\",\"data\":" + json + "}").getBytes();
     }
 
-    /**
-     *  Success json array.
-     *
-     * @return {"code" : 0, "message" : msg, "data" : jsonArray}
-     */
-    public static byte[] successJsonArray(final String msg, final String jsonArray) {
-        return ("{\"code\":0,\"message\":\"" + msg + "\",\"data\":" + jsonArray + "}").getBytes();
-    }
-
-    /**
-     *  Failed json array.
-     *
-     * @return {"code" : 1, "message" : msg, "data" : jsonArray}
-     */
-    public static byte[] failedJsonArray(final String msg, final String jsonArray) {
-        return ("{\"code\":1,\"message\":\"" + msg + "\",\"data\":" + jsonArray + "}").getBytes();
-    }
-
 
     public enum Code implements JSONSerializable {
         SUCCESS(0), FAILED(1);

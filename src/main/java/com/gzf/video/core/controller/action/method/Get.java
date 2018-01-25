@@ -17,7 +17,7 @@ import static io.netty.handler.codec.http.HttpMethod.GET;
 public @interface Get {
 
     /** Request url */
-    String value();
+    String value() default "/";
 
     HttpMethod method = GET;
 }
