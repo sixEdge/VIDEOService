@@ -2,6 +2,7 @@ package com.gzf.video.util;
 
 import com.alibaba.fastjson.JSON;
 import com.mongodb.internal.HexUtils;
+import com.sun.istack.internal.Nullable;
 import org.bouncycastle.util.encoders.Base64;
 
 import java.io.File;
@@ -35,7 +36,7 @@ public class StringUtil {
     }
 
 
-    public static List<String> stringToList(final String array) {
+    public static List<String> stringToList(@Nullable final String array) {
         // null or []
         if (array == null || array.length() <= 2) {
             return Collections.emptyList();

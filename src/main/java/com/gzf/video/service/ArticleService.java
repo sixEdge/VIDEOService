@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 import static com.gzf.video.dao.collections._Article.ArticleStruct.*;
 import static com.gzf.video.pojo.component.CodeMessage.*;
 import static com.gzf.video.util.StringUtil.EMPTY_STRING;
+import static com.gzf.video.util.StringUtil.isNotNullOrEmpty;
 import static com.gzf.video.util.StringUtil.toJsonString;
 import static io.netty.handler.codec.http.HttpResponseStatus.INTERNAL_SERVER_ERROR;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
@@ -45,7 +46,34 @@ public class ArticleService {
     }
 
 
-    public void doFindArticlesByFilter(HttpExchange ex, Document filter, int offset, int size) {
+    /**
+     * Filter articles by arguments.
+     *
+     * @param ex {@link HttpExchange}
+     * @param articleName   article name
+     * @param authorId      author id
+     * @param authorName    author name
+     * @param articleTypes  article types
+     * @param releaseTimeFrom   [releaseTimeFrom, releaseTimeEnd]
+     * @param releaseTimeEnd    [releaseTimeFrom, releaseTimeEnd]
+     * @param offset    offset
+     * @param size      size
+     */
+    public void doFindArticlesByFilter(HttpExchange ex,
+                                       final String articleName,
+                                       final int authorId,
+                                       final String authorName,
+                                       final List<String> articleTypes,
+                                       Date releaseTimeFrom, Date releaseTimeEnd,
+                                       int offset, int size) {
+
+        Document filter = buildFilter( articleName
+                                     , authorId
+                                     , authorName
+                                     , articleTypes
+                                     , releaseTimeFrom
+                                     , releaseTimeEnd);
+
         List<Article> array = new ArrayList<>(size);
 
         SingleResultCallback<Void> callback = (result, t) -> {
@@ -57,32 +85,61 @@ public class ArticleService {
             }
         };
 
-        article._findArticles1(filter).skip(offset).limit(size)
-//              .maxTime(5L, TimeUnit.SECONDS)
+        article._findArticles1(filter)
+                .skip(offset).limit(size)
                 .forEach(array::add, callback);
     }
 
-    public static Document articleNameFilter(Document document, String fuzzyArticleName) {
+
+    private static Document buildFilter(String articleName,
+                                        int authorId, String authorName,
+                                        List<String> articleTypes,
+                                        Date releaseFrom, Date releaseEnd) {
+        Document filter = new Document();
+
+        if (isNotNullOrEmpty(articleName)) {
+            articleNameFilter(filter, articleName);
+        }
+
+        if (authorId > 0) {
+            authorIdFilter(filter, authorId);
+        }
+
+        if (isNotNullOrEmpty(authorName)) {
+            authorNameFilter(filter, authorName);
+        }
+
+        if (!articleTypes.isEmpty()) {
+            articleTypeFilter(filter, articleTypes);
+        }
+
+        if (releaseFrom != null && releaseEnd != null) {
+            releaseTimeDomainFilter(filter, releaseFrom, releaseEnd);
+        }
+
+        return filter;
+    }
+
+    private static void articleNameFilter(Document document, String fuzzyArticleName) {
         // case insensitive fuzzy search
         Pattern pattern = Pattern.compile("^.*" + fuzzyArticleName + ".*$", Pattern.CASE_INSENSITIVE);
-        return document.append(ARTICLE_NAME, pattern);
+        document.append(ARTICLE_NAME, pattern);
     }
 
-    public static Document authorIdFilter(Document document, int authorId) {
-        return document.append(AUTHOR_ID, authorId);
+    private static void authorIdFilter(Document document, int authorId) {
+        document.append(AUTHOR_ID, authorId);
     }
 
-    public static Document authorNameFilter(Document document, String fuzzyAuthorName) {
-        // case insensitive fuzzy search
+    private static void authorNameFilter(Document document, String fuzzyAuthorName) {
         Pattern pattern = Pattern.compile("^.*" + fuzzyAuthorName + ".*$", Pattern.CASE_INSENSITIVE);
-        return document.append(AUTHOR_NAME, pattern);
+        document.append(AUTHOR_NAME, pattern);
     }
 
-    public static Document articleTypeFilter(Document document, List<String> articleTypes) {
-        return document.append(ARTICLE_TYPE, new Document("$all", articleTypes));
+    private static void articleTypeFilter(Document document, List<String> articleTypes) {
+        document.append(ARTICLE_TYPE, new Document("$all", articleTypes));
     }
 
-    public static Document releaseTimeDomainFilter(Document document, Date from, Date end) {
-        return document.append(RELEASE_TIME, new Document("$gt", from).append("$lt", end));
+    private static void releaseTimeDomainFilter(Document document, Date from, Date end) {
+        document.append(RELEASE_TIME, new Document("$gt", from).append("$lt", end));
     }
 }

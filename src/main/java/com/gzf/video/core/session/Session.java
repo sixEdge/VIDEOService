@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Session extends ConcurrentHashMap<String, Object> {
+public class Session extends ConcurrentHashMap<String, Object> /* for convenience */ {
 
     private static final Clock CLOCK = Clock.system(ZoneId.of("GMT"));
 
@@ -16,7 +16,7 @@ public class Session extends ConcurrentHashMap<String, Object> {
 
     private volatile Duration maxIdleTime = Duration.ofHours(2L);
 
-    private volatile boolean state = true;  // alive or expired
+    private volatile boolean isAlive = true;  // alive or expired
 
 
     private final String sessionId;
@@ -55,9 +55,9 @@ public class Session extends ConcurrentHashMap<String, Object> {
     }
 
     public boolean isExpired(final Instant currentTime) {
-        if (state) {
+        if (isAlive) {
             if (checkExpired(currentTime)) {
-                state = false;
+                isAlive = false;
                 return true;
             }
             return false;
@@ -67,5 +67,14 @@ public class Session extends ConcurrentHashMap<String, Object> {
 
     private boolean checkExpired(final Instant currentTime) {
         return !maxIdleTime.isNegative() && currentTime.minus(maxIdleTime).isAfter(lastAccessTime);
+    }
+
+    /**
+     * Clear user id and attributes.
+     */
+    @Override
+    public void clear() {
+        userId = null;
+        super.clear();
     }
 }

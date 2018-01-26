@@ -75,7 +75,6 @@ public class UserRegisterService {
         SESSION_STORAGE.destroyLoginCache(session.getSessionId());
 
         // TODO maybe better to use SessionStorage#destroySession()
-        session.setUserId(null);
         session.clear();
     }
 

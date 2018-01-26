@@ -1,6 +1,5 @@
 package com.gzf.video.pojo.entry;
 
-import org.bson.BsonTimestamp;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
 import java.util.Date;
@@ -26,7 +25,7 @@ public class Article {
      * Article type.
      */
     @BsonProperty(ARTICLE_TYPE)
-    private List<String> articleType;
+    private List<String> articleTypes;
 
     /**
      * Author id.
@@ -63,7 +62,7 @@ public class Article {
 
     public Article(final int articleId,
                    final String articleName,
-                   final List<String> articleType,
+                   final List<String> articleTypes,
                    final int authorId,
                    final String authorName,
                    final String articleUrl,
@@ -71,7 +70,7 @@ public class Article {
                    final int hit) {
         this.articleId = articleId;
         this.articleName = articleName;
-        this.articleType = articleType;
+        this.articleTypes = articleTypes;
         this.authorId = authorId;
         this.authorName = authorName;
         this.articleUrl = articleUrl;
@@ -96,12 +95,12 @@ public class Article {
         this.articleName = articleName;
     }
 
-    public List<String> getArticleType() {
-        return articleType;
+    public List<String> getArticleTypes() {
+        return articleTypes;
     }
 
-    public void setArticleType(final List<String> articleType) {
-        this.articleType = articleType;
+    public void setArticleTypes(final List<String> articleTypes) {
+        this.articleTypes = articleTypes;
     }
 
     public int getAuthorId() {
