@@ -11,7 +11,6 @@ import static com.gzf.video.core.ConfigManager.coreModule;
 public class RedisProvider {
 
     private static final Config REDIS_CONFIG = ConfigManager.loadConfigFromModule(coreModule, "redisConfig");
-    public static final String LOGIN_MAP = REDIS_CONFIG.getString("loginMap");
 
 
     /**

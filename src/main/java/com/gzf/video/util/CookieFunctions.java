@@ -45,7 +45,7 @@ public abstract class CookieFunctions {
         Cookie cookieSessionId = new DefaultCookie(SESSION_ID, sessionId);
         cookieSessionId.setPath(SESSION_ID_PATH);
         cookieSessionId.setHttpOnly(true);
-        cookieSessionId.setSecure(true);
+//        cookieSessionId.setSecure(true);  TODO add this sentence when under https
         cookieSessionId.setMaxAge(SESSION_ID_MAX_AGE);
 
         return encodeCookie(cookieSessionId);
