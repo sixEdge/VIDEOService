@@ -6,8 +6,8 @@ import io.netty.handler.codec.http.cookie.Cookie;
 import java.util.Map;
 import java.util.Set;
 
-import static com.gzf.video.util.PathAndParametersUtil.decodeParams;
-import static com.gzf.video.util.PathAndParametersUtil.findPathEndIndex;
+import static com.gzf.video.core.tool.PathAndParametersUtil.decodeParams;
+import static com.gzf.video.core.tool.PathAndParametersUtil.findPathEndIndex;
 
 public class GetRequest extends Request {
 

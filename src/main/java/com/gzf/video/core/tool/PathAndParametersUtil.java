@@ -1,4 +1,4 @@
-package com.gzf.video.util;
+package com.gzf.video.core.tool;
 
 import io.netty.util.CharsetUtil;
 

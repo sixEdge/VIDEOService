@@ -14,7 +14,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Promise;
 
-import static com.gzf.video.util.CookieFunctions.cookieSessionId;
+import static com.gzf.video.core.tool.CookieFunctions.cookieSessionId;
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
 import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;

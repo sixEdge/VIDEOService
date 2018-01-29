@@ -1,4 +1,4 @@
-package com.gzf.video.util;
+package com.gzf.video.core.tool;
 
 import com.sun.istack.internal.Nullable;
 import io.netty.handler.codec.http.cookie.Cookie;

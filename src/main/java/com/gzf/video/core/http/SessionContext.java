@@ -7,7 +7,7 @@ import com.sun.istack.internal.Nullable;
 
 import static com.gzf.video.core.session.storage.SessionStorage.SESSION_ID;
 import static com.gzf.video.core.session.storage.SessionStorage.USER_ID;
-import static com.gzf.video.util.CookieFunctions.getFromCookies;
+import static com.gzf.video.core.tool.CookieFunctions.getFromCookies;
 
 public abstract class SessionContext {
 

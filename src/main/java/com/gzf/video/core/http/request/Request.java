@@ -7,8 +7,8 @@ import io.netty.handler.codec.http.cookie.Cookie;
 import java.util.Map;
 import java.util.Set;
 
-import static com.gzf.video.util.CookieFunctions.decodeCookies;
-import static com.gzf.video.util.CookieFunctions.getFromCookies;
+import static com.gzf.video.core.tool.CookieFunctions.decodeCookies;
+import static com.gzf.video.core.tool.CookieFunctions.getFromCookies;
 import static io.netty.handler.codec.http.HttpHeaderNames.COOKIE;
 
 /**

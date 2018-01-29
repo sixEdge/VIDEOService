@@ -28,11 +28,11 @@ import java.util.List;
 import java.util.Set;
 
 import static com.gzf.video.core.http.request.HttpMethod.GET;
-import static com.gzf.video.util.PathAndParametersUtil.decodeComponent;
-import static com.gzf.video.util.PathAndParametersUtil.findPathEndIndex;
+import static com.gzf.video.core.tool.PathAndParametersUtil.decodeComponent;
+import static com.gzf.video.core.tool.PathAndParametersUtil.findPathEndIndex;
 import static com.gzf.video.core.session.storage.SessionStorage.SESSION_ID;
-import static com.gzf.video.util.CookieFunctions.decodeCookies;
-import static com.gzf.video.util.CookieFunctions.getFromCookies;
+import static com.gzf.video.core.tool.CookieFunctions.decodeCookies;
+import static com.gzf.video.core.tool.CookieFunctions.getFromCookies;
 import static io.netty.channel.ChannelHandler.Sharable;
 import static io.netty.handler.codec.http.HttpHeaderNames.COOKIE;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;

@@ -1,21 +1,17 @@
 package com.gzf.video.core.dispatcher;
 
-import com.gzf.video.core.controller.Controller;
-import com.gzf.video.core.controller.action.method.Get;
-import com.gzf.video.core.controller.action.method.Post;
-
 import java.util.Objects;
 
-import static com.gzf.video.util.PathAndParametersUtil.decodeComponent;
-import static com.gzf.video.util.PathAndParametersUtil.findPathEndIndex;
+import static com.gzf.video.core.tool.PathAndParametersUtil.decodeComponent;
+import static com.gzf.video.core.tool.PathAndParametersUtil.findPathEndIndex;
 
 public class RoutePathParser {
 
     /**
      * Parse path
      * via annotations:
-     * {@link Controller},
-     * {@link Get}, {@link Post}, <br/>
+     * {@link com.gzf.video.core.controller.Controller},
+     * {@link com.gzf.video.core.controller.action.Route}, <br/>
      * <pre>e.g.
      *      <em>@Controller</em>("/prefix")
      *      class MyController {
