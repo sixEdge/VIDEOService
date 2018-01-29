@@ -20,10 +20,7 @@ class EhcacheProvider {
     {
         cacheManager = CacheManagerBuilder.newCacheManager(xmlConfiguration);
         cacheManager.init();
-    }
-
-    void close() {
-        cacheManager.close();
+        Cleaner.create(this, cacheManager::close);
     }
 
     <K, V> Cache<K, V> initCache(final String cacheName, Class<K> keyClass, Class<V> valClass) {

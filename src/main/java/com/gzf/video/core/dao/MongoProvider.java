@@ -18,6 +18,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
+import sun.misc.Cleaner;
 import sun.nio.ch.DefaultSelectorProvider;
 
 import java.util.List;
@@ -102,8 +103,8 @@ public class MongoProvider {
             .build());
 
 
-    public static void close() {
-        mongoClient.close();
+    static {
+        Cleaner.create(mongoClient, mongoClient::close);
     }
 
 

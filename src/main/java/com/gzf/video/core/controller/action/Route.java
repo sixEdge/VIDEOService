@@ -5,7 +5,6 @@ import com.gzf.video.core.http.request.HttpMethod;
 import java.lang.annotation.*;
 
 import static com.gzf.video.core.http.request.HttpMethod.GET;
-import static com.gzf.video.util.StringUtil.EMPTY_STRING;
 
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

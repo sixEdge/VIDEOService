@@ -5,6 +5,7 @@ import com.typesafe.config.Config;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import sun.misc.Cleaner;
 
 import static com.gzf.video.core.ConfigManager.coreModule;
 
@@ -35,6 +36,10 @@ public class RedisProvider {
             return new JedisPool(config,
                     REDIS_CONFIG.getString("host"),
                     REDIS_CONFIG.getInt("port"));
+    }
+
+    static {
+        Cleaner.create(jedisPool, jedisPool::close);
     }
 
     private RedisProvider() {}

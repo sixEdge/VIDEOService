@@ -17,8 +17,6 @@ package com.gzf.video.core.server;
 
 import com.gzf.video.core.ConfigManager;
 import com.gzf.video.core.ProjectDependent;
-import com.gzf.video.core.cache.EhcacheProviderMetric;
-import com.gzf.video.core.dao.MongoProvider;
 import com.typesafe.config.Config;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -96,8 +94,6 @@ public class HttpServer {
 
     public ChannelFuture closeServer() {
         try {
-            EhcacheProviderMetric.close();
-            MongoProvider.close();
             return bindChannel.close().sync();
         } catch (InterruptedException e) {
             logger.error("Server shutdown interrupted.", e);

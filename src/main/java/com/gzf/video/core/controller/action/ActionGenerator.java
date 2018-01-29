@@ -20,6 +20,7 @@ import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.H_INVOKESTATIC;
 
 public class ActionGenerator {
+
     private static final String actionClassPath = ConfigManager.getControllerConf()
             .getString("package").replace('.', '/');
 
