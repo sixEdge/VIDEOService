@@ -3,11 +3,9 @@ package com.gzf.video.core.controller;
 import com.gzf.video.core.ClassScanner;
 import com.gzf.video.core.controller.action.Action;
 import com.gzf.video.core.controller.action.ActionGenerator;
-import com.gzf.video.core.controller.action.method.Get;
-import com.gzf.video.core.controller.action.method.Post;
+import com.gzf.video.core.controller.action.Route;
 import com.gzf.video.core.dispatcher.DefaultDispatcher;
-import com.gzf.video.core.dispatcher.ActionPathParser;
-import io.netty.handler.codec.http.HttpMethod;
+import com.gzf.video.core.dispatcher.RoutePathParser;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -71,28 +69,25 @@ public class ControllerScanner extends ClassScanner {
         // add to controller list
         controllers.add(controllerObj);
 
+        Controller controllerAnnotation = controllerClass.getDeclaredAnnotation(Controller.class);
+        assert controllerAnnotation != null;
+        String prefixUrl = controllerAnnotation.value();
+
         for (Method m : ms) {
             m.setAccessible(true);
 
-            Get get;
-            Post post;
-            HttpMethod reqMethod;
-            String url;
+            Route route;
 
-            if ((get = m.getDeclaredAnnotation(Get.class)) != null) {
-                url = get.value();
-                reqMethod = get.method;
-            } else if ((post = m.getDeclaredAnnotation(Post.class)) != null) {
-                url = post.value();
-                reqMethod = post.method;
-            } else {
+            if ((route = m.getDeclaredAnnotation(Route.class)) == null) {
                 continue;
             }
 
             Action action = ActionGenerator.newAction(controllerClass, controllerObj, m);
 
-            // corresponding action with request method and path
-            actionDispatcher.setAction(reqMethod, ActionPathParser.parsePath(m, url), action);
+            // correspond action with request method and path
+            actionDispatcher.setAction( route.method(),
+                                        RoutePathParser.parsePath(prefixUrl, route.url()),
+                                        action);
         }
     }
 }

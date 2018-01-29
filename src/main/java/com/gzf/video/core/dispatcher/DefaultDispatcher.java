@@ -4,14 +4,15 @@ import com.gzf.video.core.ConfigManager;
 import com.gzf.video.core.bean.inject.AutomaticInjector;
 import com.gzf.video.core.controller.ControllerScanner;
 import com.gzf.video.core.controller.action.Action;
-import io.netty.handler.codec.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gzf.video.core.http.request.HttpMethod;
+
 import java.util.List;
 
-import static io.netty.handler.codec.http.HttpMethod.GET;
-import static io.netty.handler.codec.http.HttpMethod.POST;
+import static com.gzf.video.core.http.request.HttpMethod.GET;
+import static com.gzf.video.core.http.request.HttpMethod.POST;
 
 public class DefaultDispatcher implements Dispatcher {
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -30,7 +31,7 @@ public class DefaultDispatcher implements Dispatcher {
     public void init() {
         try {
             List<Object> controllerList = ControllerScanner.scanControllers(this, CONTROLLER_PACKAGE);
-            logger.info("{} controllers has benn scanned.", controllerList.size());
+            logger.info("{} controllers have been scanned.", controllerList.size());
 
             // controller auto-inject
             controllerList.forEach(c -> AutomaticInjector.autoInject(c, c.getClass()));

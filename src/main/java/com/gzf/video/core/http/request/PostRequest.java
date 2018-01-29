@@ -26,6 +26,7 @@ public class PostRequest extends Request {
         return parameters;
     }
 
+    /** {@code <file name, file content>} */
     public Map<String, byte[]> fileContents() {
         return fileContents;
     }

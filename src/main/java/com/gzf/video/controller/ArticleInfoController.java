@@ -2,7 +2,7 @@ package com.gzf.video.controller;
 
 import com.gzf.video.core.bean.inject.Autowire;
 import com.gzf.video.core.controller.Controller;
-import com.gzf.video.core.controller.action.method.Get;
+import com.gzf.video.core.controller.action.Route;
 import com.gzf.video.core.http.HttpExchange;
 import com.gzf.video.core.http.request.Request;
 import com.gzf.video.core.http.response.Response;
@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Date;
 import java.util.List;
 
+import static com.gzf.video.core.http.request.HttpMethod.GET;
 import static com.gzf.video.util.StringUtil.isNullOrEmpty;
 import static com.gzf.video.util.StringUtil.stringToList;
 import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
@@ -42,7 +43,7 @@ public class ArticleInfoController {
     private ArticleService articleService;
 
 
-    @Get
+    @Route(method = GET)
     public Response getArticleInfo(HttpExchange ex) {
         Request req = ex.request();
         int articleId;
@@ -64,7 +65,7 @@ public class ArticleInfoController {
      * 根据 {@code 文章名、作者 id 、作者名、文章类型、文章发布时间范围} 筛选文章。<br />
      * 从满足条件的文章中选取 [offset, offset + size] 区间的文章返回。
      */
-    @Get("/filter")
+    @Route(method = GET, url = "filter")
     public Response findArticlesInfoList(HttpExchange ex) {
         String articleName;
         int authorId; String authorName;

@@ -2,8 +2,7 @@ package com.gzf.video.controller;
 
 import com.gzf.video.core.bean.inject.Autowire;
 import com.gzf.video.core.controller.Controller;
-import com.gzf.video.core.controller.action.method.Get;
-import com.gzf.video.core.controller.action.method.Post;
+import com.gzf.video.core.controller.action.Route;
 import com.gzf.video.core.http.HttpExchange;
 import com.gzf.video.core.http.response.Response;
 import com.gzf.video.service.UserRegisterService;
@@ -11,6 +10,8 @@ import com.gzf.video.core.http.request.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.gzf.video.core.http.request.HttpMethod.GET;
+import static com.gzf.video.core.http.request.HttpMethod.POST;
 import static com.gzf.video.pojo.component.CodeMessage.successMsg;
 import static com.gzf.video.util.StringUtil.EMPTY_STRING;
 import static com.gzf.video.util.StringUtil.anyNullOrEmpty;
@@ -34,7 +35,7 @@ public class UserRegisterController {
     private UserRegisterService userRegisterService;
 
 
-    @Post("/login")
+    @Route(method = POST, url = "/login")
     public Response login(HttpExchange ex) {
         // has login
         String preUserId;
@@ -57,7 +58,7 @@ public class UserRegisterController {
     }
 
 
-    @Post("/logout")
+    @Route(method = POST, url = "/logout")
     public Response logout(HttpExchange ex) {
         userRegisterService.doLogout(ex.session());
 
@@ -65,7 +66,7 @@ public class UserRegisterController {
     }
 
 
-    @Post("/signUp")
+    @Route(method = POST, url = "/signUp")
     public Response signUp(HttpExchange ex) {
         Request req = ex.request();
 
@@ -84,7 +85,7 @@ public class UserRegisterController {
     }
 
 
-    @Get("/rsa")
+    @Route(method = GET, url = "/rsa")
     public Response rsaPublicKey(HttpExchange ex) {
         if (ex.getUserId() != null) {
             return ex.okResponse();

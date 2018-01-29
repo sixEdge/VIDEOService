@@ -1,7 +1,7 @@
 package com.gzf.video.core.dispatcher;
 
 import com.gzf.video.core.controller.action.Action;
-import io.netty.handler.codec.http.HttpMethod;
+import com.gzf.video.core.http.request.HttpMethod;
 
 public interface Dispatcher {
 

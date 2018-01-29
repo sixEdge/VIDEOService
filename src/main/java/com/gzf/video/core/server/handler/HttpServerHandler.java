@@ -6,6 +6,7 @@ import com.gzf.video.core.dispatcher.DefaultDispatcher;
 import com.gzf.video.core.dispatcher.Dispatcher;
 import com.gzf.video.core.http.HttpExchange;
 import com.gzf.video.core.http.request.GetRequest;
+import com.gzf.video.core.http.request.HttpMethod;
 import com.gzf.video.core.http.request.PostRequest;
 import com.gzf.video.core.http.request.Request;
 import com.gzf.video.core.http.response.Response;
@@ -15,7 +16,10 @@ import com.gzf.video.util.StringUtil;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Set;
 
+import static com.gzf.video.core.http.request.HttpMethod.GET;
 import static com.gzf.video.util.PathAndParametersUtil.decodeComponent;
 import static com.gzf.video.util.PathAndParametersUtil.findPathEndIndex;
 import static com.gzf.video.core.session.storage.SessionStorage.SESSION_ID;
@@ -30,13 +35,11 @@ import static com.gzf.video.util.CookieFunctions.decodeCookies;
 import static com.gzf.video.util.CookieFunctions.getFromCookies;
 import static io.netty.channel.ChannelHandler.Sharable;
 import static io.netty.handler.codec.http.HttpHeaderNames.COOKIE;
-import static io.netty.handler.codec.http.HttpMethod.GET;
-import static io.netty.handler.codec.http.HttpMethod.POST;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 @Sharable
-public class DispatcherHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+public class HttpServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
 
@@ -55,7 +58,7 @@ public class DispatcherHandler extends SimpleChannelInboundHandler<FullHttpReque
 
 
     // auto release
-    private DispatcherHandler() {
+    private HttpServerHandler() {
         super(true);
     }
 
@@ -68,8 +71,8 @@ public class DispatcherHandler extends SimpleChannelInboundHandler<FullHttpReque
             return;
         }
 
-        HttpMethod method = req.method();
-        if (!GET.equals(method) && !POST.equals(method)) {
+        HttpMethod method = HttpMethod.convert(req.method());
+        if (method == null) {
             sendError(ctx, METHOD_NOT_ALLOWED);
             return;
         }
@@ -165,9 +168,9 @@ public class DispatcherHandler extends SimpleChannelInboundHandler<FullHttpReque
                 : new PostRequest(req, cookies);
     }
 
-    private static final DispatcherHandler INSTANCE = new DispatcherHandler();
+    private static final HttpServerHandler INSTANCE = new HttpServerHandler();
 
-    public static DispatcherHandler getINSTANCE() {
+    public static HttpServerHandler getINSTANCE() {
         return INSTANCE;
     }
 }
