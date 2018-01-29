@@ -27,5 +27,9 @@ public class EhcacheProviderMetric {
         return articleCache;
     }
 
+    public static void close() {
+        cacheProvider.close();
+    }
+
     private EhcacheProviderMetric() {}
 }

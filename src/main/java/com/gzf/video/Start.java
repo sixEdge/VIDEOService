@@ -18,10 +18,8 @@ package com.gzf.video;
 
 import com.gzf.video.core.bean.inject.AutomaticInjector;
 import com.gzf.video.core.server.HttpServer;
-import io.netty.util.internal.PlatformDependent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.misc.Signal;
 
 public class Start {
     private static final Logger logger = LoggerFactory.getLogger(Start.class);
@@ -41,11 +39,6 @@ public class Start {
     }
 
     static {
-        Signal signal = new Signal(PlatformDependent.isWindows() ? "INT" : "USR2");
-        Signal.handle(signal,
-                s ->  Runtime.getRuntime().addShutdownHook(
-                    new Thread(server::closeServer, "Thread-ShutdownHook")
-                )
-        );
+        Runtime.getRuntime().addShutdownHook(new Thread(server::closeServer, "Thread-ShutdownHook"));
     }
 }

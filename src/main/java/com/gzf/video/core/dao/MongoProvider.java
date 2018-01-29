@@ -13,11 +13,11 @@ import com.typesafe.config.Config;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.kqueue.KQueueEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
-import sun.misc.Cleaner;
 import sun.nio.ch.DefaultSelectorProvider;
 
 import java.util.List;
@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.gzf.video.core.ConfigManager.coreModule;
 import static com.gzf.video.core.ProjectDependent.canUseEpoll;
+import static com.gzf.video.core.ProjectDependent.canUseKQueue;
 import static java.util.stream.Collectors.toList;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
@@ -41,7 +42,9 @@ public class MongoProvider {
     private static final ThreadFactory threadFactory = new DefaultThreadFactory("Thread-Factory-Mongo-Connection");
     private static final EventLoopGroup MONGO_EVENT_LOOP_GROUP = canUseEpoll()
             ? new EpollEventLoopGroup(CONNECTION_POOL_THREADS, threadFactory)
-            : new NioEventLoopGroup(CONNECTION_POOL_THREADS, threadFactory, DefaultSelectorProvider.create());
+            : canUseKQueue()
+               ? new KQueueEventLoopGroup(CONNECTION_POOL_THREADS, threadFactory)
+               : new NioEventLoopGroup(CONNECTION_POOL_THREADS, threadFactory, DefaultSelectorProvider.create());
 
 
     private static final CodecRegistry pojoCodecRegistry =
@@ -99,8 +102,8 @@ public class MongoProvider {
             .build());
 
 
-    static {
-        Cleaner.create(mongoClient, mongoClient::close);
+    public static void close() {
+        mongoClient.close();
     }
 
 

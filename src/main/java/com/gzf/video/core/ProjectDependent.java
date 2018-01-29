@@ -1,9 +1,14 @@
 package com.gzf.video.core;
 
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.epoll.EpollSocketChannel;
+import io.netty.channel.kqueue.KQueue;
+import io.netty.channel.kqueue.KQueueEventLoopGroup;
+import io.netty.channel.kqueue.KQueueServerSocketChannel;
+import io.netty.channel.kqueue.KQueueSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
@@ -20,24 +25,34 @@ public class ProjectDependent {
 
 
     public static boolean canUseEpoll() {
-        return "Linux".equals(OS_NAME) && OS_ARCH.indexOf("64") > 0;
+        return Epoll.isAvailable();
+    }
+
+    public static boolean canUseKQueue() {
+        return KQueue.isAvailable();
     }
 
     public static EventLoopGroup newEventLoopGroup(final int nThreads) {
         return canUseEpoll()
                 ? new EpollEventLoopGroup(nThreads)
-                : new NioEventLoopGroup(nThreads);
+                : canUseKQueue()
+                    ? new KQueueEventLoopGroup(nThreads)
+                    : new NioEventLoopGroup(nThreads);
     }
 
     public static Class<? extends ServerSocketChannel> serverSocketChannelClass() {
         return canUseEpoll()
                 ? EpollServerSocketChannel.class
-                : NioServerSocketChannel.class;
+                : canUseKQueue()
+                    ? KQueueServerSocketChannel.class
+                    : NioServerSocketChannel.class;
     }
 
     public static Class<? extends SocketChannel> socketChannelClass() {
         return canUseEpoll()
                 ? EpollSocketChannel.class
-                : NioSocketChannel.class;
+                : canUseKQueue()
+                    ? KQueueSocketChannel.class
+                    : NioSocketChannel.class;
     }
 }

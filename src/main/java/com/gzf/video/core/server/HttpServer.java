@@ -17,17 +17,21 @@ package com.gzf.video.core.server;
 
 import com.gzf.video.core.ConfigManager;
 import com.gzf.video.core.ProjectDependent;
+import com.gzf.video.core.cache.EhcacheProviderMetric;
+import com.gzf.video.core.dao.MongoProvider;
 import com.typesafe.config.Config;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.gzf.video.core.ProjectDependent.canUseEpoll;
 import static io.netty.channel.ChannelOption.SO_BACKLOG;
 import static io.netty.channel.ChannelOption.SO_REUSEADDR;
 
@@ -63,6 +67,11 @@ public class HttpServer {
         EventLoopGroup workerGroup = ProjectDependent.newEventLoopGroup(serverConf.getInt("workerGroupSize"));
         try {
             ServerBootstrap b = new ServerBootstrap();
+
+            if (canUseEpoll()) {
+                b.option(EpollChannelOption.SO_REUSEPORT, true);
+            }
+
             b.group(bossGroup, workerGroup)
                     .option(SO_BACKLOG, 1024)
                     .option(SO_REUSEADDR, true)
@@ -79,14 +88,16 @@ public class HttpServer {
             bindChannel = f.channel();
             bindChannel.closeFuture().sync();
         } finally {
-            bossGroup.shutdownGracefully();
-            workerGroup.shutdownGracefully();
+            bossGroup.shutdownGracefully().sync();
+            workerGroup.shutdownGracefully().sync();
             logger.info("Server shutdown gracefully.");
         }
     }
 
     public ChannelFuture closeServer() {
         try {
+            EhcacheProviderMetric.close();
+            MongoProvider.close();
             return bindChannel.close().sync();
         } catch (InterruptedException e) {
             logger.error("Server shutdown interrupted.", e);
