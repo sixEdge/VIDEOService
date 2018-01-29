@@ -30,11 +30,11 @@ public class Start {
         // init auto-injector
         AutomaticInjector.init();
 
-        // start server
+        // start and run server
         try {
             server.startServer();
         } catch (Exception e) {
-            logger.error("Server start failed", e);
+            logger.error("main", e);
         }
     }
 
