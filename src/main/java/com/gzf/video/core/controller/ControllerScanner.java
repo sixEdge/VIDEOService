@@ -3,9 +3,9 @@ package com.gzf.video.core.controller;
 import com.gzf.video.core.ClassScanner;
 import com.gzf.video.core.controller.action.Action;
 import com.gzf.video.core.controller.action.ActionGenerator;
-import com.gzf.video.core.controller.action.Route;
+import com.gzf.video.core.dispatcher.route.Route;
 import com.gzf.video.core.dispatcher.DefaultDispatcher;
-import com.gzf.video.core.dispatcher.RoutePathParser;
+import com.gzf.video.core.dispatcher.route.RoutePathParser;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -18,7 +18,7 @@ public class ControllerScanner extends ClassScanner {
 
     private final DefaultDispatcher actionDispatcher;
 
-    // will have more usage in future
+    // will have more usages in the future
     private final List<Object> controllers = new LinkedList<>();
 
     private ControllerScanner(final DefaultDispatcher actionDispatcher) {
@@ -26,7 +26,7 @@ public class ControllerScanner extends ClassScanner {
     }
 
     /**
-     * Scan controllers and process actions.
+     * Scan controllers and process something with actions.
      * @param actionDispatcher actionDispatcher
      */
     public static List<Object> scanControllers(final DefaultDispatcher actionDispatcher, final String pkg)

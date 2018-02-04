@@ -6,7 +6,6 @@ import com.gzf.video.core.session.storage.SessionStorage;
 import com.sun.istack.internal.Nullable;
 
 import static com.gzf.video.core.session.storage.SessionStorage.SESSION_ID;
-import static com.gzf.video.core.session.storage.SessionStorage.USER_ID;
 import static com.gzf.video.core.tool.CookieFunctions.getFromCookies;
 
 public abstract class SessionContext {
@@ -41,7 +40,7 @@ public abstract class SessionContext {
     }
 
 
-    public boolean isNewSessionId() {
+    boolean isNewSessionId() {
         return isNewSessionId;
     }
 
@@ -50,15 +49,15 @@ public abstract class SessionContext {
     }
 
     public Object getFromSession(final String key) {
-        return session().get(key);
+        return session().getAttribute(key);
     }
 
     public Object addToSession(final String key, final Object val) {
-        return session().put(key, val);
+        return session().putAttribute(key, val);
     }
 
     public Object removeFromSession(final String key) {
-        return session().remove(key);
+        return session().removeAttribute(key);
     }
 
     public String getUserId() {
@@ -66,6 +65,6 @@ public abstract class SessionContext {
     }
 
     public void setUserId(final String userId) {
-        session().put(USER_ID, userId);
+        session().setUserId(userId);
     }
 }

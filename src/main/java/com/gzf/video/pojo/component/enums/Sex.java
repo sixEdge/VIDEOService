@@ -6,24 +6,20 @@ import com.alibaba.fastjson.serializer.JSONSerializer;
 import java.lang.reflect.Type;
 
 public enum Sex implements JSONSerializable {
-    UNKNOWN("unknown"), BOY("boy"), GIRL("girl");
+    BOY("Boy"), GIRL("Girl"), UNKNOWN("Unknown");
 
-    private String info;
+    private String sex;
 
-    Sex(final String info) {
-        this.info = info;
+    Sex(final String sex) {
+        this.sex = sex;
     }
 
-    public int getSex() {
-        return this.ordinal();
-    }
-
-    public String getInfo() {
-        return info;
+    public String getSex() {
+        return sex;
     }
 
     @Override
     public void write(final JSONSerializer serializer, final Object fieldName, final Type fieldType, final int features) {
-        serializer.write(this.ordinal());
+        serializer.write(sex);
     }
 }

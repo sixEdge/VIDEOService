@@ -51,4 +51,8 @@ public class AutomaticInjector {
             autoInject(obj, clazz);
         });
     }
+
+    public static Object getBean(final String className) {
+        return beanFactory.get(className);
+    }
 }

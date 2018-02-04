@@ -67,7 +67,7 @@ public abstract class ClassScanner {
     }
 
     /**
-     * Is this the class we are searching for? =. =
+     * Is this the class we are searching for?
      * @param clazz the class type we are searching
      * @return true or false
      */

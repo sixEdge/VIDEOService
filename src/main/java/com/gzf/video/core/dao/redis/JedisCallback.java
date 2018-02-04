@@ -6,7 +6,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * No need to be async.
- *
  * @param <R> result
  */
 @Deprecated

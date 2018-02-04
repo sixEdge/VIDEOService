@@ -26,9 +26,6 @@ public abstract class SessionStorage implements LoginStateCache {
     public static final long SESSION_ID_MAX_AGE = SESSION_CONFIG.getLong("sessionIdMaxAge");
     public static final String SESSION_ID_PATH = SESSION_CONFIG.getString("sessionIdPath");
 
-    public static final String USER_ID = SESSION_CONFIG.getString("userId");
-    public static final String RSA_PRIVATE_KEY = SESSION_CONFIG.getString("rsaPrivateKey");
-
 
     private final Map<String, Session> SESSION_MAP = new ConcurrentHashMap<>(1024);
 

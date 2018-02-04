@@ -59,7 +59,7 @@ public class ActionGenerator {
                 objectName, new String[] { functionName });
 
         String desc = Type.getMethodDescriptor(Type.getType(void.class));
-        GeneratorAdapter gac = createMethod(cw, ACC_PUBLIC, "<init>", desc);
+        GeneratorAdapter gac = visitMethod(cw, ACC_PUBLIC, "<init>", desc);
         gac.loadThis();
         gac.invokeConstructor(objectType, new org.objectweb.asm.commons.Method("<init>", desc));
         gac.returnValue();
@@ -79,7 +79,7 @@ public class ActionGenerator {
         final Object[] bsmArgs =
                 new Object[] { actionMethodType, bsmHandle, actionMethodType };
 
-        GeneratorAdapter gam = createMethod(
+        GeneratorAdapter gam = visitMethod(
                 cw,
                 ACC_PUBLIC,
                 "apply",
@@ -98,10 +98,10 @@ public class ActionGenerator {
         return lambdaGeneratorClass.newInstance().apply(controllerObj);
     }
 
-    private static GeneratorAdapter createMethod(ClassVisitor cv,
-                                                 int access,
-                                                 String name,
-                                                 String desc) {
+    private static GeneratorAdapter visitMethod(ClassVisitor cv,
+                                                int access,
+                                                String name,
+                                                String desc) {
         return
             new GeneratorAdapter(
                         cv.visitMethod(access, name, desc, null, null),
@@ -124,7 +124,12 @@ public class ActionGenerator {
         if (metafactory == null)
             throw new Error("method \"metafactory()\" not found");
 
-        return new Handle(H_INVOKESTATIC, Type.getInternalName(metafactory.getDeclaringClass()), metafactory.getName(), Type.getMethodDescriptor(metafactory), false);
+        return new Handle(
+                H_INVOKESTATIC,
+                Type.getInternalName(metafactory.getDeclaringClass()),
+                metafactory.getName(),
+                Type.getMethodDescriptor(metafactory),
+                false);
     }
 
     private static final Method defineClassMethod;

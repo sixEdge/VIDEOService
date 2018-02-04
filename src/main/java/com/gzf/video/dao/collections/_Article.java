@@ -1,7 +1,7 @@
 package com.gzf.video.dao.collections;
 
 import com.gzf.video.core.bean.Bean;
-import com.gzf.video.pojo.entry.Article;
+import com.gzf.video.pojo.entity.Article;
 import com.mongodb.async.SingleResultCallback;
 import com.mongodb.async.client.FindIterable;
 import com.mongodb.async.client.MongoCollection;
@@ -12,12 +12,12 @@ import org.bson.conversions.Bson;
 import static com.gzf.video.dao.collections._Article.ArticleStruct.ARTICLE_ID;
 
 /**
- * Article.
+ * Article info.
  */
 @Bean
 public class _Article extends BaseCollection {
 
-    public static final String COLLECTION = "article";
+    private static final String COLLECTION = "article";
     public interface ArticleStruct {
         String ARTICLE_ID       =   "aId";      // int
         String ARTICLE_NAME     =   "aname";    // string

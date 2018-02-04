@@ -2,7 +2,7 @@ package com.gzf.video.controller;
 
 import com.gzf.video.core.bean.inject.Autowire;
 import com.gzf.video.core.controller.Controller;
-import com.gzf.video.core.controller.action.Route;
+import com.gzf.video.core.dispatcher.route.Route;
 import com.gzf.video.core.http.HttpExchange;
 import com.gzf.video.core.http.request.Request;
 import com.gzf.video.core.http.response.Response;
@@ -43,14 +43,14 @@ public class ArticleInfoController {
     private ArticleService articleService;
 
 
-    @Route(method = GET)
+    @Route
     public Response getArticleInfo(HttpExchange ex) {
         Request req = ex.request();
         int articleId;
         try {
             articleId = Integer.parseInt(req.getParameter(ARTICLE_ID_PARAM));
         } catch (NumberFormatException e) {
-            logger.warn("getArticleInfo", e);
+            logger.warn("ArticleInfoController#getArticleInfo", e);
             return ex.failedResponse(BAD_REQUEST);
         }
 
@@ -65,7 +65,7 @@ public class ArticleInfoController {
      * 根据 {@code 文章名、作者 id 、作者名、文章类型、文章发布时间范围} 筛选文章。<br />
      * 从满足条件的文章中选取 [offset, offset + size] 区间的文章返回。
      */
-    @Route(method = GET, url = "filter")
+    @Route(method = GET, url = "/filter")
     public Response findArticlesInfoList(HttpExchange ex) {
         String articleName;
         int authorId; String authorName;
@@ -95,18 +95,18 @@ public class ArticleInfoController {
             offset  = Integer.parseInt(req.getParameter(DOMAIN_OFFSET));
             size    = Integer.parseInt(req.getParameter(DOMAIN_SIZE));
         } catch (Exception e) {
-            logger.warn("findArticlesInfo", e);
+            logger.warn("ArticleInfoController#findArticlesInfo", e);
             return ex.failedResponse(BAD_REQUEST);
         }
 
-        articleService.doFindArticlesByFilter(ex
-                                            , articleName
-                                            , authorId
-                                            , authorName
-                                            , articleTypes
-                                            , releaseTimeFrom
-                                            , releaseTimeEnd
-                                            , offset, size);
+        articleService.doFindArticlesByFilter( ex
+                                             , articleName
+                                             , authorId
+                                             , authorName
+                                             , articleTypes
+                                             , releaseTimeFrom
+                                             , releaseTimeEnd
+                                             , offset, size);
 
         return null;
     }

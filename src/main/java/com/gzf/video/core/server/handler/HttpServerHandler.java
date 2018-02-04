@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.gzf.video.core.http.request.HttpMethod.GET;
+import static com.gzf.video.core.http.request.HttpMethod.UNSUPPORTED;
 import static com.gzf.video.core.tool.PathAndParametersUtil.decodeComponent;
 import static com.gzf.video.core.tool.PathAndParametersUtil.findPathEndIndex;
 import static com.gzf.video.core.session.storage.SessionStorage.SESSION_ID;
@@ -72,7 +73,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReque
         }
 
         HttpMethod method = HttpMethod.convert(req.method());
-        if (method == null) {
+        if (method == UNSUPPORTED) {
             sendError(ctx, METHOD_NOT_ALLOWED);
             return;
         }

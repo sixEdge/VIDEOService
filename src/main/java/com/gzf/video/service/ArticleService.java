@@ -5,7 +5,7 @@ import com.gzf.video.core.bean.inject.Autowire;
 import com.gzf.video.core.bean.inject.Component;
 import com.gzf.video.core.http.HttpExchange;
 import com.gzf.video.dao.collections._Article;
-import com.gzf.video.pojo.entry.Article;
+import com.gzf.video.pojo.entity.Article;
 import com.mongodb.async.SingleResultCallback;
 import org.bson.Document;
 import org.slf4j.Logger;
@@ -74,11 +74,14 @@ public class ArticleService {
                                      , releaseTimeFrom
                                      , releaseTimeEnd);
 
+        // max-return-article-number is 100
+        size = size > 100 ? 100 : size;
+
         List<Article> array = new ArrayList<>(size);
 
         SingleResultCallback<Void> callback = (result, t) -> {
             if (t == null) {
-                ex.writeResponse(OK, successJson(EMPTY_STRING, toJsonString(array)));
+                ex.writeResponse(OK, successJson("" + array.size(), toJsonString(array)));
             } else {
                 logger.error("findArticlesByFilter, filter: " + filter, t);
                 ex.writeResponse(INTERNAL_SERVER_ERROR);

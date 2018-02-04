@@ -5,7 +5,7 @@ import redis.clients.jedis.Jedis;
 
 public class RedisSessionStorage extends SessionStorage {
 
-    private final String LOGIN_MAP = "login";
+    private static final String LOGIN_MAP = "login";
 
     @Override
     public void createLoginCache(final String sessionId, final String userId) {

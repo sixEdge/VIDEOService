@@ -1,4 +1,4 @@
-package com.gzf.video.core.dispatcher;
+package com.gzf.video.core.dispatcher.route;
 
 import java.util.Objects;
 
@@ -11,7 +11,7 @@ public class RoutePathParser {
      * Parse path
      * via annotations:
      * {@link com.gzf.video.core.controller.Controller},
-     * {@link com.gzf.video.core.controller.action.Route}, <br/>
+     * {@link Route}, <br/>
      * <pre>e.g.
      *      <em>@Controller</em>("/prefix")
      *      class MyController {

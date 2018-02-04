@@ -1,4 +1,4 @@
-package com.gzf.video.pojo.entry;
+package com.gzf.video.pojo.entity;
 
 import org.bson.codecs.pojo.annotations.BsonProperty;
 

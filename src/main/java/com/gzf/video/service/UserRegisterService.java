@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import java.security.PrivateKey;
 
-import static com.gzf.video.core.session.storage.SessionStorage.RSA_PRIVATE_KEY;
 import static com.gzf.video.dao.collections._Login.LoginStruct.USER_ID;
 import static com.gzf.video.pojo.component.CodeMessage.failedMsg;
 import static com.gzf.video.pojo.component.CodeMessage.successMsg;
@@ -32,6 +31,8 @@ public class UserRegisterService {
 
     private static final SessionStorage SESSION_STORAGE = SessionStorage.getINSTANCE();
 
+    private static final String RSA_PRIVATE_KEY = "rsaPri";
+
     @Autowire
     private RsaDAO RSA_DAO;
 
@@ -40,15 +41,14 @@ public class UserRegisterService {
 
 
     public void doLogin(HttpExchange ex,
-                        String identity,
+                        String identifier,
                         String password,
                         boolean useUsername,
                         boolean rememberMe) {
-        Session session = ex.session();
         SingleResultCallback<Document> callback = (result, t) -> {
             if (result != null) {
                 String userId = "" + result.getInteger(USER_ID);
-                createIdentification(session, userId, rememberMe);
+                createIdentification(ex, userId, rememberMe);
                 ex.writeResponse(OK, successMsg(userId));
             } else {
                 ex.writeResponse(OK, failedMsg("用户名或密码错误"));
@@ -64,9 +64,9 @@ public class UserRegisterService {
         }
 
         if (useUsername) {
-            login._nameLogin(identity, pwd, callback);
+            login._nameLogin(identifier, pwd, callback);
         } else {
-            login._mailLogin(identity, pwd, callback);
+            login._mailLogin(identifier, pwd, callback);
         }
     }
 
@@ -129,7 +129,8 @@ public class UserRegisterService {
         return RSA_DAO.decode(cryptPwd, privateKey);
     }
 
-    private static void createIdentification(final Session session, final String userId, final boolean rememberMe) {
+    private static void createIdentification(final HttpExchange ex, final String userId, final boolean rememberMe) {
+        Session session = ex.session();
         session.setUserId(userId);
         if (rememberMe) {
             SESSION_STORAGE.createLoginCache(session.getSessionId(), userId);

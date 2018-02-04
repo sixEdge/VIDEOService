@@ -33,8 +33,8 @@ public class RsaDAO {
         private final byte[] publicKeyBytes;
         private final PrivateKey privateKey;
 
-        private RSAKeyPair(final byte[] publicKeyStr, final PrivateKey privateKey) {
-            this.publicKeyBytes = publicKeyStr;
+        private RSAKeyPair(final byte[] publicKeyBytes, final PrivateKey privateKey) {
+            this.publicKeyBytes = publicKeyBytes;
             this.privateKey = privateKey;
         }
 

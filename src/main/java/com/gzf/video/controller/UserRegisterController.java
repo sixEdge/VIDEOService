@@ -2,7 +2,7 @@ package com.gzf.video.controller;
 
 import com.gzf.video.core.bean.inject.Autowire;
 import com.gzf.video.core.controller.Controller;
-import com.gzf.video.core.controller.action.Route;
+import com.gzf.video.core.dispatcher.route.Route;
 import com.gzf.video.core.http.HttpExchange;
 import com.gzf.video.core.http.response.Response;
 import com.gzf.video.service.UserRegisterService;
@@ -22,12 +22,12 @@ import static io.netty.handler.codec.http.HttpResponseStatus.*;
 public class UserRegisterController {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private static final String IDENTITY_PARAM      = "id";
+    private static final String IDENTIFIER_PARAM    = "id";
     private static final String USER_NAME_PARAM     = "uname";
     private static final String MAIL_PARAM          = "mail";
     private static final String PASSWORD_PARAM      = "pwd";
 
-    // 0 user & name, 1 user & mail, 2 admin & mail
+    // 0: user & name-login, 1: user & mail-login, 2: admin & name-login, 3: admin & mail-login
     private static final String LOGIN_MODE_PARAM    = "mode";
 
 
@@ -44,15 +44,15 @@ public class UserRegisterController {
         }
 
         Request req = ex.request();
-        String identity = req.getParameter(IDENTITY_PARAM);
-        String password = req.getParameter(PASSWORD_PARAM);
-        String modeStr  = req.getParameter(LOGIN_MODE_PARAM);
+        String identifier = req.getParameter(IDENTIFIER_PARAM);
+        String password   = req.getParameter(PASSWORD_PARAM);
+        String modeStr    = req.getParameter(LOGIN_MODE_PARAM);
 
-        if (anyNullOrEmpty(identity, modeStr, password) || identity.length() > 64) {
+        if (anyNullOrEmpty(identifier, password, modeStr) || identifier.length() > 64) {
             return ex.failedResponse(BAD_REQUEST);
         }
 
-        userRegisterService.doLogin(ex, identity, password, modeStr.charAt(0) == '0', true);
+        userRegisterService.doLogin(ex, identifier, password, modeStr.charAt(0) == '0', true);
 
         return null;
     }
@@ -69,7 +69,6 @@ public class UserRegisterController {
     @Route(method = POST, url = "/signUp")
     public Response signUp(HttpExchange ex) {
         Request req = ex.request();
-
         String username = req.getParameter(USER_NAME_PARAM);
         String mail     = req.getParameter(MAIL_PARAM);
         String password = req.getParameter(PASSWORD_PARAM);

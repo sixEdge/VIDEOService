@@ -13,7 +13,7 @@ import static com.gzf.video.dao.collections._Login.LoginStruct.*;
 @Bean
 public class _Login extends BaseCollection {
 
-    public static final String COLLECTION = "login";
+    private static final String COLLECTION = "login";
     public interface LoginStruct {
         String USER_ID      =   "uId";    // int
         String USERNAME     =   "uname";  // string

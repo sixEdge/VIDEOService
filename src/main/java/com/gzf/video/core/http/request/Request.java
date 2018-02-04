@@ -57,12 +57,9 @@ public abstract class Request {
     }
 
 
-    /**
-     * Never return null.
-     */
     public abstract Map<String, String> parameters();
 
-    public String getParameter(final String key) {
-        return parameters().get(key);
+    public String getParameter(final String name) {
+        return parameters().get(name);
     }
 }
