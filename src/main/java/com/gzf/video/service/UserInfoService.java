@@ -3,9 +3,9 @@ package com.gzf.video.service;
 import com.gzf.video.core.bean.Bean;
 import com.gzf.video.core.bean.inject.Autowire;
 import com.gzf.video.core.bean.inject.Component;
+import com.gzf.video.core.dao.mongo.MongoCallback;
 import com.gzf.video.core.http.HttpExchange;
 import com.gzf.video.dao.collections._User;
-import com.mongodb.async.SingleResultCallback;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ public class UserInfoService {
 
 
     public void doGetUserInfo(HttpExchange ex, String identifier, char mode) {
-        SingleResultCallback<Document> callback = (result, t) -> {
+        MongoCallback<Document> callback = result -> {
             if (result != null) {
                 ex.writeResponse(OK, successJson(EMPTY_STRING, result.toJson()));
             } else {

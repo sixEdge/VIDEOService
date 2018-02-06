@@ -3,6 +3,7 @@ package com.gzf.video.service;
 import com.gzf.video.core.bean.Bean;
 import com.gzf.video.core.bean.inject.Autowire;
 import com.gzf.video.core.bean.inject.Component;
+import com.gzf.video.core.dao.mongo.MongoCallback;
 import com.gzf.video.core.http.HttpExchange;
 import com.gzf.video.dao.collections._Article;
 import com.gzf.video.pojo.entity.Article;
@@ -34,7 +35,7 @@ public class ArticleService {
 
 
     public void doGetArticle(HttpExchange ex, int articleId) {
-        SingleResultCallback<Document> callback = (result, t) -> {
+        MongoCallback<Document> callback = result -> {
             if (result != null) {
                 ex.writeResponse(OK, successJson(EMPTY_STRING, result.toJson()));
             } else {
