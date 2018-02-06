@@ -21,7 +21,7 @@ public class _Article extends BaseCollection {
     public interface ArticleStruct {
         String ARTICLE_ID       =   "aId";      // int
         String ARTICLE_NAME     =   "aname";    // string
-        String ARTICLE_TYPE     =   "atype";    // [string]
+        String ARTICLE_TYPES    =   "atypes";   // [string]
         String AUTHOR_ID        =   "uId";      // int
         String AUTHOR_NAME      =   "uname";    // string
         String ARTICLE_URL      =   "aurl";     // string

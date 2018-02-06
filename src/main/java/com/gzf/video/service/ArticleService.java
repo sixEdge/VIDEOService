@@ -139,7 +139,7 @@ public class ArticleService {
     }
 
     private static void articleTypeFilter(Document document, List<String> articleTypes) {
-        document.append(ARTICLE_TYPE, new Document("$all", articleTypes));
+        document.append(ARTICLE_TYPES, new Document("$all", articleTypes));
     }
 
     private static void releaseTimeDomainFilter(Document document, Date from, Date end) {

@@ -6,6 +6,7 @@ import com.mongodb.async.client.MongoCollection;
 import org.bson.Document;
 
 import static com.gzf.video.dao.collections._Login.LoginStruct.*;
+import static com.gzf.video.pojo.component.enums.UserAccountState.NOT_ACTIVE;
 
 /**
  * Login & Sign up.
@@ -15,10 +16,11 @@ public class _Login extends BaseCollection {
 
     private static final String COLLECTION = "login";
     public interface LoginStruct {
-        String USER_ID      =   "uId";    // int
-        String USERNAME     =   "uname";  // string
-        String MAIL         =   "mail";   // string
-        String PASSWORD     =   "pwd";    // string
+        String USER_ID       =   "uId";     // int
+        String USERNAME      =   "uname";   // string
+        String MAIL          =   "mail";    // string
+        String PASSWORD      =   "pwd";     // string
+        String ACCOUNT_STATE =   "state";   // com.gzf.video.pojo.component.enums.UserAccountState
     }
 
     private static final MongoCollection<Document> loginCollection = getCollection(COLLECTION);
@@ -51,7 +53,8 @@ public class _Login extends BaseCollection {
         Document document = new Document()
                 .append(USERNAME, username)
                 .append(MAIL, mail)
-                .append(PASSWORD, password);
+                .append(PASSWORD, password)
+                .append(ACCOUNT_STATE, NOT_ACTIVE);
         loginCollection.insertOne(document, callback);
     }
 

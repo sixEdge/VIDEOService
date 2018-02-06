@@ -1,6 +1,6 @@
 package com.gzf.video.dao.collections;
 
-import com.gzf.video.core.dao.MongoProvider;
+import com.gzf.video.core.dao.mongo.MongoProvider;
 import com.mongodb.async.client.MongoCollection;
 import com.mongodb.async.client.MongoDatabase;
 import org.bson.Document;

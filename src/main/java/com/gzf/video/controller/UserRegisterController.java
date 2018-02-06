@@ -22,12 +22,14 @@ import static io.netty.handler.codec.http.HttpResponseStatus.*;
 public class UserRegisterController {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    // username, mail
     private static final String IDENTIFIER_PARAM    = "id";
     private static final String USER_NAME_PARAM     = "uname";
     private static final String MAIL_PARAM          = "mail";
     private static final String PASSWORD_PARAM      = "pwd";
+    private static final String REMEMBER_ME         = "remb";
 
-    // 0: user & name-login, 1: user & mail-login, 2: admin & name-login, 3: admin & mail-login
+    // 0: user & name-login, 1: user & mail-login, 2: admin & mail-login
     private static final String LOGIN_MODE_PARAM    = "mode";
 
 
@@ -47,12 +49,13 @@ public class UserRegisterController {
         String identifier = req.getParameter(IDENTIFIER_PARAM);
         String password   = req.getParameter(PASSWORD_PARAM);
         String modeStr    = req.getParameter(LOGIN_MODE_PARAM);
+        String rememberMe = req.getParameter(REMEMBER_ME);
 
         if (anyNullOrEmpty(identifier, password, modeStr) || identifier.length() > 64) {
             return ex.failedResponse(BAD_REQUEST);
         }
 
-        userRegisterService.doLogin(ex, identifier, password, modeStr.charAt(0) == '0', true);
+        userRegisterService.doLogin(ex, identifier, password, modeStr.charAt(0) == '0', true /* rememberMe.equals("true") */);
 
         return null;
     }

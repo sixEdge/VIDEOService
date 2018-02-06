@@ -1,4 +1,4 @@
-package com.gzf.video.core.dao;
+package com.gzf.video.core.dao.mongo;
 
 import com.gzf.video.core.ConfigManager;
 import com.gzf.video.core.ProjectDependent;

@@ -5,9 +5,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class AttributeSession {
 
-    private final Map<String, Object> attributes = new ConcurrentHashMap<>();
-
     private volatile String userId;
+
+    private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
 
     public String getUserId() {

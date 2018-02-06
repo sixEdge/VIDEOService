@@ -24,7 +24,7 @@ public class Article {
     /**
      * Article type.
      */
-    @BsonProperty(ARTICLE_TYPE)
+    @BsonProperty(ARTICLE_TYPES)
     private List<String> articleTypes;
 
     /**

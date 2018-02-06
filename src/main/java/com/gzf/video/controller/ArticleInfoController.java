@@ -27,7 +27,7 @@ public class ArticleInfoController {
     private static final String ARTICLE_NAME_PARAM  = "aname";
     private static final String AUTHOR_ID_PARAM     = "uid";
     private static final String AUTHOR_NAME_PARAM   = "uname";
-    private static final String ARTICLE_TYPE_PARAM  = "atype";
+    private static final String ARTICLE_TYPES_PARAM = "atypes";
     private static final String RELEASE_TIME_PARAM  = "rlstime";
     private static final String RELEASE_TIME_FROM_PARAM = "rlstimeFrom";
     private static final String RELEASE_TIME_END_PARAM  = "rlstimeEnd";
@@ -83,7 +83,7 @@ public class ArticleInfoController {
         articleName = req.getParameter(ARTICLE_NAME_PARAM);
         authorIdStr = req.getParameter(AUTHOR_ID_PARAM);
         authorName  = req.getParameter(AUTHOR_NAME_PARAM);
-        articleTypesStr = req.getParameter(ARTICLE_TYPE_PARAM);
+        articleTypesStr = req.getParameter(ARTICLE_TYPES_PARAM);
         releaseTimeFromStr = req.getParameter(RELEASE_TIME_FROM_PARAM);
         releaseTimeEndStr  = req.getParameter(RELEASE_TIME_END_PARAM);
 

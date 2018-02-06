@@ -17,6 +17,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 public class UserInfoController {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    // userId, username, mail
     private static final String IDENTIFIER_PARAM    = "id";
 
     // the identifier will be: 0: userId, 1: username, 2: mail

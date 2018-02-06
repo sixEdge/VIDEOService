@@ -3,22 +3,26 @@ package com.gzf.video.service;
 import com.gzf.video.core.bean.Bean;
 import com.gzf.video.core.bean.inject.Autowire;
 import com.gzf.video.core.bean.inject.Component;
+import com.gzf.video.core.dao.mongo.MongoCallback;
 import com.gzf.video.core.http.HttpExchange;
 import com.gzf.video.core.session.Session;
 import com.gzf.video.core.session.storage.SessionStorage;
 import com.gzf.video.dao.RsaDAO;
 import com.gzf.video.dao.collections._Login;
 import com.gzf.video.util.StringUtil;
-import com.mongodb.async.SingleResultCallback;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.PrivateKey;
 
+import static com.gzf.video.dao.collections._Login.LoginStruct.ACCOUNT_STATE;
 import static com.gzf.video.dao.collections._Login.LoginStruct.USER_ID;
 import static com.gzf.video.pojo.component.CodeMessage.failedMsg;
 import static com.gzf.video.pojo.component.CodeMessage.successMsg;
+import static com.gzf.video.pojo.component.enums.UserAccountState.ACTIVE;
+import static com.gzf.video.pojo.component.enums.UserAccountState.NOT_ACTIVE;
+import static com.gzf.video.pojo.component.enums.UserAccountState.SEALED;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 /**
@@ -45,14 +49,33 @@ public class UserRegisterService {
                         String password,
                         boolean useUsername,
                         boolean rememberMe) {
-        SingleResultCallback<Document> callback = (result, t) -> {
+        MongoCallback<Document> callback = result -> {
+            byte[] respContent = null;
             if (result != null) {
-                String userId = "" + result.getInteger(USER_ID);
-                createIdentification(ex, userId, rememberMe);
-                ex.writeResponse(OK, successMsg(userId));
+                String accountState = result.getString(ACCOUNT_STATE);
+
+                // active account
+                if (accountState.equals(ACTIVE.name())) {
+                    String userId = "" + result.getInteger(USER_ID);
+                    createIdentification(ex, userId, rememberMe);
+                    respContent = successMsg(userId);
+                }
+
+                // the account is not active yet
+                else if (accountState.equals(NOT_ACTIVE.name())) {
+                    respContent = failedMsg("此号尚未被激活，请查看邮箱并激活账号");
+                }
+
+                // 被封号的孩子
+                else if (accountState.equals(SEALED.name())) {
+                    respContent = failedMsg("此号被封，(゜-゜)つロ 乾杯");
+                }
             } else {
-                ex.writeResponse(OK, failedMsg("用户名或密码错误"));
+                respContent = failedMsg("用户名或密码错误");
             }
+
+            assert respContent != null;
+            ex.writeResponse(OK, respContent);
         };
 
         // rsa decrypt & md5 encrypt
