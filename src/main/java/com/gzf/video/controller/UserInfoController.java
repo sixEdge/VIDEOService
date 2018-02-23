@@ -28,7 +28,7 @@ public class UserInfoController {
     private UserInfoService userInfoService;
 
 
-    @Route
+    @Route(url = "info")
     public Response getUserInfo(HttpExchange ex) {
         Request req = ex.request();
         String identifier  = req.getParameter(IDENTIFIER_PARAM);

@@ -1,8 +1,9 @@
 package com.gzf.video.core.http.request;
 
-import com.sun.istack.internal.Nullable;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.cookie.Cookie;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
@@ -42,9 +43,7 @@ public abstract class Request {
     }
 
 
-    /**
-     * Never return null.
-     */
+    @NotNull
     public Set<Cookie> cookies() {
         if (cookies == null) {
             cookies = decodeCookies(headers.get(COOKIE));

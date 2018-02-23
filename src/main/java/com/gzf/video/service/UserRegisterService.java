@@ -17,12 +17,13 @@ import org.slf4j.LoggerFactory;
 import java.security.PrivateKey;
 
 import static com.gzf.video.dao.collections._Login.LoginStruct.ACCOUNT_STATE;
-import static com.gzf.video.dao.collections._Login.LoginStruct.USER_ID;
+import static com.gzf.video.dao.collections._Login.LoginStruct.LOGIN_ID;
+import static com.gzf.video.dao.collections._Login.LoginStruct.LOGIN_NAME;
+import static com.gzf.video.dao.collections._User.UserStruct.USERNAME;
 import static com.gzf.video.pojo.component.CodeMessage.failedMsg;
 import static com.gzf.video.pojo.component.CodeMessage.successMsg;
 import static com.gzf.video.pojo.component.enums.UserAccountState.ACTIVE;
 import static com.gzf.video.pojo.component.enums.UserAccountState.NOT_ACTIVE;
-import static com.gzf.video.pojo.component.enums.UserAccountState.SEALED;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 /**
@@ -35,13 +36,16 @@ public class UserRegisterService {
 
     private static final SessionStorage SESSION_STORAGE = SessionStorage.getINSTANCE();
 
-    private static final String RSA_PRIVATE_KEY = "rsaPri";
+    private static final String SESSION_USERNAME = USERNAME;
+
+    private static final String SESSION_RSA_PRIVATE_KEY = "rsaPri";
+
 
     @Autowire
     private RsaDAO RSA_DAO;
 
     @Autowire
-    private _Login login;
+    private _Login _login;
 
 
     public void doLogin(HttpExchange ex,
@@ -50,31 +54,31 @@ public class UserRegisterService {
                         boolean useUsername,
                         boolean rememberMe) {
         MongoCallback<Document> callback = result -> {
-            byte[] respContent = null;
+            byte[] respContent;
             if (result != null) {
                 String accountState = result.getString(ACCOUNT_STATE);
 
                 // active account
                 if (accountState.equals(ACTIVE.name())) {
-                    String userId = "" + result.getInteger(USER_ID);
+                    String userId = "" + result.getInteger(LOGIN_ID);
                     createIdentification(ex, userId, rememberMe);
+                    ex.addToSession(SESSION_USERNAME, result.getString(LOGIN_NAME));  // add username to session
                     respContent = successMsg(userId);
                 }
 
-                // the account is not active yet
+                // this account is not active yet
                 else if (accountState.equals(NOT_ACTIVE.name())) {
                     respContent = failedMsg("此号尚未被激活，请查看邮箱并激活账号");
                 }
 
-                // 被封号的孩子
-                else if (accountState.equals(SEALED.name())) {
+                // 被封号的孩子 accountState.equals(SEALED.name())
+                else {
                     respContent = failedMsg("此号被封，(゜-゜)つロ 乾杯");
                 }
             } else {
                 respContent = failedMsg("用户名或密码错误");
             }
 
-            assert respContent != null;
             ex.writeResponse(OK, respContent);
         };
 
@@ -87,9 +91,9 @@ public class UserRegisterService {
         }
 
         if (useUsername) {
-            login._nameLogin(identifier, pwd, callback);
+            _login._nameLogin(identifier, pwd, callback);
         } else {
-            login._mailLogin(identifier, pwd, callback);
+            _login._mailLogin(identifier, pwd, callback);
         }
     }
 
@@ -114,7 +118,7 @@ public class UserRegisterService {
             return;
         }
 
-        login._signUp(username, mail, pwd, (result, t) -> {
+        _login._signUp(username, mail, pwd, (result, t) -> {
             if (t != null) {
                 ex.writeResponse(OK, successMsg("注册成功"));
             } else {
@@ -126,7 +130,7 @@ public class UserRegisterService {
 
     public byte[] doGetRsaPublicKey(HttpExchange ex) {
         RsaDAO.RSAKeyPair keyPair = RSA_DAO.getKeyPair();
-        ex.addToSession(RSA_PRIVATE_KEY, keyPair.getPrivateKey());
+        ex.addToSession(SESSION_RSA_PRIVATE_KEY, keyPair.getPrivateKey());
         return keyPair.getPublicKeyBytes();
     }
 
@@ -143,7 +147,7 @@ public class UserRegisterService {
     }
 
     private byte[] decryptPassword(final HttpExchange ex, final String cryptPwd) {
-        PrivateKey privateKey = (PrivateKey) ex.removeFromSession(RSA_PRIVATE_KEY);
+        PrivateKey privateKey = (PrivateKey) ex.removeFromSession(SESSION_RSA_PRIVATE_KEY);
         if (privateKey == null) {
             logger.warn("no rsa private key found, client ip: {}.", ex.channel().remoteAddress());
             return null;

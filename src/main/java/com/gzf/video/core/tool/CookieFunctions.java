@@ -1,10 +1,11 @@
 package com.gzf.video.core.tool;
 
-import com.sun.istack.internal.Nullable;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -45,7 +46,7 @@ public abstract class CookieFunctions {
         Cookie cookieSessionId = new DefaultCookie(SESSION_ID, sessionId);
         cookieSessionId.setPath(SESSION_ID_PATH);
         cookieSessionId.setHttpOnly(true);
-//        cookieSessionId.setSecure(true);  TODO add this sentence when under https
+//        cookieSessionId.setSecure(true);  TODO add this sentence when use https
         cookieSessionId.setMaxAge(SESSION_ID_MAX_AGE);
 
         return encodeCookie(cookieSessionId);
@@ -58,8 +59,9 @@ public abstract class CookieFunctions {
 
     /**
      * @param cookiesString cookies in string
-     * @return a set of cookies, never be null
+     * @return a set of cookies
      */
+    @NotNull
     public static Set<Cookie> decodeCookies(@Nullable final String cookiesString) {
         if (cookiesString == null) {
             return Collections.emptySet();

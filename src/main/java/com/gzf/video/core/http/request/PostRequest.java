@@ -12,7 +12,7 @@ import java.util.*;
 public class PostRequest extends Request {
     private static final Logger logger = LoggerFactory.getLogger(PostRequest.class);
 
-    private Map<String, byte[]> fileContents;
+    private LinkedHashMap<String, byte[]> fileContents;
 
 
     public PostRequest(final FullHttpRequest req, final Set<Cookie> cookies) {
@@ -27,7 +27,7 @@ public class PostRequest extends Request {
     }
 
     /** {@code <file name, file content>} */
-    public Map<String, byte[]> fileContents() {
+    public LinkedHashMap<String, byte[]> fileContents() {
         return fileContents;
     }
 
@@ -35,7 +35,7 @@ public class PostRequest extends Request {
     private void decode(final FullHttpRequest request) {
         HttpPostRequestDecoder postRequestDecoder = new HttpPostRequestDecoder(request);
         parameters = new HashMap<>();
-        fileContents = new HashMap<>();
+        fileContents = new LinkedHashMap<>();
 
         try {
             for (InterfaceHttpData data : postRequestDecoder.getBodyHttpDatas()) {

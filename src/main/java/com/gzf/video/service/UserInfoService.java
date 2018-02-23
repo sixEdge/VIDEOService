@@ -22,7 +22,7 @@ public class UserInfoService {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowire
-    private _User user;
+    private _User _user;
 
 
     public void doGetUserInfo(HttpExchange ex, String identifier, char mode) {
@@ -45,13 +45,13 @@ public class UserInfoService {
                 return;
             }
 
-            user._userInfo(userId, callback);
+            _user._userInfo(userId, callback);
             break;
         case '1':
-            user._findUserInfoByUserName(identifier, callback);
+            _user._findUserInfoByUserName(identifier, callback);
             break;
         case '2':
-            user._findUserInfoByMail(identifier, callback);
+            _user._findUserInfoByMail(identifier, callback);
             break;
         }
     }

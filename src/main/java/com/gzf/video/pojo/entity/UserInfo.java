@@ -60,23 +60,6 @@ public class UserInfo {
 
     public UserInfo() {}
 
-    public UserInfo(final int userId,
-                    final String userName,
-                    final String mail,
-                    final Sex sex,
-                    final Level level,
-                    final String face,
-                    final int money,
-                    final UserAccountState state) {
-        this.userId = userId;
-        this.userName = userName;
-        this.mail = mail;
-        this.sex = sex;
-        this.level = level;
-        this.face = face;
-        this.money = money;
-        this.state = state;
-    }
 
     public int getUserId() {
         return userId;

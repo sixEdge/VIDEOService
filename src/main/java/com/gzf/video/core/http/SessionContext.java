@@ -3,7 +3,7 @@ package com.gzf.video.core.http;
 import com.gzf.video.core.http.request.Request;
 import com.gzf.video.core.session.Session;
 import com.gzf.video.core.session.storage.SessionStorage;
-import com.sun.istack.internal.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import static com.gzf.video.core.session.storage.SessionStorage.SESSION_ID;
 import static com.gzf.video.core.tool.CookieFunctions.getFromCookies;

@@ -16,8 +16,8 @@ public class _Login extends BaseCollection {
 
     private static final String COLLECTION = "login";
     public interface LoginStruct {
-        String USER_ID       =   "uId";     // int
-        String USERNAME      =   "uname";   // string
+        String LOGIN_ID      =   "uId";     // int
+        String LOGIN_NAME    =   "uname";   // string
         String MAIL          =   "mail";    // string
         String PASSWORD      =   "pwd";     // string
         String ACCOUNT_STATE =   "state";   // com.gzf.video.pojo.component.enums.UserAccountState
@@ -30,7 +30,7 @@ public class _Login extends BaseCollection {
                            String password,
                            SingleResultCallback<Document> callback) {
         Document document = new Document()
-                .append(USERNAME, username)
+                .append(LOGIN_NAME, username)
                 .append(PASSWORD, password);
         loginCollection.find(document).first(callback);
     }
@@ -51,7 +51,7 @@ public class _Login extends BaseCollection {
                         String password,
                         SingleResultCallback<Void> callback) {
         Document document = new Document()
-                .append(USERNAME, username)
+                .append(LOGIN_NAME, username)
                 .append(MAIL, mail)
                 .append(PASSWORD, password)
                 .append(ACCOUNT_STATE, NOT_ACTIVE);

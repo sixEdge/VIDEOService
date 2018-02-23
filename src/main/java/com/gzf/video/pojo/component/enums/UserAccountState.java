@@ -7,7 +7,7 @@ import java.lang.reflect.Type;
 
 public enum UserAccountState implements JSONSerializable {
 
-    /** Not yet activated, needs to be authenticated. */
+    /** Not yet active, needs to be authenticated. */
     NOT_ACTIVE(0),
 
     /** Active. */

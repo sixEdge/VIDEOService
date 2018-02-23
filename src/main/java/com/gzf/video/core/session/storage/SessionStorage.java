@@ -84,14 +84,14 @@ public abstract class SessionStorage implements LoginStateCache {
      *
      * @param sessionId session id
      *
-     * @return a session associated with the specified session id,
+     * @return a session associated with the specific session id,
      */
     public Session createSession(final String sessionId) {
         return SESSION_MAP.put(sessionId, new Session(sessionId));
     }
 
     /**
-     * Remove the session associates with the specified session id.
+     * Remove the session associates with the specific session id.
      *
      * @param sessionId session id
      * @return the session that been removed, or null if it didn't exist
@@ -101,11 +101,11 @@ public abstract class SessionStorage implements LoginStateCache {
     }
 
     /**
-     * Get the current session associated with the specified session id.<br />
+     * Get the current session associated with the specific session id.<br />
      *
      * @param sessionId session id
      * @param createIfAbsent weather create a new session if session absents
-     * @return the session associates with the specified session id,
+     * @return the session associates with the specific session id,
      *         can be null if {@code createIfAbsent} is false
      */
     public Session getSession(final String sessionId, final boolean createIfAbsent) {
@@ -117,11 +117,11 @@ public abstract class SessionStorage implements LoginStateCache {
     }
 
     /**
-     * Get the current session associated with the specified session id.<br />
-     * If no session find, create one, put it into the internal session map, then return it.
+     * Get the current session which associates with the specific session id.<br />
+     * If no session find, create one, put it into the internal session map, and return it.
      *
      * @param sessionId session id
-     * @return the session associates with the specified session id,
+     * @return the session associates with the specific session id,
      *         never be null
      */
     @Deprecated

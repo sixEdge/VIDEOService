@@ -33,7 +33,7 @@ public class DefaultDispatcher implements Dispatcher {
             List<Object> controllerList = ControllerScanner.scanControllers(this, CONTROLLER_PACKAGE);
             logger.info("{} controllers have been scanned.", controllerList.size());
 
-            // controller auto-inject
+            // auto-inject for controllers
             controllerList.forEach(c -> AutomaticInjector.autoInject(c, c.getClass()));
         } catch (Exception e) {
             throw new Error(e);
@@ -43,9 +43,9 @@ public class DefaultDispatcher implements Dispatcher {
     /**
      * Set action with corresponding path.
      *
-     * @param method   GET or POST
-     * @param path     the corresponding path maps to the action
-     * @param action   the action
+     * @param method   http method
+     * @param path     path that maps to the action
+     * @param action   action
      */
     public void setAction(final HttpMethod method, final String path, final Action action) {
         try {

@@ -24,13 +24,13 @@ public class ActionGenerator {
     private static final String actionClassPath = ConfigManager.getControllerConf()
             .getString("package").replace('.', '/');
 
-    private static final String objectName = Type.getInternalName(Object.class);
-    private static final Type   objectType = Type.getType(Object.class);
-    private static final String functionName = Type.getInternalName(Function.class);
+    private static final String objectName      = Type.getInternalName(Object.class);
+    private static final Type   objectType      = Type.getType(Object.class);
+    private static final String functionName    = Type.getInternalName(Function.class);
     private static final String applyMethodDesc = Type.getMethodDescriptor(Type.getType(Object.class), Type.getType(Object.class));
 
-    private static final String actionMethodName = "doAction";
     private static final Type   actionType = Type.getType(Action.class);
+    private static final String actionMethodName = "doAction";
     private static final Type   actionMethodType;
 
     private static int actionIdx = 0;
@@ -79,6 +79,7 @@ public class ActionGenerator {
         final Object[] bsmArgs =
                 new Object[] { actionMethodType, bsmHandle, actionMethodType };
 
+        // magic, don't touch
         GeneratorAdapter gam = visitMethod(
                 cw,
                 ACC_PUBLIC,

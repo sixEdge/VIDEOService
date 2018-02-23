@@ -7,7 +7,8 @@ import com.alibaba.fastjson.serializer.JSONSerializer;
 import java.lang.reflect.Type;
 
 /**
- * {"code" : code, "message" : "response message"}.
+ * {"code" : code, "message" : "response message"}<br />
+ * {"code" : code, "message" : "response message", "data" : data in json format}.
  */
 public class CodeMessage {
 

@@ -15,11 +15,10 @@ import java.util.Date;
 import java.util.List;
 
 import static com.gzf.video.core.http.request.HttpMethod.GET;
-import static com.gzf.video.util.StringUtil.isNullOrEmpty;
 import static com.gzf.video.util.StringUtil.stringToList;
 import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 
-@Controller("/article")
+@Controller("/aInfo")
 public class ArticleInfoController {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -46,6 +45,7 @@ public class ArticleInfoController {
     @Route
     public Response getArticleInfo(HttpExchange ex) {
         Request req = ex.request();
+
         int articleId;
         try {
             articleId = Integer.parseInt(req.getParameter(ARTICLE_ID_PARAM));
@@ -54,14 +54,14 @@ public class ArticleInfoController {
             return ex.failedResponse(BAD_REQUEST);
         }
 
-        articleService.doGetArticle(ex, articleId);
+        articleService.doGetArticleInfo(ex, articleId);
 
         return null;
     }
 
 
     /**
-     * Filter articles by request parameters.<br />
+     * Filter articles.<br />
      * 根据 {@code 文章名、作者 id 、作者名、文章类型、文章发布时间范围} 筛选文章。<br />
      * 从满足条件的文章中选取 [offset, offset + size] 区间的文章返回。
      */
@@ -74,7 +74,7 @@ public class ArticleInfoController {
 
         int offset; int size;
 
-        // temp variable
+        // temp variables
         String authorIdStr;
         String articleTypesStr;
         String releaseTimeFromStr, releaseTimeEndStr;
@@ -88,7 +88,7 @@ public class ArticleInfoController {
         releaseTimeEndStr  = req.getParameter(RELEASE_TIME_END_PARAM);
 
         try {
-            authorId     = isNullOrEmpty(authorIdStr) ? -1 : Integer.parseInt(authorIdStr);
+            authorId     = Integer.parseInt(authorIdStr);
             articleTypes = stringToList(articleTypesStr);
             releaseTimeFrom = DATE_FMT.parse(releaseTimeFromStr);
             releaseTimeEnd  = DATE_FMT.parse(releaseTimeEndStr);
@@ -99,14 +99,14 @@ public class ArticleInfoController {
             return ex.failedResponse(BAD_REQUEST);
         }
 
-        articleService.doFindArticlesByFilter( ex
-                                             , articleName
-                                             , authorId
-                                             , authorName
-                                             , articleTypes
-                                             , releaseTimeFrom
-                                             , releaseTimeEnd
-                                             , offset, size);
+        articleService.doFilterArticlesInfo( ex
+                                           , articleName
+                                           , authorId
+                                           , authorName
+                                           , articleTypes
+                                           , releaseTimeFrom
+                                           , releaseTimeEnd
+                                           , offset, size);
 
         return null;
     }

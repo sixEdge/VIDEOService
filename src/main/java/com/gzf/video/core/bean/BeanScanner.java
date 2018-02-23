@@ -28,7 +28,7 @@ public class BeanScanner extends ClassScanner {
             try {
                 beanScanner.scan(pkg);
             } catch (Throwable t) {
-                logger.error("scanBeans", t);
+                logger.error("BeanScanner#scanBeans", t);
                 System.exit(1);
             }
         });
@@ -51,7 +51,7 @@ public class BeanScanner extends ClassScanner {
                 | IllegalAccessException
                 | InstantiationException
                 | InvocationTargetException e) {
-            logger.error("BeanScanner", e);
+            logger.error("BeanScanner#process", e);
         }
     }
 }

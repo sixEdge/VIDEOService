@@ -73,7 +73,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReque
         }
 
         HttpMethod method = HttpMethod.convert(req.method());
-        if (method == UNSUPPORTED) {
+        if (UNSUPPORTED.equals(method)) {
             sendError(ctx, METHOD_NOT_ALLOWED);
             return;
         }

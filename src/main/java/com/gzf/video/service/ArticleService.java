@@ -7,6 +7,7 @@ import com.gzf.video.core.dao.mongo.MongoCallback;
 import com.gzf.video.core.http.HttpExchange;
 import com.gzf.video.dao.collections._Article;
 import com.gzf.video.pojo.entity.Article;
+import com.gzf.video.pojo.entity.ArticleInfo;
 import com.mongodb.async.SingleResultCallback;
 import org.bson.Document;
 import org.slf4j.Logger;
@@ -31,24 +32,38 @@ public class ArticleService {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowire
-    private _Article article;
+    private _Article _article;
 
 
-    public void doGetArticle(HttpExchange ex, int articleId) {
-        MongoCallback<Document> callback = result -> {
+    public void doReleaseArticle(HttpExchange ex, Article entity) {
+        SingleResultCallback<Void> callback = (result, t) -> {
+            if (t == null) {
+                ex.writeResponse(OK, successJson("发布成功", toJsonString(entity)));
+            } else {
+                logger.error("ArticleService#doReleaseArticle", t);
+                ex.writeResponse(OK, failedMsg("发布失败"));
+            }
+        };
+
+        _article._insertArticle(entity, callback);
+    }
+
+
+    public void doGetArticleInfo(HttpExchange ex, int articleId) {
+        MongoCallback<ArticleInfo> callback = result -> {
             if (result != null) {
-                ex.writeResponse(OK, successJson(EMPTY_STRING, result.toJson()));
+                ex.writeResponse(OK, successJson(EMPTY_STRING, toJsonString(result)));
             } else {
                 ex.writeResponse(OK, failedMsg("未找到文章"));
             }
         };
 
-        article._findArticle(articleId, callback);
+        _article._findArticleInfo(articleId, callback);
     }
 
 
     /**
-     * Filter articles by arguments.
+     * Filter articles.
      *
      * @param ex {@link HttpExchange}
      * @param articleName   article name
@@ -60,13 +75,13 @@ public class ArticleService {
      * @param offset    offset
      * @param size      size
      */
-    public void doFindArticlesByFilter(HttpExchange ex,
-                                       final String articleName,
-                                       final int authorId,
-                                       final String authorName,
-                                       final List<String> articleTypes,
-                                       Date releaseTimeFrom, Date releaseTimeEnd,
-                                       int offset, int size) {
+    public void doFilterArticlesInfo(HttpExchange ex,
+                                     final String articleName,
+                                     final int authorId,
+                                     final String authorName,
+                                     final List<String> articleTypes,
+                                     Date releaseTimeFrom, Date releaseTimeEnd,
+                                     int offset, int size) {
 
         Document filter = buildFilter( articleName
                                      , authorId
@@ -78,18 +93,18 @@ public class ArticleService {
         // max-return-article-number is 100
         size = size > 100 ? 100 : size;
 
-        List<Article> array = new ArrayList<>(size);
+        List<ArticleInfo> array = new ArrayList<>(size);
 
         SingleResultCallback<Void> callback = (result, t) -> {
             if (t == null) {
                 ex.writeResponse(OK, successJson("" + array.size(), toJsonString(array)));
             } else {
-                logger.error("findArticlesByFilter, filter: " + filter, t);
+                logger.error("ArticleService#findArticlesByFilter, filter: " + filter, t);
                 ex.writeResponse(INTERNAL_SERVER_ERROR);
             }
         };
 
-        article._findArticles1(filter)
+        _article._findArticlesInfo(filter)
                 .skip(offset).limit(size)
                 .forEach(array::add, callback);
     }

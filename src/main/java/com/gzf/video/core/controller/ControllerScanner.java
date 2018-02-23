@@ -51,7 +51,7 @@ public class ControllerScanner extends ClassScanner {
                 | InvocationTargetException
                 | InstantiationException
                 | NoSuchMethodException e) {
-            logger.error("ControllerScanner", e);
+            logger.error("ControllerScanner#process", e);
         }
     }
 
@@ -84,7 +84,7 @@ public class ControllerScanner extends ClassScanner {
 
             Action action = ActionGenerator.newAction(controllerClass, controllerObj, m);
 
-            // correspond action with request method and path
+            // correspond action with specific request method and path
             actionDispatcher.setAction( route.method(),
                                         RoutePathParser.parsePath(prefixUrl, route.url()),
                                         action);

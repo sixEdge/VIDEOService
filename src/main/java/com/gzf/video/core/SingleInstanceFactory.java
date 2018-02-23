@@ -12,6 +12,7 @@ public abstract class SingleInstanceFactory<K, V> {
 
     private final Map<K, V> mapper = new HashMap<>();
 
+
     public void put(final K key, final V bean) {
         mapper.put(key, bean);
     }
